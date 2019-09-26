@@ -31,6 +31,24 @@ let allServices = {
   getParmentList:function(){
     let _sql = `select * from paymentlist;`;
     return  allServices.query(_sql);
+  },
+  getOrderList:function(){
+    let _sql = `select * from orderList;`;
+    return allServices.query(_sql);
+  },
+  saveOrderList:function(tableData){
+      let _sql = `insert into orderList set 
+      id="${tableData.id}",
+      projectNum="${tableData.projectNum}",
+      custormName="${tableData.custormName}",
+      houseSouce="${tableData.houseSouce}",
+      paymentCode="${tableData.paymentCode}",
+      paymentDesc="${tableData.paymentDesc}";`;
+      return allServices.query(_sql);
+  },
+  deleteOrderList:function(id){
+    let _sql = `DELETE FROM orderList WHERE id=${id};`;
+    return allServices.query(_sql);
   }
 };
 

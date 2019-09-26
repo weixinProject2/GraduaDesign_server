@@ -35,4 +35,40 @@ router.post('/getPaymentList',async(ctx,next) =>{
     list:res
   }
 });
+router.get('/getOrderList',async(ctx,next) =>{
+  const res = await userService.getOrderList();
+  ctx.body = {
+    list:res
+  }
+});
+router.post('/createOrderList',async(ctx,next) =>{
+  const data = ctx.request.body.params;
+  console.log(data);
+  let flag = true;
+  for(var i=0;i<data.length;i++){
+  const res = await userService.saveOrderList(data[i]);
+  flag &= res.protocol41;
+  }
+  if(flag){
+    const res = await userService.getOrderList();
+    ctx.body = {
+      list:res
+    }
+  }
+});
+router.post('/deleteOrderList',async(ctx,next) =>{
+  const data = ctx.request.body.params;
+  console.log(data);
+  let flag = true;
+  for(var i=0;i<data.length;i++){
+    const res = await userService.deleteOrderList(data[i].id);
+    flag &= res.protocol41;
+  }
+  if(flag){
+    const res = await userService.getOrderList();
+    ctx.body = {
+      list:res
+    }
+  }
+});
 module.exports = router;
