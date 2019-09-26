@@ -28,10 +28,20 @@ let allServices = {
       })
     })
   },
-  getParmentList:function(){
-    let _sql = `select * from paymentlist;`;
+  savetableList:function (tableData) {
+    let _sql = `insert into paymentlist set 
+    projectNum="${tableData.projectNum}",
+    custormNames="${tableData.custormNames}",
+    houseSouce="${tableData.houseSouce}",
+    paymentCode="${tableData.paymentCode}",
+    paymentDesc="${tableData.paymentDesc}";`;
+    return  allServices.query(_sql);
+  },
+  deleteTableList:function (tableData) {
+    let _sql = `delete from paymentlist where id = "${tableData.id}"`;
     return  allServices.query(_sql);
   }
 };
+
 
 module.exports = allServices;
