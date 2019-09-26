@@ -8,10 +8,12 @@ router.get('/', async (ctx, next) => {
 });
 router.post('/getPaymentList',async(ctx,next) =>{
   const houseSouce = ctx.request.body.houseSouce;
-  const paymentMethod = ctx.request.body.paymentMethod;
+  const paymentCode = ctx.request.body.paymentCode;
+  const paymentDesc = ctx.request.body.paymentMethod;
   const data = {
     houseSouce,
-    paymentMethod,
+    paymentCode,
+    paymentDesc
   };
   const res = await userService.getParmentList(data);
   ctx.body = {
