@@ -6,33 +6,40 @@ router.get('/', async (ctx, next) => {
     title: 'Hello Koa 2!'
   })
 });
-// 用户登录接口
-router.post('/login', async (ctx, next) => {
-  const username = ctx.request.body.params.username || '';
-  const password = ctx.request.body.params.pass || '';
-  const user = {
-    username,
-    password,
+router.post('/getPaymentList',async(ctx,next) =>{
+  const houseSouce = ctx.request.body.houseSouce;
+  const paymentMethod = ctx.request.body.paymentMethod;
+  const data = {
+    houseSouce,
+    paymentMethod,
   };
-  const res = await userService.LoginfindUserData(user);
-  if(res.toString() === [].toString()){
-      ctx.body = {
-        title:'用户名或者密码不正确',
-        status:false
-      }
-  }else
-  {
+  const res = await userService.getParmentList(data);
+  ctx.body = {
+    list:res
+  };
+});
+router.post('/createTableList',async(ctx,next) =>{
+  const res = await userService.savetableList(ctx.request.body);
+  if(res.protocol41){
+    ctx.body ={
+      message:'新增数据成功'
+    }
+  } else {
     ctx.body = {
-      title :'登录成功',
-      status:true
+      message:'主键id不唯一，数据插入失败'
     }
   }
 });
-
-router.post('/getPaymentList',async(ctx,next) =>{
-  const res = await userService.getParmentList();
-  ctx.body = {
-    list:res
+router.post('/deleteTableList',async(ctx,next) =>{
+  const res = await userService.deleteTableList(ctx.request.body);
+  if(res.protocol41){
+    ctx.body ={
+      message:'删除数据成功'
+    }
+  } else {
+    ctx.body = {
+      message:'删除数据失败'
+    }
   }
 });
 module.exports = router;
