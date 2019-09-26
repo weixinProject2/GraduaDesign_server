@@ -41,6 +41,10 @@ let allServices = {
     let _sql = `delete from paymentlist where id = "${tableData.id}"`;
     return  allServices.query(_sql);
   },
+  getParmentList:function (tableData) {
+    let _sql = `select * from paymentlist`;
+    return allServices.query(_sql);
+  },
   getOrderList:function(){
     let _sql = `select * from orderList;`;
     return allServices.query(_sql);
