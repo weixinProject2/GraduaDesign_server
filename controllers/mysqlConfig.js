@@ -38,6 +38,7 @@ let allServices = {
     return  allServices.query(_sql);
   },
   deleteTableList:function (tableData) {
+    console.log(tableData);
     let _sql = `delete from paymentlist where id = "${tableData.id}"`;
     return  allServices.query(_sql);
   },
@@ -49,9 +50,9 @@ let allServices = {
       if(data[key]) {
         count ++;
         if (count === 1) {
-          sql = ` where ${key} = ${data[key]} `
+          sql = ` where ${key} = '${data[key]}' `
         } else {
-          sql = ` and where ${key} = ${data[key]} `
+          sql = ` and ${key} = '${data[key]}' `
         }
         _sql += sql ;
       }

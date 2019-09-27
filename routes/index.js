@@ -21,8 +21,15 @@ router.post('/getPaymentList',async(ctx,next) =>{
   };
 });
 router.post('/createTableList',async(ctx,next) =>{
-  const res = await userService.savetableList(ctx.request.body);
-  if(res.protocol41){
+  let ret = true;
+  let res = true;
+  const tableData = ctx.request.body;
+  let i;
+  for (i=0;i<tableData.length;i++){
+    res = await userService.savetableList(tableData[i]);
+    ret &= res.protocol41;
+  }
+  if(res){
     ctx.body ={
       message:'新增数据成功'
     }
@@ -33,8 +40,15 @@ router.post('/createTableList',async(ctx,next) =>{
   }
 });
 router.post('/deleteTableList',async(ctx,next) =>{
-  const res = await userService.deleteTableList(ctx.request.body);
-  if(res.protocol41){
+  let ret = true;
+  let res = true;
+  let i;
+  const tableData = ctx.request.body;
+  for (i=0;i<tableData.length;i++) {
+       res = await userService.deleteTableList(tableData[i]);
+       ret &= res.protocol41;
+  }
+  if(ret){
     ctx.body ={
       message:'删除数据成功'
     }
