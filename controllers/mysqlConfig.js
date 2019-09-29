@@ -28,6 +28,7 @@ let allServices = {
       })
     })
   },
+  // 获取表格数据
   savetableList:function (tableData) {
     let _sql = `insert into paymentlist set 
     projectNum="${tableData.projectNum}",
@@ -76,6 +77,18 @@ let allServices = {
   },
   deleteOrderList:function(id){
     let _sql = `DELETE FROM orderList WHERE id=${id};`;
+    return allServices.query(_sql);
+  },
+
+  // 集群列表
+  // 获取集群列表
+  clusteGetMenuItemList:function () {
+    let _sql = 'select * from clustermenulist';
+    return allServices.query(_sql);
+  },
+  // 获取集群节点数据
+  clusteGetMenuList:function () {
+    let _sql = 'select * from clustermenulist  right join clustermenuitemlist on clustermenulist.sub = clustermenuitemlist.sub';
     return allServices.query(_sql);
   }
 };
