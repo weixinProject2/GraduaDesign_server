@@ -9,7 +9,7 @@ const cors = require('koa-cors');
 
 const index = require('./routes/index');
 const users = require('./routes/users');
-
+const cluster = require('./routes/cluster');
 // error handler
 onerror(app);
 // cors
@@ -47,9 +47,9 @@ app.use(async (ctx, next) => {
 });
 
 // routes
-app.use(index.routes(), index.allowedMethods())
-app.use(users.routes(), users.allowedMethods())
-
+app.use(index.routes(), index.allowedMethods());
+app.use(users.routes(), users.allowedMethods());
+app.use(cluster.routes(), cluster.allowedMethods());
 // error-handling
 app.on('error', (err, ctx) => {
   console.error('server error', err, ctx)
