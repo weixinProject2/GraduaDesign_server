@@ -27,5 +27,18 @@ router.post('/getNodeList',  async(ctx, next) =>{
     data,
   }
 });
-
+//证书列表
+router.get('/getCertificateList',async(ctx,next) => {
+  const res = await  userService.certificateList();
+  ctx.body = {
+    list:res
+  };
+});
+//权限列表
+router.get('/permissionAllocationList',async(ctx,next) => {
+  const res = await  userService.permissionAllocationList();
+  ctx.body = {
+    list:res
+  };
+});
 module.exports = router;

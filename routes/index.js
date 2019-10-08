@@ -69,8 +69,8 @@ router.post('/createOrderList',async(ctx,next) =>{
   console.log(data);
   let flag = true;
   for(var i=0;i<data.length;i++){
-  const res = await userService.saveOrderList(data[i]);
-  flag &= res.protocol41;
+    const res = await userService.saveOrderList(data[i]);
+    flag &= res.protocol41;
   }
   if(flag){
     const res = await userService.getOrderList();
@@ -81,7 +81,6 @@ router.post('/createOrderList',async(ctx,next) =>{
 });
 router.post('/deleteOrderList',async(ctx,next) =>{
   const data = ctx.request.body.params;
-  console.log(data);
   let flag = true;
   for(var i=0;i<data.length;i++){
     const res = await userService.deleteOrderList(data[i].id);
@@ -94,4 +93,11 @@ router.post('/deleteOrderList',async(ctx,next) =>{
     }
   }
 });
+
+//请求用户信息
+router.post('/getUser',async(ctx,next)=>{
+  const {username,password} = ctx.request.body.values;
+  const res = await userService.userList(username,password);
+  ctx.body = res
+})
 module.exports = router;

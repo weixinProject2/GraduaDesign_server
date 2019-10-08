@@ -67,7 +67,6 @@ let allServices = {
   },
   saveOrderList:function(tableData){
       let _sql = `insert into orderList set 
-      id="${tableData.id}",
       projectNum="${tableData.projectNum}",
       custormName="${tableData.custormName}",
       houseSouce="${tableData.houseSouce}",
@@ -89,6 +88,21 @@ let allServices = {
   // 获取集群节点数据
   clusteGetMenuList:function () {
     let _sql = 'select * from clustermenulist  right join clustermenuitemlist on clustermenulist.sub = clustermenuitemlist.sub';
+    return allServices.query(_sql);
+  },
+  //获取证书列表
+  certificateList:function(){
+    let _sql = 'select * from certificateList';
+    return allServices.query(_sql);
+  },
+  //获取权限列表
+  permissionAllocationList:function(){
+    let _sql = 'select * from permissionallocationlist';
+    return allServices.query(_sql);
+  },
+  //获取用户信息
+  userList:function(userName,password){
+    let _sql = `select * from userlist where userName = '${userName}' and password = '${password}'`;
     return allServices.query(_sql);
   }
 };
