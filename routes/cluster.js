@@ -2,7 +2,7 @@ const router = require('koa-router')();
 const userService = require('../controllers/mysqlConfig');
 
 router.prefix('/cluster');
-
+// 获取所有集群和node列表
 router.post('/getNodeList',  async(ctx, next) =>{
   const res1 = await  userService.clusteGetMenuItemList();
   const res2 = await userService.clusteGetMenuList();
@@ -40,5 +40,14 @@ router.get('/permissionAllocationList',async(ctx,next) => {
   ctx.body = {
     list:res
   };
+},
+// 获取某个集群下的详细node内容
+router.post('/getNodeDetail',  async(ctx, next) =>{
+  const  clusterName = ctx.request.body.clusterName;
+  const res = await  userService.clusteGetMenuList(clusterName);
+  ctx.response.body = {
+    list:res,
+  }
+
 });
 module.exports = router;

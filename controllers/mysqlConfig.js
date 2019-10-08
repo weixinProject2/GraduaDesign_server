@@ -86,8 +86,15 @@ let allServices = {
     return allServices.query(_sql);
   },
   // 获取集群节点数据
-  clusteGetMenuList:function () {
-    let _sql = 'select * from clustermenulist  right join clustermenuitemlist on clustermenulist.sub = clustermenuitemlist.sub';
+  clusteGetMenuList:function ( clusterName = '') {
+    let _sql = '';
+    console.log(clusterName);
+    if (clusterName)
+    {
+        _sql = `select * from clustermenuitemlist where sub = '${clusterName}'`;
+    } else {
+       _sql = 'select * from clustermenulist  right join clustermenuitemlist on clustermenulist.sub = clustermenuitemlist.sub';
+    }
     return allServices.query(_sql);
   },
   //获取证书列表
