@@ -40,7 +40,7 @@ router.get('/permissionAllocationList',async(ctx,next) => {
   ctx.body = {
     list:res
   };
-},
+});
 // 获取某个集群下的详细node内容
 router.post('/getNodeDetail',  async(ctx, next) =>{
   const  clusterName = ctx.request.body.clusterName;
