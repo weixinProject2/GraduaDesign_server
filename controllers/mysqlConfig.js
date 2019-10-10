@@ -111,7 +111,17 @@ let allServices = {
   userList:function(userName,password){
     let _sql = `select * from userlist where userName = '${userName}' and password = '${password}'`;
     return allServices.query(_sql);
-  }
+  },
+  // 获取集权下的权限信息
+  clusterAllocationList:function (){
+    let _sql = `select * from clusterallocations`
+    return allServices.query(_sql);
+  },
+  // 根据nodeId删除某一个节点
+  clusterDeleteNode:function (id) {
+    let _sql = `delete from clustermenuitemlist where nodeId = '${id}'`;
+    return allServices.query(_sql);
+  },
 };
 
 

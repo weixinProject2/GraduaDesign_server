@@ -43,11 +43,24 @@ router.get('/permissionAllocationList',async(ctx,next) => {
 });
 // 获取某个集群下的详细node内容
 router.post('/getNodeDetail',  async(ctx, next) =>{
-  const  clusterName = ctx.request.body.clusterName;
+  const  clusterName = ctx.request.body.name;
   const res = await  userService.clusteGetMenuList(clusterName);
   ctx.response.body = {
     list:res,
   }
-
+});
+// 获取集权下的权限信息
+router.post('/getAllocationInfo', async(ctx,next) =>{
+  const res = await  userService.clusterAllocationList();
+  ctx.response.body = {
+    list:res,
+  }
+});
+router.post('/clusterDeleteNode',async(ctx,next) => {
+  const nodeId = ctx.request.body.nodeId;
+  const res= await  userService.clusterDeleteNode(nodeId);
+  ctx.response.body = {
+      message:'删除成功'
+  }
 });
 module.exports = router;
