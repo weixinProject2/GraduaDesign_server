@@ -122,6 +122,14 @@ let allServices = {
     let _sql = `delete from clustermenuitemlist where nodeId = '${id}'`;
     return allServices.query(_sql);
   },
+
+
+
+  // 获取云慕课课程
+  cloudMoocCourse:function () {
+    let _sql = 'select * from cloud_mooc_course';
+    return allServices.query(_sql);
+  }
 };
 
 

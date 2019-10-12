@@ -10,6 +10,7 @@ const cors = require('koa-cors');
 const index = require('./routes/index');
 const users = require('./routes/users');
 const cluster = require('./routes/cluster');
+const cloud = require('./routes/cloud');
 // error handler
 onerror(app);
 // cors
@@ -50,6 +51,7 @@ app.use(views(__dirname + '/views', {
 app.use(index.routes(), index.allowedMethods());
 app.use(users.routes(), users.allowedMethods());
 app.use(cluster.routes(), cluster.allowedMethods());
+app.use(cloud.routes(), cloud.allowedMethods());
 // error-handling
 app.on('error', (err, ctx) => {
   console.error('server error', err, ctx)
