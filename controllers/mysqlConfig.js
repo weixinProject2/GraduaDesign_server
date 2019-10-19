@@ -126,8 +126,13 @@ let allServices = {
 
 
   // 获取云慕课课程
-  cloudMoocCourse:function () {
-    let _sql = 'select * from cloud_mooc_course';
+  cloudMoocCourse:function (category) {
+    let _sql;
+    if (category) {
+       _sql = `select * from cloud_mooc_course where courseCategory = '${category}'`;
+    } else {
+       _sql = 'select * from cloud_mooc_course';
+    }
     return allServices.query(_sql);
   }
 };
