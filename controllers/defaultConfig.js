@@ -1,6 +1,6 @@
 const config = {
     database: {
-      DATABASE: 'react_database',
+      DATABASE: 'graduaDesign',
       USERNAME: 'root',
       PASSWORD: '123456',
       PORT: '3306',
