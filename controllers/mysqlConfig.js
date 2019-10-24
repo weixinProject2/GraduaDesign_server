@@ -29,6 +29,11 @@ let allServices = {
     })
   },
 
+  // 获取登录用户信息
+  getUerInfo:function (user) {
+    let _sql = `select username,permissions,workNumber,position,professional,departmentId from user_info where workNumber = '${user.workNumber}' and password = '${user.password}'`;
+    return allServices.query(_sql);
+  },
 };
 
 
