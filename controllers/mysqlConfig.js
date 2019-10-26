@@ -31,10 +31,17 @@ let allServices = {
 
   // 获取登录用户信息
   getUerInfo:function (user) {
-    let _sql = `select username,permissions,workNumber,position,professional,departmentId from user_info where workNumber = '${user.workNumber}' and password = '${user.password}'`;
+    let _sql = `select userName,permissions,workNumber,position,professional,departmentId from user_info where workNumber = '${user.workNumber}' and password = '${user.password}'`;
     return allServices.query(_sql);
   },
+  
+  // 根据登录用户信息返回侧边栏菜单
+  getSiderMenu:function (permission) {
+    let _sql = `select menuName,menuId,fatherMenuId from menu_info where menuPermissionId = '${permission}';`;
+    return allServices.query(_sql);
+  }
 };
+
 
 
 module.exports = allServices;
