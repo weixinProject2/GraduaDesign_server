@@ -11,7 +11,7 @@ router.get('/', async (ctx, next) => {
 });
 
 // 获取登录用户信息
-router.get('/getUserInfo',async (ctx,next) => {
+router.get('/login',async (ctx,next) => {
   const user = ctx.query;
   const userInfo = await userService.getUerInfo(user);
   if (userInfo.length === 0) {

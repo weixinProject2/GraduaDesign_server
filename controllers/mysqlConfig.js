@@ -31,10 +31,16 @@ let allServices = {
 
   // 获取登录用户信息
   getUerInfo:function (user) {
-    let _sql = `select userName,permissions,workNumber,position,professional,departmentId from user_info where workNumber = '${user.workNumber}' and password = '${user.password}'`;
+    let _sql = `select userName,permissions,workNumber,position,professional,departmentId from user_info where workNumber = ${user.workNumber} and password = ${user.password}`;
     return allServices.query(_sql);
   },
   
+  //修改用户信息
+  changeUserInfo:function (password, telNumber, email, address, workNumber) {
+    let _sql = `update user_info set password='${password}', telNumber='${telNumber}', email='${email}', address='${address}' where workNumber = '${workNumber}';`;
+    return allServices.query(_sql);
+  },
+
   // 根据登录用户信息返回侧边栏菜单
   getSiderMenu:function (permission) {
     let _sql = `select menuName,menuId,fatherMenuId from menu_info where menuPermissionId = '${permission}';`;
