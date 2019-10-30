@@ -34,7 +34,17 @@ let allServices = {
     let _sql = `select userName,permissions,workNumber,position,professional,departmentId from user_info where workNumber = ${user.workNumber} and password = ${user.password}`;
     return allServices.query(_sql);
   },
-  
+
+  // 查询用户信息
+  queryUserInfo:function(workNumber) {
+    let _sql = `select userName, workNumber,position,professional,departmentId,email,telNumber,sex,address from user_info where workNumber = ${workNumber}`
+    return allServices.query(_sql);
+  },
+  // 根据部门ID查询部门名称
+  queryDepartNameById:function(departmentId) {
+    let _sql = `select departmentName from department_info where departmentId = ${departmentId};`
+    return allServices.query(_sql);
+  },
   //修改用户信息
   changeUserInfo:function (password, telNumber, email, address, workNumber) {
     let _sql = `update user_info set password='${password}', telNumber='${telNumber}', email='${email}', address='${address}' where workNumber = '${workNumber}';`;
