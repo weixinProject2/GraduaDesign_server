@@ -37,7 +37,7 @@ let allServices = {
 
   // 查询用户信息
   queryUserInfo:function(workNumber) {
-    let _sql = `select userName, workNumber,position,professional,departmentId,email,telNumber,sex,address from user_info where workNumber = ${workNumber}`
+    let _sql = `select userName, workNumber,position,professional,departmentId,email,telNumber,sex,address from user_info where workNumber = ${workNumber};`
     return allServices.query(_sql);
   },
   // 根据部门ID查询部门名称
