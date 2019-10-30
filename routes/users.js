@@ -9,12 +9,19 @@ router.get('/getUserInfo', async (ctx,next) => {
   const workNumber = user.workNumber;
   const res = await userService.queryUserInfo(workNumber);
   const departmentId = res[0].departmentId;
-  const res_department = await userService.queryDepartNameById(departmentId);
-  const departmentName = res_department[0].departmentName;
-  res[0].departmentName = departmentName;
+  if (departmentId) {
+    const res_department = await userService.queryDepartNameById(departmentId);
+    const departmentName = res_department[0].departmentName;
+    res[0].departmentName = departmentName;
+      ctx.body = {
+        data: res,
+      }
+  } else {
     ctx.body = {
-      data: res,
+      data: res
     }
+  }
+  
 });
 
 // 修改用户信息
