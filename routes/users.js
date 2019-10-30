@@ -3,6 +3,36 @@ const userService = require('../controllers/mysqlConfig');
 const getToken = require('../token/getToken');
 
 router.prefix('/user');
+router.get('/getUserInfo', async (ctx,next) => {
+  const user = ctx.query;
+  const workNumber = user.workNumber;
+  let token = ctx.request.header.authorization;
+  if (token) {
+    let res = getToken(token);
+    if (res && res.exp <= new Date()/1000) {
+      ctx.status = 403;
+      ctx.body = {
+        msg: 'token已过期，请重新登录',
+        code: 0
+      }
+    } else {
+    const res = await userService.queryUserInfo(workNumber);
+    const departmentId = res[0].departmentId;
+    const res_department = await userService.queryDepartNameById(departmentId);
+    const departmentName = res_department[0].departmentName;
+    res[0].departmentName = departmentName;
+      ctx.body = {
+        data: res,
+      }
+    }
+  } else {
+    ctx.status = 401;
+    ctx.body = {
+      msg: '没有token',
+      code: 0,
+    }
+  }
+});
 // 修改用户信息
 router.post('/changeUserInfo',async (ctx,next) => {
     const userInfo = ctx.request.body;
