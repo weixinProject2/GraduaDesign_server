@@ -1,5 +1,9 @@
+
+// 员工操作相关API
+
 const router = require('koa-router')();
-const userService = require('../controllers/mysqlConfig');
+const allUserSql = require('../allSqlStatement/userSql');
+const departmentSql = require('../allSqlStatement/departmentSql');
 
 router.prefix('/user');
 
@@ -7,10 +11,10 @@ router.prefix('/user');
 router.get('/getUserInfo', async (ctx,next) => {
   const user = ctx.query;
   const workNumber = user.workNumber;
-  const res = await userService.queryUserInfo(workNumber);
+  const res = await allUserSql.queryUserInfo(workNumber);
   const departmentId = res[0].departmentId;
   if (departmentId) {
-    const res_department = await userService.queryDepartNameById(departmentId);
+    const res_department = await departmentSql.queryDepartNameById(departmentId);
     const departmentName = res_department[0].departmentName;
     res[0].departmentName = departmentName;
       ctx.body = {
@@ -30,8 +34,8 @@ router.post('/changeUserInfo',async (ctx,next) => {
     const telNumber = userInfo.telNumber;
     const email = userInfo.email;
     const address = userInfo.address;
-    const workNumber = res.workNumber;
-    const changeStatus = await userService.changeUserInfo(telNumber, email, address, workNumber);
+    const workNumber = userInfo.workNumber;
+    const changeStatus = await allUserSql.changeUserInfo(telNumber, email, address, workNumber);
     if (changeStatus.protocol41) {
         ctx.body = {
             message: '信息修改成功',
@@ -46,16 +50,17 @@ router.post('/changeUserInfo',async (ctx,next) => {
 // 修改用户密码
 router.post('/changePassword', async(ctx,next) => {
    const userInfo = ctx.request.body;
+   console.log(userInfo);
    const workNumber = userInfo.workNumber;
    const oldPassword = userInfo.oldPassword;
    const newPassword = userInfo.newPassword;
-    const res_oldPass = await userService.getPassByWorkNum(workNumber);
+    const res_oldPass = await allUserSql.getPassByWorkNum(workNumber);
     if (oldPassword !== res_oldPass[0].password) {
       ctx.body = {
         message : '旧密码错误'
       }
     } else {
-      const res = await userService.getPassByWorkNum(workNumber, newPassword);
+      const res = await allUserSql.getPassByWorkNum(workNumber, newPassword);
       if (res[0].protocol41) {
         ctx.body = {
           message: '密码修改成功',
