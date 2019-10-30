@@ -31,7 +31,7 @@ let allServices = {
 
   // 获取登录用户信息
   getUerInfo:function (user) {
-    let _sql = `select userName,permissions,workNumber,position,professional,departmentId from user_info where workNumber = ${user.workNumber} and password = ${user.password}`;
+    let _sql = `select userName,permissions,workNumber,position,professional,departmentId from user_info where workNumber = ${user.workNumber} and password = '${user.password}'`;
     return allServices.query(_sql);
   },
 
@@ -46,8 +46,18 @@ let allServices = {
     return allServices.query(_sql);
   },
   //修改用户信息
-  changeUserInfo:function (password, telNumber, email, address, workNumber) {
-    let _sql = `update user_info set password='${password}', telNumber='${telNumber}', email='${email}', address='${address}' where workNumber = '${workNumber}';`;
+  changeUserInfo:function (telNumber, email, address, workNumber) {
+    let _sql = `update user_info set telNumber='${telNumber}', email='${email}', address='${address}' where workNumber = '${workNumber}';`;
+    return allServices.query(_sql);
+  },
+  // 根部工号获取查询密码、修改密码
+  getPassByWorkNum:function(workNumber, newPassword = null){
+    let _sql;
+    if (newPassword) {
+      _sql = `update user_info set password = '${newPassword}' where workNumber = ${workNumber}`;
+    } else {
+      _sql = `select password from user_info where workNumber =${workNumber}`;
+    }
     return allServices.query(_sql);
   },
 

@@ -11,6 +11,8 @@ const cors = require('koa-cors');
 
 const index = require('./routes/index');
 const users = require('./routes/users');
+
+const getToken = require('./token/getToken');
 // error handler
 onerror(app);
 // cors
@@ -53,10 +55,31 @@ app.use(views(__dirname + '/views', {
 
 // logger
 app.use(async (ctx, next) => {
-  const start = new Date();
-  await next();
-  const ms = new Date() - start;
-  console.log(`${ctx.method} ${ctx.url} - ${ms}ms`)
+  let url = ctx.url;
+  url = url.split('?');
+  let token = ctx.request.header.authorization;
+  if (url[0] !== '/login') {
+    if (token) {
+      let res = getToken(token);
+      if (res && res.exp <= new Date()/1000) {
+        ctx.status = 403;
+        ctx.body = {
+          msg: 'token已过期，请重新登录',
+          code: 0
+        }
+      } else {
+        await next();
+      }
+    } else {
+      ctx.status = 401;
+      ctx.body = {
+        msg: '没有token',
+        code: 0,
+      }
+    }
+  } else {
+    await next();
+  }
 });
 
 app.use(async (ctx, next) => {
