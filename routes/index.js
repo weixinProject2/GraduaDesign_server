@@ -3,6 +3,8 @@ const moment = require('moment');
 
 const allUserSql = require('../allSqlStatement/userSql');
 const allOtherSql  = require('../allSqlStatement/otherSql');
+const professionalSql = require('../allSqlStatement/professionaSql');
+const departmentSql = require('../allSqlStatement/departmentSql');
 const addtoken = require('../token/index'); 
 const getToken = require('../token/getToken');
 
@@ -46,6 +48,41 @@ router.get('/getMenu',async (ctx,next) => {
   const temData = data.filter((item)=>!item.fatherMenuId);
   ctx.body = {
     menus: temData,
+  }
+});
+
+// 查询职业信息
+router.get('/getProfessional', async(ctx,next) => {
+  const info = ctx.query;
+  const professionalName = info.professionalName;
+  let list;
+  if (professionalName) {
+     list = await professionalSql.queryPrefossinalByNmae(professionalName);
+  } else {
+     list = await professionalSql.queryAllPrefossinal();
+  }
+  ctx.body = {
+    data: list,
+    code: 0,
+    total: list.length
+}
+});
+
+// 查询部门信息
+
+router.get('/getDepartment',async(ctx,next) => {
+  const info = ctx.query;
+  const departmentName = info.departmentName;
+  let list;
+  if (!departmentName) {
+    list = await departmentSql.queryAllDepartInfo();
+  } else {
+    list = await departmentSql.queryDepartmentByName(departmentName);
+  }
+  ctx.body = {
+    data : list,
+    code : 0,
+    total: list.length,
   }
 });
 

@@ -33,5 +33,41 @@ let  userSql = {
         }
         return allServices.query(_sql);
     },
+    // 查询表中最大的workNumber
+    getMaxWorkNumber:function(){
+        let _sql = 'select max(workNumber) from user_info';
+        return allServices.query(_sql);
+    },
+    // 插入一名新的员工
+    insetNewEmployee:function(user){
+        let _sql = `insert into user_info (
+            userName,
+            password,
+            sex,
+            email,
+            telNumber,
+            address,
+            permissions,
+            workNumber,
+            position,
+            professional,
+            departmentId,
+            entryTime
+        ) VALUES (
+            '${user.name}',
+            '${user.password}',
+            '${user.sex}',
+            '${user.email}',
+            ${user.telNumber},
+            '${user.address}',
+            ${user.permissions},
+            ${user.workNumber},
+            '${user.positionName}',
+            '${user.professionalName}',
+            ${user.departmentId},
+            '${user.createTime}'
+        );`;
+         return allServices.query(_sql);
+    },
 }
 module.exports = userSql;
