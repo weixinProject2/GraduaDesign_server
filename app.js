@@ -12,6 +12,7 @@ const cors = require('koa-cors');
 const index = require('./routes/index');
 const users = require('./routes/users');
 const department = require('./routes/department');
+const admin = require('./routes/admin');
 
 const getToken = require('./token/getToken');
 // error handler
@@ -99,6 +100,7 @@ app.use(async (ctx, next) => {
 app.use(index.routes(), index.allowedMethods());
 app.use(users.routes(), users.allowedMethods());
 app.use(department.routes(), department.allowedMethods());
+app.use(admin.routes(), admin.allowedMethods());
 // error-handling
 app.on('error', (err, ctx) => {
   console.error('server error', err, ctx)
