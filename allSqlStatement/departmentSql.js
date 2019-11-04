@@ -19,6 +19,16 @@ let departmentSql  = {
   queryDepartmentByName:function(departmentName){
     let _sql = `select departmentId,departmentName from department_info where departmentName like '%${departmentName}%';`;
     return allServices.query(_sql);
-  }
+  },
+  // 查询某个部门是否存在管理员
+  queryManagerDepart:function(departmentId) {
+    let _sql =  `select departmentMangerId from department_info where departmentId = ${departmentId};`;    
+    return allServices.query(_sql);
+  },
+  // 清空或者设置某个部门的管理员
+  emptySetManagerDepart:function(workNumber, departmentId){
+    let _sql = `update department_info set departmentMangerId = ${workNumber} where departmentId = ${departmentId};`;
+    return allServices.query(_sql);
+  },
 }
 module.exports = departmentSql;

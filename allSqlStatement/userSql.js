@@ -12,8 +12,23 @@ let  userSql = {
       },
 
     // 查询所有用户信息
-    queryAllUserInfo() {
-        let _sql = 'select userName,workNumber,permissions,position,professional,departmentId,email,telNumber,sex,address from user_info';
+    queryAllUserInfo(page, size) {
+        let _sql = `select 
+        userName,
+        workNumber,
+        permissions,
+        position,
+        professional,
+        departmentId,
+        email,telNumber,
+        sex,address,
+         entryTime 
+         from user_info 
+         where permissions != '0'
+         limit ${(page -1) * size} , ${size}
+         `
+         ;
+         console.log(_sql);
         return allServices.query(_sql);
     },
 
@@ -75,13 +90,22 @@ let  userSql = {
         );`;
          return allServices.query(_sql);
     },
+    // 统计员工人数
+    countAllStuff:function() {
+        let _sql = 'select count(*) from user_info';
+        return allServices.query(_sql);
+    },
     // 判断工号是否在数据库中
     queryworkNumberISExit:function(workNumber){
-        
+        let _sql = `select count(*) from user_info where workNumber = ${workNumber};`;
+        return allServices.query(_sql);
     },
     // 批量删除员工
-    deleteStuff:function (workNumber){
-        let _sql1 = `select count(*) from user_info where workNumber = ${workNumber};`;
-    }
+    deleteStuff:function (workNumbers){
+        let _sql = `delete from user_info where workNumber in ${workNumbers};`;
+        console.log(_sql);
+        return allServices.query(_sql);
+    },
+
 }   
 module.exports = userSql;
