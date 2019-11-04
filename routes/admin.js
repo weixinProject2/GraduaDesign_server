@@ -74,6 +74,19 @@ router.get('/getAllStaffInfo', async(ctx,body) => {
         res[i].departmentName = null;
     }
    }
+   ctx.body = {
+       list: res.slice(1),
+   }
+});
+
+router.post('/deleteStaffInfo', async(ctx,body) => {
+    const ret =  ctx.request.body;
+    const workNumbers = JSON.parse(ret.ids);
+    // for (let i=0;i<workNumbers.length;i++) {
+
+    // }
+    const res =await allUserSql.deleteStuff(workNumbers[0]);
+    console.log(res);
 });
 
 

@@ -13,7 +13,7 @@ let  userSql = {
 
     // 查询所有用户信息
     queryAllUserInfo() {
-        let _sql = 'select userName,workNumber,position,professional,departmentId,email,telNumber,sex,address from user_info';
+        let _sql = 'select userName,workNumber,permissions,position,professional,departmentId,email,telNumber,sex,address from user_info';
         return allServices.query(_sql);
     },
 
@@ -75,5 +75,13 @@ let  userSql = {
         );`;
          return allServices.query(_sql);
     },
-}
+    // 判断工号是否在数据库中
+    queryworkNumberISExit:function(workNumber){
+        
+    },
+    // 批量删除员工
+    deleteStuff:function (workNumber){
+        let _sql1 = `select count(*) from user_info where workNumber = ${workNumber};`;
+    }
+}   
 module.exports = userSql;
