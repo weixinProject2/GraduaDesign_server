@@ -9,7 +9,7 @@ const professionalSql = require('../allSqlStatement/professionaSql');
 const departmentSql = require('../allSqlStatement/departmentSql');
 
 router.prefix('/admin');
-
+// 创建一名员工
 router.post('/createEmployee',async(ctx,next) => {
     const userInfo = ctx.request.body;
     const name = userInfo.name;
@@ -61,9 +61,14 @@ router.post('/createEmployee',async(ctx,next) => {
         }
     }
 });
-
-router.get('/getAllStaffInfo', async(ctx,body) => {
-    const res = await allUserSql.queryAllUserInfo();
+// 获取所有员工信息
+router.get('/getAllStaffInfo', async(ctx,next) => {
+    const params = ctx.query;
+    const page = params.page || 1;
+    const size = params.size || 10;
+    const res = await allUserSql.queryAllUserInfo(page, size);
+    const res_total = await allUserSql.countAllStuff();
+    const total = res_total[0]['count(*)'];
    for (let i=0;i<res.length;i++){
     const departmentId = res[i].departmentId;
     if (departmentId) {
@@ -75,20 +80,61 @@ router.get('/getAllStaffInfo', async(ctx,body) => {
     }
    }
    ctx.body = {
-       list: res.slice(1),
+       list: res,
+       page: Number(page),
+       size: Number(size),
+       total,
    }
 });
-
-router.post('/deleteStaffInfo', async(ctx,body) => {
+// 批量删除员工
+router.post('/deleteStaffInfo', async(ctx,next) => {
     const ret =  ctx.request.body;
-    const workNumbers = JSON.parse(ret.ids);
-    // for (let i=0;i<workNumbers.length;i++) {
-
-    // }
-    const res =await allUserSql.deleteStuff(workNumbers[0]);
-    console.log(res);
+    let workNumbers = ret.ids;
+    workNumbers = workNumbers.replace('[', '(');
+    workNumbers = workNumbers.replace(']', ')');
+    const res = await allUserSql.deleteStuff(workNumbers);
+    if (res.protocol41) {
+        ctx.body = {
+            message: '删除成功',
+            error: 0,
+        }
+    } else {
+        ctx.body = {
+            message: '删除失败',
+            error: 1,
+        }
+    }
 });
-
-
+// 设置或者清空某个部门下的管理员
+router.post('/setManagerDepart', async(ctx,next) => {
+    const params = ctx.request.body;
+    const workNumber = params.workNumber || null;
+    const departmentId = params.departmentId;
+    const res_isExitManager = await departmentSql.queryManagerDepart(departmentId);
+    let res_isSet = null;
+    const res_departmentName = await departmentSql.queryDepartNameById(departmentId);
+    const departmentName = res_departmentName[0].departmentName;
+    if (!res_isExitManager[0].departmentMangerId || res_isExitManager[0].departmentMangerId == workNumber) {
+        if (res_isExitManager[0].departmentMangerId == workNumber) {
+             res_isSet = await departmentSql.emptySetManagerDepart(null, departmentId);
+             ctx.body = {
+                 message: `重置${departmentName}管理员成功`,
+                 error: 0,
+             }
+        } else {
+            res_isSet = await departmentSql.emptySetManagerDepart(workNumber, departmentId);
+            ctx.body = {
+                message: `设置${departmentName}管理员成功`,
+                error: 0,
+            }
+        }
+        console.log(res_isSet);
+    } else {
+        ctx.body = {
+            message: `${departmentName}已存在管理员，不可重新设置管理员`,
+            error: 1,
+        }
+    }
+});
 
 module.exports = router;
