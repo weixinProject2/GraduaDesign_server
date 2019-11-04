@@ -6,6 +6,7 @@ const moment = require('moment');
 const allUserSql = require('../allSqlStatement/userSql');
 const positionSql = require('../allSqlStatement/positionSql');
 const professionalSql = require('../allSqlStatement/professionaSql');
+const departmentSql = require('../allSqlStatement/departmentSql');
 
 router.prefix('/admin');
 
@@ -59,6 +60,20 @@ router.post('/createEmployee',async(ctx,next) => {
             error: -1,
         }
     }
+});
+
+router.get('/getAllStaffInfo', async(ctx,body) => {
+    const res = await allUserSql.queryAllUserInfo();
+   for (let i=0;i<res.length;i++){
+    const departmentId = res[i].departmentId;
+    if (departmentId) {
+        const res_department = await departmentSql.queryDepartNameById(departmentId);
+        const departmentName = res_department[0].departmentName;
+        res[i].departmentName = departmentName;
+    } else {
+        res[i].departmentName = null;
+    }
+   }
 });
 
 
