@@ -64,27 +64,59 @@ router.post('/createEmployee',async(ctx,next) => {
 // 获取所有员工信息
 router.get('/getAllStaffInfo', async(ctx,next) => {
     const params = ctx.query;
+    const initValue = {
+        "userName": null,
+        "workNumber": null,
+        "positionId": null,
+        "departmentId": null,
+        "professionalId": null
+    };
+    let queryFiled = params.queryFiled;
+    if (queryFiled) {
+        queryFiled = JSON.parse(queryFiled);
+    } else {
+        queryFiled = initValue;
+    }
+    const positionId = queryFiled.positionId;
+    const professionalId = queryFiled.professionalId;
+
+    if (positionId) {
+        const res_postion = await positionSql.queryPositionNameById(positionId);
+        const postionName = res_postion[0].positionName;
+        delete queryFiled.positionId;
+        queryFiled.position = postionName;
+    }
+    if (professionalId) {
+        const res_professional = await professionalSql.queryPrefossinalById(professionalId);
+        const professionalName = res_professional[0].professionalName;
+        delete queryFiled.professionalId;
+        queryFiled.professional = professionalName;
+    }
     const page = params.page || 1;
     const size = params.size || 10;
-    const res = await allUserSql.queryAllUserInfo(page, size);
-    const res_total = await allUserSql.countAllStuff();
+    const res = await allUserSql.queryAllUserInfo(page, size, queryFiled);
+    const res_total = await allUserSql.countAllStuff(queryFiled);
     const total = res_total[0]['count(*)'];
-   for (let i=0;i<res.length;i++){
-    const departmentId = res[i].departmentId;
-    if (departmentId) {
-        const res_department = await departmentSql.queryDepartNameById(departmentId);
-        const departmentName = res_department[0].departmentName;
-        res[i].departmentName = departmentName;
-    } else {
-        res[i].departmentName = null;
+    for (let i=0;i<res.length;i++){
+        const departmentId = res[i].departmentId;
+        let entryTime = res[i].entryTime;
+        entryTime = moment(entryTime).format('YYYY年MM月DD日');
+        if (departmentId) {
+            const res_department = await departmentSql.queryDepartNameById(departmentId);
+            const departmentName = res_department[0].departmentName;
+            res[i].departmentName = departmentName;
+        } else {
+            res[i].departmentName = null;
+        }
+        res[i].entryTime = entryTime;
     }
-   }
-   ctx.body = {
-       list: res,
-       page: Number(page),
-       size: Number(size),
-       total,
-   }
+    ctx.body = {
+        list: res,
+        page: Number(page),
+        size: Number(size),
+        totalPage: Math.ceil(total/Number(size)),
+        total,
+    }
 });
 // 批量删除员工
 router.post('/deleteStaffInfo', async(ctx,next) => {

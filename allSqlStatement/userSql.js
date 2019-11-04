@@ -1,5 +1,4 @@
 // 跟用户操作有关的sql语句
-
 const allServices = require('./index');
 
 // 获取登录用户信息
@@ -12,7 +11,7 @@ let  userSql = {
       },
 
     // 查询所有用户信息
-    queryAllUserInfo(page, size) {
+    queryAllUserInfo(page, size, queryFiled) {
         let _sql = `select 
         userName,
         workNumber,
@@ -25,10 +24,21 @@ let  userSql = {
          entryTime 
          from user_info 
          where permissions != '0'
-         limit ${(page -1) * size} , ${size}
          `
          ;
-         console.log(_sql);
+         let _sql3 = `limit ${(page -1) * size} , ${size};`;
+         let _sql2 = '';
+         for (let key in queryFiled) {
+             if (queryFiled[key]) {
+                 if (key === 'userName') {
+                    _sql2 = ` and ${key} like '%${queryFiled[key]}%' ` 
+                 } else {
+                    _sql2 = ` and ${key} = '${queryFiled[key]}' `;
+                 }
+                 _sql += _sql2;
+             }
+         }
+         _sql += _sql3;
         return allServices.query(_sql);
     },
 
@@ -90,9 +100,21 @@ let  userSql = {
         );`;
          return allServices.query(_sql);
     },
-    // 统计员工人数
-    countAllStuff:function() {
-        let _sql = 'select count(*) from user_info';
+    // 统计满足条件的员工人数
+    countAllStuff:function(queryFiled) {
+        let _sql = `select count(*) from user_info
+        where permissions != '0'`;
+        let _sql2 = '';
+        for (let key in queryFiled) {
+            if (queryFiled[key]) {
+                if (key === 'userName') {
+                   _sql2 = ` and ${key} like '%${queryFiled[key]}%' ` 
+                } else {
+                   _sql2 = ` and ${key} = '${queryFiled[key]}' `;
+                }
+                _sql += _sql2;
+            }
+        }
         return allServices.query(_sql);
     },
     // 判断工号是否在数据库中
