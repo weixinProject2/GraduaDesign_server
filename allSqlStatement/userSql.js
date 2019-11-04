@@ -10,7 +10,13 @@ let  userSql = {
         let _sql = `select userName,permissions,workNumber,position,professional,departmentId from user_info where workNumber = ${user.workNumber} and password = '${user.password}'`;
         return allServices.query(_sql);
       },
-    
+
+    // 查询所有用户信息
+    queryAllUserInfo() {
+        let _sql = 'select userName,workNumber,position,professional,departmentId,email,telNumber,sex,address from user_info';
+        return allServices.query(_sql);
+    },
+
     // 查询用户信息
     queryUserInfo:function(workNumber) {
         let _sql = `select userName, workNumber,position,professional,departmentId,email,telNumber,sex,address from user_info where workNumber = ${workNumber};`
