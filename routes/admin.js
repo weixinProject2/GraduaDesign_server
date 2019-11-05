@@ -7,12 +7,13 @@ const allUserSql = require('../allSqlStatement/userSql');
 const positionSql = require('../allSqlStatement/positionSql');
 const professionalSql = require('../allSqlStatement/professionaSql');
 const departmentSql = require('../allSqlStatement/departmentSql');
+const until = require('../until/getStuffInfo');
 
 router.prefix('/admin');
 // 创建一名员工
 router.post('/createEmployee',async(ctx,next) => {
     const userInfo = ctx.request.body;
-    const name = userInfo.name;
+    const userName = userInfo.userName;
     const sex = userInfo.sex;
     const telNumber = userInfo.telNumber;
     const email = userInfo.email;
@@ -20,6 +21,7 @@ router.post('/createEmployee',async(ctx,next) => {
     const departmentId = userInfo.departmentId;
     const professionalId = userInfo.professionalId;
     const positionId = userInfo.positionId;
+    const Id_Card = userInfo.Id_Card;
     let createTime = new Date();
     createTime = moment(createTime).format('YYYY-MM-DD HH:mm:ss');
     const position = await positionSql.queryPositionNameById(positionId);
@@ -35,7 +37,7 @@ router.post('/createEmployee',async(ctx,next) => {
     const password = '000000';
 
     const user = {
-        name,
+        userName,
         sex,
         telNumber,
         email,
@@ -46,6 +48,7 @@ router.post('/createEmployee',async(ctx,next) => {
         permissions,
         workNumber,
         password,
+        Id_Card,
         createTime,
     }
     const res = await allUserSql.insetNewEmployee(user);
@@ -122,20 +125,29 @@ router.get('/getAllStaffInfo', async(ctx,next) => {
 router.post('/deleteStaffInfo', async(ctx,next) => {
     const ret =  ctx.request.body;
     let workNumbers = ret.ids;
+    let res;
     workNumbers = workNumbers.replace('[', '(');
     workNumbers = workNumbers.replace(']', ')');
-    const res = await allUserSql.deleteStuff(workNumbers);
-    if (res.protocol41) {
-        ctx.body = {
-            message: '删除成功',
-            error: 0,
+    try {
+         res = await allUserSql.deleteStuff(workNumbers);
+         if (res.protocol41) {
+            ctx.body = {
+                message: '删除成功',
+                error: 0,
+            }
+        } else {
+            ctx.body = {
+                message: '删除失败',
+                error: 1,
+            }
         }
-    } else {
+    } catch (e) {
         ctx.body = {
-            message: '删除失败',
+            message : '此人为部门管理员，无法删除',
             error: 1,
         }
     }
+
 });
 // 设置或者清空某个部门下的管理员
 router.post('/setManagerDepart', async(ctx,next) => {
@@ -169,4 +181,63 @@ router.post('/setManagerDepart', async(ctx,next) => {
     }
 });
 
+// 随机创建一名员工
+router.post('/randomCreateStuff',async (ctx,next) => {
+    const userName = until.getName();
+    const sex = until.getSex();
+    const email = until.getEmail();
+    const telNumber = until.getMoble();
+    const address = until.getAddress();
+    const professionalId = until.getProfessionalId();
+    const positionId = until.getPositionID();
+    const departmentId = until.getDepartmentId();
+    const Id_Card = until.getId_no();
+
+    let createTime = new Date();
+    createTime = moment(createTime).format('YYYY-MM-DD HH:mm:ss');
+    const position = await positionSql.queryPositionNameById(Number(positionId));
+    const positionName = position[0].positionName;
+    const professional = await professionalSql.queryPrefossinalById(Number(professionalId));
+    const professionalName = professional[0].professionalName;
+    const permissions = 2;
+
+    const number = await allUserSql.getMaxWorkNumber();
+    const maxWorkNumber = number[0]['max(workNumber)'];
+    const workNumber = maxWorkNumber + 1;
+
+    const password = '000000';
+
+    const user = {
+        userName,
+        sex,
+        email,
+        telNumber,
+        address,
+        positionName,
+        professionalName,
+        permissions,
+        workNumber,
+        password,
+        departmentId: Number(departmentId),
+        Id_Card,
+        createTime,
+    }
+    try {
+        const res = await allUserSql.insetNewEmployee(user);
+        if (res.protocol41) {
+            ctx.body = {
+                message: '员工新增成功',
+                error: 0,
+            }
+        } else {
+            ctx.body = {
+                message : '新增员工失败',
+                error: -1,
+            }
+        }
+    }catch(e) {
+        console.log(e);
+    }
+ 
+});
 module.exports = router;

@@ -21,6 +21,7 @@ let  userSql = {
         departmentId,
         email,telNumber,
         sex,address,
+        Id_Card,
          entryTime 
          from user_info 
          where permissions != '0'
@@ -44,13 +45,12 @@ let  userSql = {
 
     // 查询用户信息
     queryUserInfo:function(workNumber) {
-        let _sql = `select userName, workNumber,position,professional,departmentId,email,telNumber,sex,address from user_info where workNumber = ${workNumber};`
+        let _sql = `select userName, workNumber,position,professional,departmentId,email,telNumber,sex,address,Id_Card from user_info where workNumber = ${workNumber};`
         return allServices.query(_sql);
     }, 
 
     //修改用户信息
     changeUserInfo:function (telNumber, email, address, workNumber) {
-        console.log(workNumber);
         let _sql = `update user_info set telNumber='${telNumber}', email='${email}', address='${address}' where workNumber = '${workNumber}';`;
          return allServices.query(_sql);
     },
@@ -83,9 +83,10 @@ let  userSql = {
             position,
             professional,
             departmentId,
-            entryTime
+            entryTime,
+            Id_Card
         ) VALUES (
-            '${user.name}',
+            '${user.userName}',
             '${user.password}',
             '${user.sex}',
             '${user.email}',
@@ -96,8 +97,10 @@ let  userSql = {
             '${user.positionName}',
             '${user.professionalName}',
             ${user.departmentId},
-            '${user.createTime}'
+            '${user.createTime}',
+            '${user.Id_Card}'
         );`;
+        console.log(_sql);
          return allServices.query(_sql);
     },
     // 统计满足条件的员工人数
@@ -125,7 +128,6 @@ let  userSql = {
     // 批量删除员工
     deleteStuff:function (workNumbers){
         let _sql = `delete from user_info where workNumber in ${workNumbers};`;
-        console.log(_sql);
         return allServices.query(_sql);
     },
 
