@@ -3,6 +3,7 @@ const moment = require('moment');
 
 const allUserSql = require('../allSqlStatement/userSql');
 const allOtherSql  = require('../allSqlStatement/otherSql');
+const positionSql = require('../allSqlStatement/positionSql');
 const professionalSql = require('../allSqlStatement/professionaSql');
 const departmentSql = require('../allSqlStatement/departmentSql');
 const addtoken = require('../token/index'); 
@@ -50,7 +51,22 @@ router.get('/getMenu',async (ctx,next) => {
     menus: temData,
   }
 });
-
+// 查询职位信息
+router.get('/getPosition', async(ctx,next) => {
+  const info = ctx.query;
+  const professionalName = info.professionalName;
+  let list;
+  if (professionalName) {
+    list = await positionSql.queryAllPositionInfo();
+  } else {
+    list = await positionSql.queryPositionByName(professionalName);
+  }
+  ctx.body = {
+    data: list,
+    code: 0,
+    total: list.length
+}
+});
 // 查询职业信息
 router.get('/getProfessional', async(ctx,next) => {
   const info = ctx.query;
