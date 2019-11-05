@@ -56,11 +56,12 @@ router.get('/getPosition', async(ctx,next) => {
   const info = ctx.query;
   const professionalName = info.professionalName;
   let list;
-  if (professionalName) {
+  if (!professionalName) {
     list = await positionSql.queryAllPositionInfo();
   } else {
     list = await positionSql.queryPositionByName(professionalName);
   }
+  console.log(list)
   ctx.body = {
     data: list,
     code: 0,
