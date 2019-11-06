@@ -1,4 +1,6 @@
 const router = require('koa-router')();
+var fs=require("fs");
+const path = require('path');
 const moment = require('moment');
 
 const allUserSql = require('../allSqlStatement/userSql');
@@ -108,4 +110,57 @@ router.post('/createEmploye',async (ctx,next) => {
       const userInfo = ctx.request.body;
       
 });
+
+
+router.post("/upload", async (ctx)=>{
+
+  const uploadUrl="http://hocalhost:3000/public/upload";
+  const file=ctx.request.files.file;
+  const reader=fs.createReadStream(file.path);
+  let filePath = path.join(__dirname, '/public/upload/');
+  
+  let fileResource=filePath+`/${file.name}`;
+  if(!fs.existsSync(filePath)){  //判断staic/upload文件夹是否存在，如果不存在就新建一个
+  
+  fs.mkdir(filePath,(err)=>{
+  
+  if(err){
+  
+  throw new Error(err)
+  
+  }else{
+  
+  let upstream=fs.createWriteStream(fileResource);
+  
+  reader.pipe(upstream);
+  
+  ctx.response.body={
+  
+  url:uploadUrl+`/${file.name}`
+  
+  }
+  
+  }
+  
+  })
+  
+  }else{
+  
+  let upstream=fs.createWriteStream(fileResource)
+  
+  reader.pipe(upstream);
+  
+  ctx.response.body={
+  
+        url:uploadUrl+`/${file.name}` //返给前端一个url地址
+  
+  }
+  
+  }
+  
+  })
+
+
+
+
 module.exports = router;
