@@ -111,56 +111,35 @@ router.post('/createEmploye',async (ctx,next) => {
       
 });
 
+// 管理员修改员工信息
+router.post('/createEmploy', async(ctx,next) => {
+  
+});
 
 router.post("/upload", async (ctx)=>{
-
   const uploadUrl="http://hocalhost:3000/public/upload";
   const file=ctx.request.files.file;
   const reader=fs.createReadStream(file.path);
-  let filePath = path.join(__dirname, '/public/upload/');
-  
+  let filePath = path.join('122.51.41.28/static/media');
   let fileResource=filePath+`/${file.name}`;
-  if(!fs.existsSync(filePath)){  //判断staic/upload文件夹是否存在，如果不存在就新建一个
-  
-  fs.mkdir(filePath,(err)=>{
-  
-  if(err){
-  
-  throw new Error(err)
-  
+  if(!fs.existsSync(filePath)){ 
+    fs.mkdir(filePath,(err)=>{
+      if(err){
+        throw new Error(err)
+      }else{
+        let upstream=fs.createWriteStream(fileResource);
+        reader.pipe(upstream);
+        ctx.response.body={
+          url:uploadUrl+`/${file.name}`
+        }
+      }
+    })
   }else{
-  
-  let upstream=fs.createWriteStream(fileResource);
-  
-  reader.pipe(upstream);
-  
-  ctx.response.body={
-  
-  url:uploadUrl+`/${file.name}`
-  
+    let upstream=fs.createWriteStream(fileResource)
+    reader.pipe(upstream);
+    ctx.response.body={
+       url:uploadUrl+`/${file.name}` //返给前端一个url地址
+    }
   }
-  
-  }
-  
-  })
-  
-  }else{
-  
-  let upstream=fs.createWriteStream(fileResource)
-  
-  reader.pipe(upstream);
-  
-  ctx.response.body={
-  
-        url:uploadUrl+`/${file.name}` //返给前端一个url地址
-  
-  }
-  
-  }
-  
-  })
-
-
-
-
+})
 module.exports = router;

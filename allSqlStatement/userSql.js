@@ -100,7 +100,6 @@ let  userSql = {
             '${user.createTime}',
             '${user.Id_Card}'
         );`;
-        console.log(_sql);
          return allServices.query(_sql);
     },
     // 统计满足条件的员工人数
