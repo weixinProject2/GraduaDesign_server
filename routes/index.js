@@ -120,7 +120,7 @@ router.post("/upload", async (ctx)=>{
   const uploadUrl="http://hocalhost:3000/public/upload";
   const file=ctx.request.files.file;
   const reader=fs.createReadStream(file.path);
-  let filePath = path.join('122.51.41.28/static/media');
+  let filePath = path.join(__dirname + '/upload');
   let fileResource=filePath+`/${file.name}`;
   if(!fs.existsSync(filePath)){ 
     fs.mkdir(filePath,(err)=>{

@@ -3,8 +3,8 @@ const app = new Koa();
 const json = require('koa-json');
 const onerror = require('koa-onerror');
 const session = require('koa-session');
-const bodyparser = require('koa-bodyparser');
-const koaBody = require('koa-body');
+// const bodyparser = require('koa-bodyparser');
+const bodyparser = require('koa-body');
 const logger = require('koa-logger');
 const cors = require('koa-cors');
 
@@ -33,7 +33,12 @@ app.use(cors({
 }));
 // middlewares
 app.use(bodyparser({
-  enableTypes:['json', 'form', 'text']
+  enableTypes:['json', 'form', 'text'],
+  multipart:true,
+  formidable:{
+    maxFieldsSize:10*1024*1024,
+    multipart:true
+  }
 }))
 app.use(json());
 app.use(logger());
@@ -50,48 +55,48 @@ const CONFIG = {
 }
 app.use(session(CONFIG, app));
 
-app.use(koaBody({
+// app.use(koaBody({
 
-  multipart:true,
+//   multipart:true,
   
-  formidable:{
+//   formidable:{
   
-      maxFieldsSize:10*1024*1024,
+//       maxFieldsSize:10*1024*1024,
   
-      multipart:true
+//       multipart:true
   
-  }
+//   }
   
-  }))
+//   }))
 
-logger
-app.use(async (ctx, next) => {
-  let url = ctx.url;
-  url = url.split('?');
-  let token = ctx.request.header.authorization;
-  if (url[0] !== '/login') {
-    if (token) {
-      let res = getToken(token);
-      if (res && res.exp <= new Date()/1000) {
-        ctx.status = 403;
-        ctx.body = {
-          msg: 'token已过期，请重新登录',
-          code: 0
-        }
-      } else {
-        await next();
-      }
-    } else {
-      ctx.status = 401;
-      ctx.body = {
-        msg: '没有token',
-        code: 0,
-      }
-    }
-  } else {
-    await next();
-  }
-});
+// logger
+// app.use(async (ctx, next) => {
+//   let url = ctx.url;
+//   url = url.split('?');
+//   let token = ctx.request.header.authorization;
+//   if (url[0] !== '/login') {
+//     if (token) {
+//       let res = getToken(token);
+//       if (res && res.exp <= new Date()/1000) {
+//         ctx.status = 403;
+//         ctx.body = {
+//           msg: 'token已过期，请重新登录',
+//           code: 0
+//         }
+//       } else {
+//         await next();
+//       }
+//     } else {
+//       ctx.status = 401;
+//       ctx.body = {
+//         msg: '没有token',
+//         code: 0,
+//       }
+//     }
+//   } else {
+//     await next();
+//   }
+// });
 
 
 // routes
