@@ -117,11 +117,13 @@ router.post('/createEmploy', async(ctx,next) => {
 });
 
 router.post("/upload", async (ctx)=>{
-  const uploadUrl="http://hocalhost:3000/public/upload";
+  const uploadUrl="http://106.54.206.102/static";
   const file=ctx.request.files.file;
+  const uploadFilePath = file.path.split('\\');
+  const fileKey = uploadFilePath[uploadFilePath.length - 1];
   const reader=fs.createReadStream(file.path);
-  let filePath = path.join(__dirname+'/upload');
-  let fileResource=filePath+`/${file.name}`;
+  let filePath = path.join('/root/static');
+  let fileResource=filePath+`/${fileKey}${file.name}`;
   if(!fs.existsSync(filePath)){ 
     fs.mkdir(filePath,(err)=>{
       if(err){
@@ -130,7 +132,7 @@ router.post("/upload", async (ctx)=>{
         let upstream=fs.createWriteStream(fileResource);
         reader.pipe(upstream);
         ctx.response.body={
-          url:uploadUrl+`/${file.name}`
+          url:uploadUrl+`/${fileKey}${file.name}`
         }
       }
     })
@@ -138,7 +140,7 @@ router.post("/upload", async (ctx)=>{
     let upstream=fs.createWriteStream(fileResource)
     reader.pipe(upstream);
     ctx.response.body={
-       url:uploadUrl+`/${file.name}` //返给前端一个url地址
+       url:uploadUrl+`/${fileKey}${file.name}` //返给前端一个url地址
     }
   }
 })
