@@ -1,4 +1,0 @@
-rm -rf app.js bin/ controllers/ package.json  package-lock.json  public/ routes/ token/ views/ allSqlStatement/
-git clone https://github.com/weixinProject2/GraduaDesign_server.git
-mv GraduaDesign_server/* ./
-rm -rf GraduaDesign_server/

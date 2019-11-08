@@ -210,8 +210,27 @@ router.post('/changeStuffInfo', async(ctx,next) => {
         professionalName,
         positionName,
     }
-    const ret = await allUserSql.changeStuffInfo(user);
-    // console.log(res);
+    try {
+        const ret = await allUserSql.changeStuffInfo(user);
+        console.log(ret);
+        if (ret.protocol41) {
+            ctx.body = {
+                message: '信息修改成功',
+                error : 0,
+            }    
+        } else {
+            ctx.body = {
+                message: '信息修改失败',
+                error: -1,
+            }
+        }
+    } catch (e) {
+        ctx.body = {
+            message: '出现错误信息修改失败',
+            error: -1,
+        }
+    }
+   
 });
 
 // 随机创建一名员工
