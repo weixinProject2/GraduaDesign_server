@@ -3,7 +3,6 @@ const app = new Koa();
 const json = require('koa-json');
 const onerror = require('koa-onerror');
 const session = require('koa-session');
-// const bodyparser = require('koa-bodyparser');
 const bodyparser = require('koa-body');
 const logger = require('koa-logger');
 const cors = require('koa-cors');
@@ -54,20 +53,6 @@ const CONFIG = {
     renew: false,
 }
 app.use(session(CONFIG, app));
-
-// app.use(koaBody({
-
-//   multipart:true,
-  
-//   formidable:{
-  
-//       maxFieldsSize:10*1024*1024,
-  
-//       multipart:true
-  
-//   }
-  
-//   }))
 
 // logger
 // app.use(async (ctx, next) => {

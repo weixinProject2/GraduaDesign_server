@@ -102,6 +102,8 @@ router.get('/getAllStaffInfo', async(ctx,next) => {
     const total = res_total[0]['count(*)'];
     for (let i=0;i<res.length;i++){
         const departmentId = res[i].departmentId;
+        const positionName = res[i].position;
+        const professionalName = res[i].professional;
         let entryTime = res[i].entryTime;
         entryTime = moment(entryTime).format('YYYY年MM月DD日');
         if (departmentId) {
@@ -110,6 +112,16 @@ router.get('/getAllStaffInfo', async(ctx,next) => {
             res[i].departmentName = departmentName;
         } else {
             res[i].departmentName = null;
+        }
+        if (positionName) {
+            const res_position = await positionSql.queryPositionByName(positionName);
+            const positionId = res_position[0].positionId;
+            res[i].positionId = positionId;
+        }
+        if (professionalName) {
+            const res_professional = await professionalSql.queryPrefossinalByNmae(professionalName);
+            const professionalId = res_professional[0].professionalId;
+            res[i].professionalId = professionalId;
         }
         res[i].entryTime = entryTime;
     }
@@ -181,6 +193,27 @@ router.post('/setManagerDepart', async(ctx,next) => {
     }
 });
 
+// 管理员修改员工信息
+router.post('/changeStuffInfo', async(ctx,next) => {
+    const info = ctx.request.body;
+    const workNumber = info.workNumber;
+    const professionalId = info.professionalId;
+    const positionId = info.positionId;
+    const departmentId = info.departmentId;
+    const res_professional = await professionalSql.queryPrefossinalById(professionalId);
+    const professionalName = res_professional[0].professionalName;
+    const res_position = await positionSql.queryPositionNameById(positionId);
+    const positionName = res_position[0].positionName;
+    const user = {
+        workNumber,
+        departmentId,
+        professionalName,
+        positionName,
+    }
+    const ret = await allUserSql.changeStuffInfo(user);
+    // console.log(res);
+});
+
 // 随机创建一名员工
 router.post('/randomCreateStuff',async (ctx,next) => {
     const userName = until.getName();
@@ -238,6 +271,5 @@ router.post('/randomCreateStuff',async (ctx,next) => {
     }catch(e) {
         console.log(e);
     }
- 
 });
 module.exports = router;

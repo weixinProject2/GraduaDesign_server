@@ -25,6 +25,7 @@ let  userSql = {
          entryTime 
          from user_info 
          where permissions != '0'
+         order by entryTime desc
          `
          ;
          let _sql3 = `limit ${(page -1) * size} , ${size};`;
@@ -129,6 +130,16 @@ let  userSql = {
         let _sql = `delete from user_info where workNumber in ${workNumbers};`;
         return allServices.query(_sql);
     },
-
+    // 管理员修改员工信息
+    changeStuffInfo:function(user) {
+        let _sql = `update user_info set
+         departmentId=${user.departmentId}, 
+         professional='${user.professionalName}', 
+         position ='${user.positionName}' 
+         where workNumber = ${user.workNumber};
+         `;
+         return allServices.query(_sql);
+    }
+     
 }   
 module.exports = userSql;
