@@ -140,6 +140,7 @@ let  userSql = {
          position ='${user.positionName}' 
          where workNumber = ${user.workNumber};
          `;
+         console.log(_sql);
          return allServices.query(_sql);
     }
      
