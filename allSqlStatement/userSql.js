@@ -25,10 +25,10 @@ let  userSql = {
          entryTime 
          from user_info 
          where permissions != '0'
-         order by entryTime desc
          `
          ;
-         let _sql3 = `limit ${(page -1) * size} , ${size};`;
+         let _sql3 = ` limit ${(page -1) * size} , ${size};`;
+         let _sql4 = ` order by entryTime desc`;
          let _sql2 = '';
          for (let key in queryFiled) {
              if (queryFiled[key]) {
@@ -40,7 +40,9 @@ let  userSql = {
                  _sql += _sql2;
              }
          }
+         _sql += _sql4;
          _sql += _sql3;
+         console.log(_sql);
         return allServices.query(_sql);
     },
 
