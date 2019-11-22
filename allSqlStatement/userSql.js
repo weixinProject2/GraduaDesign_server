@@ -51,7 +51,14 @@ let  userSql = {
         let _sql = `select userName, workNumber,position,professional,departmentId,email,telNumber,sex,address,Id_Card from user_info where workNumber = ${workNumber};`
         return allServices.query(_sql);
     }, 
-
+    // 根据工号查询部门管理员名称
+    queryNameByWorkNumber:function(workNumber) {
+        if (!workNumber) {
+            return null;
+        }
+        let _sql = `select userName from user_info where workNumber = ${workNumber};`;
+        return allServices.query(_sql);
+    },
     //修改用户信息
     changeUserInfo:function (telNumber, email, address, workNumber) {
         let _sql = `update user_info set telNumber='${telNumber}', email='${email}', address='${address}' where workNumber = '${workNumber}';`;

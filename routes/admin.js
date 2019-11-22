@@ -233,6 +233,62 @@ router.post('/changeStuffInfo', async(ctx,next) => {
    
 });
 
+// 获取所有部门详细信息
+router.get('/getAllDepartmentInfo', async(ctx,next ) => {
+    const params = ctx.query;
+    const initValue = {
+        "departmentId": null,
+        "departmentName": null,
+        "departmentMangerName": null,
+    };
+    let queryFiled = params.queryparams;
+    if (queryFiled) {
+        queryFiled = JSON.parse(queryFiled);
+    } else {
+        queryFiled = initValue;
+    }
+    const page = params.page || 1;
+    const size = params.size || 10;
+    try {
+        const res_result = await departmentSql.queryAllDepartmentInfo(page, size, queryFiled);
+        const res_count =await departmentSql.queryAllDepartmentNum();
+        const total = res_count[0]['count(*)'];
+        ctx.body = {
+            data:res_result,
+            total,
+            error: 0,
+        }
+    }catch(e) {
+        ctx.body = {
+            mess: e,
+            error:-1,
+        }
+    }
+});
+// 增加一个部门 
+router.post('/addDepartment',async (ctx,next) => {
+    const departmentInfo = ctx.request.body;
+    try {
+        let maxdepartmentId =await departmentSql.queryMaxDepartmentId();    
+        const departmentId = maxdepartmentId[0]['max(departmentId)'] + 100;
+        departmentInfo.departmentId = departmentId;
+        departmentInfo.departmentMangerId = departmentInfo.departmentMangerId || null;
+        departmentInfo.departmentName = departmentInfo.departmentName || null;
+        departmentInfo.departmentDesc = departmentInfo.departmentDesc || null;
+        departmentInfo.departmentAddress = departmentInfo.departmentAddress || null;
+        const res_addResult = await departmentSql.addDepartment(departmentInfo);
+        ctx.body = {
+            mess: '创建部门成功',
+            error: 0,
+        }
+    } catch(e) {
+        ctx.body = {
+            mess: '错误',
+            error : -1,
+        }
+    } 
+})
+
 // 随机创建一名员工
 router.post('/randomCreateStuff',async (ctx,next) => {
     const userName = until.getName();
