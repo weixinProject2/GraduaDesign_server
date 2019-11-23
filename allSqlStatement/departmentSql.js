@@ -30,9 +30,19 @@ let departmentSql  = {
     let _sql = `update department_info set departmentMangerId = ${workNumber} where departmentId = ${departmentId};`;
     return allServices.query(_sql);
   },
+  // 查询某个ID是否为部门管理员ID
+  queryDeparmentManagerId:function(workNumber) {
+    let _sql = `select * from department_info where find_in_set(${workNumber},departmentMangerId);`;
+    return allServices.query(_sql);
+  },
   // 查询数据表中最大部门ID
   queryMaxDepartmentId:function() {
     let _sql = `select max(departmentId) from department_info;`;
+    return allServices.query(_sql);
+  },
+  // 查询当前部门名称是否已经存在
+  queryDepartmentName:function(name){
+    let _sql = `select * from department_info where find_in_set('${name}',departmentName);`;
     return allServices.query(_sql);
   },
   // 查询所有部门的详细信息
@@ -74,13 +84,15 @@ let departmentSql  = {
       departmentMangerId,
       departmentName,
       departmentDesc,
-      departmentAddress
+      departmentAddress,
+      departmentMangerName
     ) values (
       ${departmentInfo.departmentId},
       ${departmentInfo.departmentMangerId},
       '${departmentInfo.departmentName}',
       '${departmentInfo.departmentDesc}',
-      '${departmentInfo.departmentAddress}'
+      '${departmentInfo.departmentAddress}',
+      '${departmentInfo.departmentManagerName}'
     );`;
     return allServices.query(_sql);
   }

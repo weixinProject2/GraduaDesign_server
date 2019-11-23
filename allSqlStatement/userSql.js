@@ -45,7 +45,6 @@ let  userSql = {
          console.log(_sql);
         return allServices.query(_sql);
     },
-
     // 查询用户信息
     queryUserInfo:function(workNumber) {
         let _sql = `select userName, workNumber,position,professional,departmentId,email,telNumber,sex,address,Id_Card from user_info where workNumber = ${workNumber};`
@@ -77,6 +76,11 @@ let  userSql = {
     // 查询表中最大的workNumber
     getMaxWorkNumber:function(){
         let _sql = 'select max(workNumber) from user_info';
+        return allServices.query(_sql);
+    },
+    // 将某个员工设置为部门管理员，更改其权限信息
+    setpermissions:function(workNumber){
+        let _sql = `update user_info set permissions = 1 where workNumber = ${workNumber};`;
         return allServices.query(_sql);
     },
     // 插入一名新的员工

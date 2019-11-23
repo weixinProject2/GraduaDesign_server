@@ -270,12 +270,44 @@ router.post('/addDepartment',async (ctx,next) => {
     const departmentInfo = ctx.request.body;
     try {
         let maxdepartmentId =await departmentSql.queryMaxDepartmentId();    
+        let departmentManagerName = '';
         const departmentId = maxdepartmentId[0]['max(departmentId)'] + 100;
         departmentInfo.departmentId = departmentId;
         departmentInfo.departmentMangerId = departmentInfo.departmentMangerId || null;
+        if(departmentInfo.departmentMangerId) {
+            departmentManagerName = await allUserSql.queryNameByWorkNumber(departmentInfo.departmentMangerId);
+            departmentInfo.departmentManagerName = departmentManagerName[0].userName;
+        }
         departmentInfo.departmentName = departmentInfo.departmentName || null;
         departmentInfo.departmentDesc = departmentInfo.departmentDesc || null;
         departmentInfo.departmentAddress = departmentInfo.departmentAddress || null;
+        if (!departmentInfo.departmentName) {
+            return ctx.body = {
+                mess: '部门名称不能为空',
+                error: -1
+            }
+        }
+        if (!departmentInfo.departmentAddress) {
+            return ctx.body = {
+                mess: '部门地址不能为空',
+                error: -1,
+            }
+        }
+        const res_isDepartmentName = await departmentSql.queryDepartmentName(departmentInfo.departmentName);
+        if(res_isDepartmentName.length > 0) {
+            return ctx.body = {
+                mess: '该部门名称已经存在',
+                error : -1,
+            }
+        }
+        const res_isDeparmentManagerId = await departmentSql.queryDeparmentManagerId(departmentInfo.departmentMangerId);
+        if(res_isDeparmentManagerId.length > 0) {
+            return ctx.body = {
+                mess: '当前工号已经为部门管理员',
+                error: -1,
+            }
+        } 
+        const res_setDeparmentManger = await allUserSql.setpermissions(departmentInfo.departmentMangerId);
         const res_addResult = await departmentSql.addDepartment(departmentInfo);
         ctx.body = {
             mess: '创建部门成功',
@@ -283,7 +315,7 @@ router.post('/addDepartment',async (ctx,next) => {
         }
     } catch(e) {
         ctx.body = {
-            mess: '错误',
+            mess: e,
             error : -1,
         }
     } 
