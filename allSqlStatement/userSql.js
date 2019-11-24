@@ -83,6 +83,11 @@ let  userSql = {
         let _sql = `update user_info set permissions = 1 where workNumber = ${workNumber};`;
         return allServices.query(_sql);
     },
+    // 清空某个员工为部门管理员，更改其权限信息
+    clearpermission:function(workNumber) {
+        let _sql = `update user_info set permissions = 2 where workNumber = ${workNumber};`;
+        return allServices.query(_sql);
+    },
     // 插入一名新的员工
     insetNewEmployee:function(user){
         let _sql = `insert into user_info (

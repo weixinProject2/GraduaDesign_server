@@ -232,7 +232,83 @@ router.post('/changeStuffInfo', async(ctx,next) => {
     }
    
 });
+// 管理员修改部门信息
+router.post('/changeDepartmentInfo', async(ctx,next) => {
+        const info =ctx.request.body;
+        let departmentMangerName = '';
+        const departmentName = info.departmentName;
+        const departmentDesc = info.departmentDesc;
+        const departmentAddress = info.departmentAddress;
+        const departmentMangerId = info.departmentMangerId;
+        const departmentId = info.departmentId;
 
+        const res_isDepartmentName = await departmentSql.queryDepartmentName(departmentName);
+        if (res_isDepartmentName.length > 0) {
+            for (item of res_isDepartmentName) {
+                if(item.departmentId != departmentId){
+                    return ctx.body = {
+                        mess: '部门名称已经存在，修改失败',
+                        error: -1,
+                    }
+                }
+            }
+        }
+        const res_isDeparmentManagerId = await departmentSql.queryDeparmentManagerId(departmentMangerId);
+        console.log(res_isDeparmentManagerId);
+        if (res_isDeparmentManagerId.length > 0) {
+            for (item of res_isDeparmentManagerId) {
+                if(item.departmentId != departmentId){
+                    return ctx.body = {
+                        mess: '当前员工已经是其他部门管理员，修改失败',
+                        error: -1,
+                    }
+                }
+            }
+        }
+        const changeInfo =  {
+            departmentName,
+            departmentDesc,
+            departmentAddress,
+            departmentId,
+        }
+        try {
+            const res_departmentManId = await departmentSql.queryManagerDepart(departmentId);
+            const isDeparmentManagerId = res_departmentManId[0].departmentMangerId;
+            if (departmentMangerId) {
+                if (isDeparmentManagerId) {
+                    if (departmentMangerId === isDeparmentManagerId) {
+                        // 相等 不做任何处理
+                    } else {
+                        const res_clearPerssions = await allUserSql.clearpermission(isDeparmentManagerId);
+                        const res_setPerssions = await allUserSql.setpermissions(departmentMangerId);
+                        const res_setManager = await departmentSql.emptySetManagerDepart(departmentMangerId,departmentId)
+                        const res_getManagerName = await allUserSql.queryNameByWorkNumber(departmentMangerId);
+                        departmentMangerName = res_getManagerName[0].userName;
+                        changeInfo.departmentMangerName = departmentMangerName;
+                    }
+                } else {
+                    const res_setManager = await departmentSql.emptySetManagerDepart(departmentMangerId,departmentId);
+                    const res_getManagerName = await allUserSql.queryNameByWorkNumber(departmentMangerId);
+                    departmentMangerName = res_getManagerName[0].userName;
+                    changeInfo.departmentMangerName = departmentMangerName;
+                }
+            } else {
+                const res_clearPerssions = await allUserSql.clearpermission(isDeparmentManagerId);
+                const res_setManager = await departmentSql.emptySetManagerDepart(null,departmentId);
+                changeInfo.departmentMangerName = null;
+            }
+            const res_changeInfo = await departmentSql.changeDepartmentInfo(changeInfo);
+            ctx.body = {
+                mess: '修改部门信息成功',
+                error: 0,
+            }
+        }catch(e) {
+            ctx.body = {
+                mess: e,
+                error: -1,
+            }
+        }
+});
 // 获取所有部门详细信息
 router.get('/getAllDepartmentInfo', async(ctx,next ) => {
     const params = ctx.query;

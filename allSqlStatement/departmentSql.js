@@ -35,6 +35,27 @@ let departmentSql  = {
     let _sql = `select * from department_info where find_in_set(${workNumber},departmentMangerId);`;
     return allServices.query(_sql);
   },
+  // 修改部门信息
+  changeDepartmentInfo:function(info) {
+    let _sql  = '';
+    if (info.departmentMangerName === undefined) {
+      _sql = `update department_info set
+      departmentName = '${info.departmentName}',
+      departmentDesc = '${info.departmentDesc}',
+      departmentAddress = '${info.departmentAddress}'
+      where departmentId = ${info.departmentId};
+    `;
+  } else {
+    _sql = `update department_info set
+    departmentName = '${info.departmentName}',
+    departmentDesc = '${info.departmentDesc}',
+    departmentAddress = '${info.departmentAddress}',
+    departmentMangerName = '${info.departmentMangerName}'
+    where departmentId = ${info.departmentId};
+  `;
+  }
+  return allServices.query(_sql);
+},
   // 查询数据表中最大部门ID
   queryMaxDepartmentId:function() {
     let _sql = `select max(departmentId) from department_info;`;
@@ -79,6 +100,9 @@ let departmentSql  = {
   },
   // 添加一个部门
   addDepartment:function(departmentInfo){
+    if(!departmentInfo.departmentMangerId) {
+      departmentInfo.departmentManagerName = null;
+    }
     let _sql = `insert into department_info (
       departmentId,
       departmentMangerId,
