@@ -30,6 +30,12 @@ let departmentSql  = {
     let _sql = `update department_info set departmentMangerId = ${workNumber} where departmentId = ${departmentId};`;
     return allServices.query(_sql);
   },
+  // 删除某个部门
+  deleteDepartment:function(departmentId) {
+    let _sql = `delete from department_info where departmentId = ${departmentId};`;
+    console.log(_sql);
+    return allServices.query(_sql);
+  },
   // 查询某个ID是否为部门管理员ID
   queryDeparmentManagerId:function(workNumber) {
     let _sql = `select * from department_info where find_in_set(${workNumber},departmentMangerId);`;

@@ -227,11 +227,43 @@ router.post('/changeStuffInfo', async(ctx,next) => {
     } catch (e) {
         ctx.body = {
             message: '出现错误信息修改失败',
-            error: -1,
+            error: -2,
         }
     }
    
 });
+// 管理员删除部门
+router.post('/deleteDepartment',async(ctx,next) => {
+    const info = ctx.request.body;
+    const departmentId = info.departmentId;
+    try {
+        const res_StuffNumber =await allUserSql.countStuffByDepartmentId(departmentId);
+        if(res_StuffNumber[0]['count(*)'] > 0) {
+            return ctx.body ={
+                mess: '还有员工隶属当前部门，无法删除',
+                error: -3,
+            }
+        }
+        const res_deleteResult = await departmentSql.deleteDepartment(departmentId);
+        ctx.body = {
+            mess: '部门删除成功',
+            error: 0,
+        }
+    }catch(e) {
+        if(!departmentId) {
+            ctx.body = {
+                mess: '部门Id不能为空',
+                error: -2,
+            }
+        } else {
+            ctx.body = {
+                mess: e,
+                error: -1,
+            }
+        }
+    }
+
+})
 // 管理员修改部门信息
 router.post('/changeDepartmentInfo', async(ctx,next) => {
         const info =ctx.request.body;
@@ -260,7 +292,7 @@ router.post('/changeDepartmentInfo', async(ctx,next) => {
                 if(item.departmentId != departmentId){
                     return ctx.body = {
                         mess: '当前员工已经是其他部门管理员，修改失败',
-                        error: -1,
+                        error: -2,
                     }
                 }
             }
@@ -373,14 +405,14 @@ router.post('/addDepartment',async (ctx,next) => {
         if(res_isDepartmentName.length > 0) {
             return ctx.body = {
                 mess: '该部门名称已经存在',
-                error : -1,
+                error : -2,
             }
         }
         const res_isDeparmentManagerId = await departmentSql.queryDeparmentManagerId(departmentInfo.departmentMangerId);
         if(res_isDeparmentManagerId.length > 0) {
             return ctx.body = {
                 mess: '当前工号已经为部门管理员',
-                error: -1,
+                error: -3,
             }
         } 
         const res_setDeparmentManger = await allUserSql.setpermissions(departmentInfo.departmentMangerId);

@@ -121,6 +121,11 @@ let  userSql = {
         );`;
          return allServices.query(_sql);
     },
+    // 统计某个部门的人数
+    countStuffByDepartmentId:function(departmentId) {
+        let _sql = `select count(*) from user_info where departmentId = ${departmentId};`;
+        return allServices.query(_sql);
+    },
     // 统计满足条件的员工人数
     countAllStuff:function(queryFiled) {
         let _sql = `select count(*) from user_info
