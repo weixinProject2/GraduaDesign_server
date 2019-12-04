@@ -41,6 +41,11 @@ let departmentSql  = {
     let _sql = `select * from department_info where find_in_set(${workNumber},departmentMangerId);`;
     return allServices.query(_sql);
   },
+  // 查询部门表中是否存在某个部门ID
+  queryDepartmentByDepartmentId: function(departmentId) {
+    let _sql = `select * from department_info where find_in_set(${departmentId},departmentId);`;
+    return allServices.query(_sql);
+  },
   // 修改部门信息
   changeDepartmentInfo:function(info) {
     let _sql  = '';
@@ -99,32 +104,58 @@ let departmentSql  = {
   _sql += _sql3;
     return allServices.query(_sql);
   },
-  // 查询所有部门的数量
-  queryAllDepartmentNum:function() {
+  // 查询所有满足条件的部门的数量
+  queryAllDepartmentNum:function(queryFiled) {
     let _sql = 'select count(*) from department_info';
+    let _sql2 = '';
+    let count = 0;
+    for (let key in queryFiled) {
+     if (queryFiled[key]) {
+         count ++;
+         if (key === 'departmentMangerName' || key === 'departmentName') {
+          count > 1?  _sql2 = ` and ${key} like '%${queryFiled[key]}%' ` : _sql2 = ` where ${key} like '%${queryFiled[key]}%'` ; 
+         } else {
+           count > 1? _sql2 = ` and ${key} = ${queryFiled[key]} ` : _sql2 = ` where ${key} = ${queryFiled[key]} `;
+         }
+         _sql += _sql2;
+     }
+ }
     return allServices.query(_sql);
   },
   // 添加一个部门
   addDepartment:function(departmentInfo){
+    let _sql = '';
     if(!departmentInfo.departmentMangerId) {
-      departmentInfo.departmentManagerName = null;
+      _sql = `insert into department_info (
+        departmentId,
+        departmentName,
+        departmentDesc,
+        departmentAddress
+      ) values (
+        ${departmentInfo.departmentId},
+        '${departmentInfo.departmentName}',
+        '${departmentInfo.departmentDesc}',
+        '${departmentInfo.departmentAddress}'
+      );`;
+    } else {
+       _sql = `insert into department_info (
+        departmentId,
+        departmentMangerId,
+        departmentName,
+        departmentDesc,
+        departmentAddress,
+        departmentMangerName
+      ) values (
+        ${departmentInfo.departmentId},
+        ${departmentInfo.departmentMangerId},
+        '${departmentInfo.departmentName}',
+        '${departmentInfo.departmentDesc}',
+        '${departmentInfo.departmentAddress}',
+        '${departmentInfo.departmentManagerName}'
+      );`;
     }
-    let _sql = `insert into department_info (
-      departmentId,
-      departmentMangerId,
-      departmentName,
-      departmentDesc,
-      departmentAddress,
-      departmentMangerName
-    ) values (
-      ${departmentInfo.departmentId},
-      ${departmentInfo.departmentMangerId},
-      '${departmentInfo.departmentName}',
-      '${departmentInfo.departmentDesc}',
-      '${departmentInfo.departmentAddress}',
-      '${departmentInfo.departmentManagerName}'
-    );`;
+    console.log(_sql);
     return allServices.query(_sql);
-  }
+  },
 }
 module.exports = departmentSql;

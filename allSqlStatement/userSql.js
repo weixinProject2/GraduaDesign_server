@@ -163,6 +163,24 @@ let  userSql = {
          `;
          console.log(_sql);
          return allServices.query(_sql);
+    },
+    // 根据部门ID查询该部门下所有的员工信息
+    queryAllStuffInfoByDeartmentId:function(departmentId) {
+        let _sql = `select 
+        userName,
+        permissions,
+        workNumber,
+        position,
+        professional,
+        departmentId,
+        email,
+        telNumber,
+        sex,
+        address,
+        entryTime,
+        Id_Card 
+        from user_info where departmentId = ${departmentId};`;
+        return allServices.query(_sql);
     }
      
 }   
