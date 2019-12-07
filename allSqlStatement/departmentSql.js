@@ -154,7 +154,6 @@ let departmentSql  = {
         '${departmentInfo.departmentManagerName}'
       );`;
     }
-    console.log(_sql);
     return allServices.query(_sql);
   },
 }

@@ -65,7 +65,7 @@ router.post('/createEmployee',async(ctx,next) => {
     }
 });
 // 获取所有员工信息
-router.get('/getAllStaffInfo', async(ctx,next) => {
+router.get('/getAllStuffInfo', async(ctx,next) => {
     const params = ctx.query;
     const initValue = {
         "userName": null,

@@ -29,9 +29,13 @@ router.get('/getAllStuffInfo',async ctx=>{
                 error: -2
             }
         } else {
+          const page = info.page || 1;
+          const size = info.size || 10;
+          
           const departmentId = res_isDeparmentManger[0].departmentId;
-          const res = await userSql.queryAllStuffInfoByDeartmentId(departmentId);
-
+          const res = await userSql.queryAllStuffInfoByDeartmentId(page, size,departmentId);
+          const res_total = await userSql.queryCountStuffInfo(departmentId);
+          const total = res_total[0]['count(*)'];
           if(res.length) {
             for (let i=0;i<res.length;i++){
                 const departmentId = res[i].departmentId;
@@ -60,6 +64,10 @@ router.get('/getAllStuffInfo',async ctx=>{
             }
                 ctx.body = {
                     list: res,
+                    page: Number(page),
+                    size: Number(size),
+                    totalPage: Math.ceil(total/Number(size)),
+                    total,
                 }
           } else {
               ctx.body = {
@@ -69,6 +77,7 @@ router.get('/getAllStuffInfo',async ctx=>{
           }
         }
     } catch(e) {
+        console.log(e);
         ctx.body = {
             mess: '出现错误，查询失败',
             error: -1,
@@ -78,6 +87,33 @@ router.get('/getAllStuffInfo',async ctx=>{
 
 
     console.log(workNumber);
+});
+// 管理员批量删除部门员工
+router.post('/deleteStuff', async ctx=>{
+    const ret =  ctx.request.body;
+    let workNumbers = ret.ids;
+    let res;
+    workNumbers = workNumbers.replace('[', '(');
+    workNumbers = workNumbers.replace(']', ')');
+    try {
+         res = await userSql.deleteStuff(workNumbers);
+         if (res.protocol41) {
+            ctx.body = {
+                message: '删除成功',
+                error: 0,
+            }
+        } else {
+            ctx.body = {
+                message: '删除失败',
+                error: -1,
+            }
+        }
+    } catch (e) {
+        ctx.body = {
+            message : '出现错误，删除失败',
+            error: -1,
+        }
+    }
 })
 
 module.exports = router;

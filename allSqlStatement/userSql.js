@@ -42,7 +42,6 @@ let  userSql = {
          }
          _sql += _sql4;
          _sql += _sql3;
-         console.log(_sql);
         return allServices.query(_sql);
     },
     // 查询用户信息
@@ -165,7 +164,7 @@ let  userSql = {
          return allServices.query(_sql);
     },
     // 根据部门ID查询该部门下所有的员工信息
-    queryAllStuffInfoByDeartmentId:function(departmentId) {
+    queryAllStuffInfoByDeartmentId:function(page, size, departmentId) {
         let _sql = `select 
         userName,
         permissions,
@@ -179,6 +178,13 @@ let  userSql = {
         address,
         entryTime,
         Id_Card 
+        from user_info where departmentId = ${departmentId} limit ${(page -1) * size} , ${size};`;
+        return allServices.query(_sql);
+    },
+     // 统计所有人数
+    queryCountStuffInfo:function(departmentId) {
+        let _sql = `select 
+        count(*)
         from user_info where departmentId = ${departmentId};`;
         return allServices.query(_sql);
     }
