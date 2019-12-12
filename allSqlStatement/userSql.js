@@ -164,7 +164,7 @@ let  userSql = {
          return allServices.query(_sql);
     },
     // 根据部门ID查询该部门下所有的员工信息
-    queryAllStuffInfoByDeartmentId:function(page, size, departmentId) {
+    queryAllStuffInfoByDeartmentId:function(page, size, departmentId,queryFiled) {
         let _sql = `select 
         userName,
         permissions,
@@ -178,14 +178,38 @@ let  userSql = {
         address,
         entryTime,
         Id_Card 
-        from user_info where departmentId = ${departmentId} limit ${(page -1) * size} , ${size};`;
+        from user_info where departmentId = ${departmentId} `;
+        let _sql2 = '';
+        for (let key in queryFiled) {
+            if (queryFiled[key]) {
+                if (key === 'userName') {
+                   _sql2 = ` and ${key} like '%${queryFiled[key]}%' ` 
+                } else {
+                   _sql2 = ` and ${key} = '${queryFiled[key]}' `;
+                }
+                _sql += _sql2;
+            }
+        }
+        const _sql3 = ` limit ${(page -1) * size} , ${size};`;
+        _sql += _sql3;
         return allServices.query(_sql);
     },
      // 统计所有人数
-    queryCountStuffInfo:function(departmentId) {
+    queryCountStuffInfo:function(departmentId, queryFiled) {
         let _sql = `select 
         count(*)
-        from user_info where departmentId = ${departmentId};`;
+        from user_info where departmentId = ${departmentId}`;
+        let _sql2 = '';
+        for (let key in queryFiled) {
+            if (queryFiled[key]) {
+                if (key === 'userName') {
+                   _sql2 = ` and ${key} like '%${queryFiled[key]}%' ` 
+                } else {
+                   _sql2 = ` and ${key} = '${queryFiled[key]}' `;
+                }
+                _sql += _sql2;
+            }
+        }
         return allServices.query(_sql);
     }
      

@@ -13,6 +13,40 @@ router.prefix('/department');
 router.get('/getAllStuffInfo',async ctx=>{
     const info  = ctx.query;
     const workNumber = info.workNumber;
+    const initValue = {
+        "userName": null,
+        "workNumber": null,
+        "positionId": null,
+        "professionalId": null
+    };
+    let queryFiled = info.queryFiled;
+    if (queryFiled) {
+        try {
+            queryFiled = JSON.parse(queryFiled);
+        } catch(e) {
+            ctx.status = 400;
+            return ctx.body = {
+                mess: '错误请求参数',
+                error: -2
+            }
+        }
+    } else {
+        queryFiled = initValue;
+    }
+    const positionId = queryFiled.positionId;
+    const professionalId = queryFiled.professionalId;
+    if (positionId) {
+        const res_postion = await positionSql.queryPositionNameById(positionId);
+        const postionName = res_postion[0].positionName;
+        delete queryFiled.positionId;
+        queryFiled.position = postionName;
+    }
+    if (professionalId) {
+        const res_professional = await professionalSql.queryPrefossinalById(professionalId);
+        const professionalName = res_professional[0].professionalName;
+        delete queryFiled.professionalId;
+        queryFiled.professional = professionalName;
+    }
     if(!workNumber) {
         return (
             ctx.body = {
@@ -33,8 +67,8 @@ router.get('/getAllStuffInfo',async ctx=>{
           const size = info.size || 10;
           
           const departmentId = res_isDeparmentManger[0].departmentId;
-          const res = await userSql.queryAllStuffInfoByDeartmentId(page, size,departmentId);
-          const res_total = await userSql.queryCountStuffInfo(departmentId);
+          const res = await userSql.queryAllStuffInfoByDeartmentId(page, size,departmentId, queryFiled);
+          const res_total = await userSql.queryCountStuffInfo(departmentId, queryFiled);
           const total = res_total[0]['count(*)'];
           if(res.length) {
             for (let i=0;i<res.length;i++){
