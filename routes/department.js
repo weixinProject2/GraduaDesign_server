@@ -6,10 +6,11 @@ const departmentSql = require('../allSqlStatement/departmentSql');
 const userSql = require('../allSqlStatement/userSql');
 const positionSql = require('../allSqlStatement/positionSql');
 const professionalSql = require('../allSqlStatement/professionaSql');
+const getToken = require('../token/getToken');
 
 router.prefix('/department');
 
-// 部门管理员查询起部门下所有员工信息
+// 部门管理员查询其部门下所有员工信息
 router.get('/getAllStuffInfo',async ctx=>{
     const info  = ctx.query;
     const workNumber = info.workNumber;
@@ -105,8 +106,8 @@ router.get('/getAllStuffInfo',async ctx=>{
                 }
           } else {
               ctx.body = {
-                  mess: '该部门下还没有员工',
-                  error: 0,
+                  list: [],
+                  code: 0,
               }
           }
         }
@@ -117,34 +118,56 @@ router.get('/getAllStuffInfo',async ctx=>{
             error: -1,
         }
     }
-
-
-
-    console.log(workNumber);
 });
 // 管理员批量删除部门员工
 router.post('/deleteStuff', async ctx=>{
+    let token = ctx.request.header.authorization;
+    let res_token = getToken(token);
+    console.log(res_token);
+    const departmentId = res_token.departmentId;
     const ret =  ctx.request.body;
     let workNumbers = ret.ids;
     let res;
     workNumbers = workNumbers.replace('[', '(');
     workNumbers = workNumbers.replace(']', ')');
+    let workNumberArr = ret.ids;
+    workNumberArr = workNumberArr.replace('[','');
+    workNumberArr = workNumberArr.replace(']','');
+    workNumberArr = workNumberArr.split(',');
     try {
-         res = await userSql.deleteStuff(workNumbers);
+        for(let i=0;i < workNumberArr.length;i++) {
+            let res_isDeparmentWork = await userSql.queryworkNumberisDepartment(workNumberArr[i], departmentId);
+            if(!res_isDeparmentWork.length) {
+                return ctx.body = {
+                    mess: '当前部门中不存在该工号',
+                    error: -1,
+                }
+            }
+        }
+    }catch(e) {
+
+    }
+    try {
+         res = await userSql.clearDeparymentId(workNumbers, departmentId);
+         if(!res.affectedRows) {
+             ctx.body = {
+                 mess: '当前部门下不存在该工号'
+             }
+         }
          if (res.protocol41) {
             ctx.body = {
-                message: '删除成功',
+                message: '移除成功',
                 error: 0,
             }
         } else {
             ctx.body = {
-                message: '删除失败',
+                message: '移除失败',
                 error: -1,
             }
         }
     } catch (e) {
         ctx.body = {
-            message : '出现错误，删除失败',
+            message : '出现错误，移除失败',
             error: -1,
         }
     }

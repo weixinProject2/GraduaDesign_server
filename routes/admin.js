@@ -173,18 +173,19 @@ router.post('/setManagerDepart', async(ctx,next) => {
     if (!res_isExitManager[0].departmentMangerId || res_isExitManager[0].departmentMangerId == workNumber) {
         if (res_isExitManager[0].departmentMangerId == workNumber) {
              res_isSet = await departmentSql.emptySetManagerDepart(null, departmentId);
+             const res_clearPerssions = await allUserSql.clearpermission(workNumber);
              ctx.body = {
                  message: `重置${departmentName}管理员成功`,
                  error: 0,
              }
         } else {
             res_isSet = await departmentSql.emptySetManagerDepart(workNumber, departmentId);
+            const res_setPerssions =  await allUserSql.setpermissions(workNumber);
             ctx.body = {
                 message: `设置${departmentName}管理员成功`,
                 error: 0,
             }
         }
-        console.log(res_isSet);
     } else {
         ctx.body = {
             message: `${departmentName}已存在管理员，不可重新设置管理员`,
@@ -200,10 +201,50 @@ router.post('/changeStuffInfo', async(ctx,next) => {
     const professionalId = info.professionalId;
     const positionId = info.positionId;
     const departmentId = info.departmentId;
-    const res_professional = await professionalSql.queryPrefossinalById(professionalId);
-    const professionalName = res_professional[0].professionalName;
-    const res_position = await positionSql.queryPositionNameById(positionId);
-    const positionName = res_position[0].positionName;
+    let professionalName = '';
+    let positionName = '';
+    if(!workNumber || !professionalId || !positionId || !departmentId) {
+        ctx.status = 400;
+        return ctx.body = {
+            mess: '缺少必要的请求字段',
+            error: -1,
+        }
+    }
+    try {
+        const res_professional = await professionalSql.queryPrefossinalById(professionalId);
+         professionalName = res_professional[0].professionalName;
+    } catch(e) {
+        ctx.body = 400;
+        return ctx.body = {
+            mess: '请输入正确的职业ID',
+            error: -1,
+        }
+    }
+    try {
+        const res_position = await positionSql.queryPositionNameById(positionId);
+         positionName = res_position[0].positionName;
+    } catch(e) {
+        ctx.status = 400;
+        return ctx.body = {
+            mess: '请输入正确的职位ID',
+            error: -1,
+        }
+    }
+    try {
+        const res_isDeparmentId = await departmentSql.queryDepartmentIdfromInfo(departmentId);
+        if(!res_isDeparmentId.length) {
+            ctx.status = 400;
+            return ctx.body = {
+                mess: '不存在该部门ID',
+                error: -1,
+            }
+        }
+    }catch(e) {
+        return ctx.body = {
+            mess: '部门ID错误，修改信息失败',
+            error: -2,
+        }
+    }
     const user = {
         workNumber,
         departmentId,
@@ -296,45 +337,64 @@ router.post('/changeDepartmentInfo', async(ctx,next) => {
             }
             if(departmentMangerId) {
                 const res_stuffInfo = await allUserSql.queryUserInfo(departmentMangerId);
+                const stuff_departmentId = res_stuffInfo[0].departmentId;
+                if(stuff_departmentId && stuff_departmentId != departmentId) {
+                    return ctx.body = {
+                        mess: '该员工不属于当前部门，请先将员工添加到部门中',
+                        error: -1,
+                    }
+                }
                 if(!res_stuffInfo.length) {
                     return ctx.body = {
                         mess: '系统中不存在该工号，请输入正确的工号',
                         error: -2,
                     }
                 }
-            } else {
-                return ctx.body = {
-                    mess: '管理员ID不能为空',
-                    error: -1,
-                }
-            }
+            } 
         }catch(e) {
             ctx.body = {
                 mess: e,
                 error: -1,
             }
         }
-        const res_isDepartmentName = await departmentSql.queryDepartmentName(departmentName);
-        if (res_isDepartmentName.length > 0) {
-            for (item of res_isDepartmentName) {
-                if(item.departmentId != departmentId){
-                    return ctx.body = {
-                        mess: '部门名称已经存在，修改失败',
-                        error: -3,
+        try {
+            if(departmentName) {
+                const res_isDepartmentName = await departmentSql.queryDepartmentName(departmentName);
+                if (res_isDepartmentName.length > 0) {
+                    for (item of res_isDepartmentName) {
+                        if(item.departmentId != departmentId){
+                            return ctx.body = {
+                                mess: '部门名称已经存在，修改失败',
+                                error: -3,
+                            }
+                        }
                     }
                 }
             }
+        }catch(e) {
+            return ctx.body = {
+                mess: e,
+                error: -2,
+            }
         }
-        const res_isDeparmentManagerId = await departmentSql.queryDeparmentManagerId(departmentMangerId);
-        console.log(res_isDeparmentManagerId);
-        if (res_isDeparmentManagerId.length > 0) {
-            for (item of res_isDeparmentManagerId) {
-                if(item.departmentId != departmentId){
-                    return ctx.body = {
-                        mess: '当前员工已经是其他部门管理员，修改失败',
-                        error: -2,
+        try {
+            if(departmentMangerId) {
+                const res_isDeparmentManagerId = await departmentSql.queryDeparmentManagerId(departmentMangerId);
+                if (res_isDeparmentManagerId.length > 0) {
+                    for (item of res_isDeparmentManagerId) {
+                        if(item.departmentId != departmentId){
+                            return ctx.body = {
+                                mess: '当前员工已经是其他部门管理员，修改失败',
+                                error: -2,
+                            }
+                        }
                     }
                 }
+            }
+        }catch(e) {
+            return ctx.body = {
+                mess: e,
+                error: -2,
             }
         }
         const changeInfo =  {
@@ -352,7 +412,6 @@ router.post('/changeDepartmentInfo', async(ctx,next) => {
                         // 相等 不做任何处理
                     } else {
                         // 不相等 判断上传的管理员ID是否合法
-                        
                         const res_clearPerssions = await allUserSql.clearpermission(isDeparmentManagerId);
                         const res_setPerssions = await allUserSql.setpermissions(departmentMangerId);
                         const res_setManager = await departmentSql.emptySetManagerDepart(departmentMangerId,departmentId)
@@ -362,14 +421,14 @@ router.post('/changeDepartmentInfo', async(ctx,next) => {
                     }
                 } else {
                     const res_setManager = await departmentSql.emptySetManagerDepart(departmentMangerId,departmentId);
+                    const res_setPerssions = await allUserSql.setpermissions(departmentMangerId);
                     const res_getManagerName = await allUserSql.queryNameByWorkNumber(departmentMangerId);
                     departmentMangerName = res_getManagerName[0].userName;
                     changeInfo.departmentMangerName = departmentMangerName;
                 }
             } else {
                 const res_clearPerssions = await allUserSql.clearpermission(isDeparmentManagerId);
-                const res_setManager = await departmentSql.emptySetManagerDepart(null,departmentId);
-                changeInfo.departmentMangerName = null;
+                const res_setManager = await departmentSql.emptyManagerIdAndName(departmentId);
             }
             const res_changeInfo = await departmentSql.changeDepartmentInfo(changeInfo);
             ctx.body = {
@@ -377,6 +436,7 @@ router.post('/changeDepartmentInfo', async(ctx,next) => {
                 error: 0,
             }
         }catch(e) {
+            console.log(e);
             ctx.body = {
                 mess: "系统中没有当前工号，请更正后重新录入",
                 error: -1,

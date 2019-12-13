@@ -30,6 +30,15 @@ let departmentSql  = {
     let _sql = `update department_info set departmentMangerId = ${workNumber} where departmentId = ${departmentId};`;
     return allServices.query(_sql);
   },
+  // 清空部门管理员和管理员名字
+  emptyManagerIdAndName:function(departmentId) {
+   let _sql = `update department_info set 
+    departmentMangerId = null,
+    departmentMangerName = null
+    where departmentId = ${departmentId};
+   `;
+   return allServices.query(_sql);
+  },
   // 删除某个部门
   deleteDepartment:function(departmentId) {
     let _sql = `delete from department_info where departmentId = ${departmentId};`;
@@ -49,27 +58,37 @@ let departmentSql  = {
   // 修改部门信息
   changeDepartmentInfo:function(info) {
     let _sql  = '';
-    if (info.departmentMangerName === undefined) {
-      _sql = `update department_info set
-      departmentName = '${info.departmentName}',
-      departmentDesc = '${info.departmentDesc}',
-      departmentAddress = '${info.departmentAddress}'
-      where departmentId = ${info.departmentId};
-    `;
+    if (!info.departmentMangerName) {
+      const departmentId = info.departmentId;
+      delete info.departmentId;
+      _sql += `update department_info set `;
+      for(let key in info) {
+        info[key] ? _sql += `${key} = '${info[key]}', ` : null;
+     }
+     _sql =  _sql.substring(0, _sql.length - 2);  
+     _sql += ` where departmentId = ${departmentId};`
+    ;
   } else {
-    _sql = `update department_info set
-    departmentName = '${info.departmentName}',
-    departmentDesc = '${info.departmentDesc}',
-    departmentAddress = '${info.departmentAddress}',
-    departmentMangerName = '${info.departmentMangerName}'
-    where departmentId = ${info.departmentId};
-  `;
+    const departmentMangerName = info.departmentMangerName;
+    const departmentId = info.departmentId;
+    delete info.departmentMangerName;
+    delete info.departmentMangerName;
+    _sql += `update department_info set `;
+    for(let key in info) {
+        info[key] ? _sql += `${key} = '${info[key]}', ` : null;
+    }
+   _sql += ` departmentMangerName = '${departmentMangerName}' where departmentId = ${departmentId};`;
   }
   return allServices.query(_sql);
 },
   // 查询数据表中最大部门ID
   queryMaxDepartmentId:function() {
     let _sql = `select max(departmentId) from department_info;`;
+    return allServices.query(_sql);
+  },
+  // 查询部门表中是否包含有某部门ID
+  queryDepartmentIdfromInfo:function(departmentId){
+    let _sql = `select * from department_info where find_in_set('${departmentId}',departmentId);`;
     return allServices.query(_sql);
   },
   // 查询当前部门名称是否已经存在

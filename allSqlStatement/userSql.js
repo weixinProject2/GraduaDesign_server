@@ -147,9 +147,20 @@ let  userSql = {
         let _sql = `select count(*) from user_info where workNumber = ${workNumber};`;
         return allServices.query(_sql);
     },
+    // 判断工号是否属于当前部门
+    queryworkNumberisDepartment:function(workNumber, departmentId) {
+        let _sql = `select id from user_info where workNumber = ${workNumber} and departmentId = ${departmentId};`;
+        console.log(_sql);
+        return allServices.query(_sql);
+    },
     // 批量删除员工
     deleteStuff:function (workNumbers){
         let _sql = `delete from user_info where workNumber in ${workNumbers};`;
+        return allServices.query(_sql);
+    },
+    // 批量清空员工部门Id
+    clearDeparymentId:function(workNumbers, departmentId) {
+        let _sql = `update user_info set departmentId = null where workNumber in ${workNumbers} and departmentId = ${departmentId};`;
         return allServices.query(_sql);
     },
     // 管理员修改员工信息
@@ -160,7 +171,6 @@ let  userSql = {
          position ='${user.positionName}' 
          where workNumber = ${user.workNumber};
          `;
-         console.log(_sql);
          return allServices.query(_sql);
     },
     // 根据部门ID查询该部门下所有的员工信息
