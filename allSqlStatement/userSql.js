@@ -82,6 +82,11 @@ let  userSql = {
         let _sql = `update user_info set permissions = 1 where workNumber = ${workNumber};`;
         return allServices.query(_sql);
     },
+    // 把某个部门ID为空的人设置为部门管理员，修改权限信息，并且修改其部门
+    setDepartmentManaInfo:function(workNumber, departmentId) {
+        let _sql = `update user_info set permissions = 1,departmentId = ${departmentId} where workNumber = ${workNumber};`;
+        return allServices.query(_sql);
+    },
     // 清空某个员工为部门管理员，更改其权限信息
     clearpermission:function(workNumber) {
         let _sql = `update user_info set permissions = 2 where workNumber = ${workNumber};`;
@@ -150,7 +155,6 @@ let  userSql = {
     // 判断工号是否属于当前部门
     queryworkNumberisDepartment:function(workNumber, departmentId) {
         let _sql = `select id from user_info where workNumber = ${workNumber} and departmentId = ${departmentId};`;
-        console.log(_sql);
         return allServices.query(_sql);
     },
     // 批量删除员工

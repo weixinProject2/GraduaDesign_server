@@ -30,6 +30,16 @@ let departmentSql  = {
     let _sql = `update department_info set departmentMangerId = ${workNumber} where departmentId = ${departmentId};`;
     return allServices.query(_sql);
   },
+  // 设置部门管理员的工号和名字
+  setDepartManageIdAndName:function(workNumber, name, departmentId) {
+    let _sql = `update department_info set 
+    departmentMangerId = ${workNumber},
+    departmentMangerName = '${name}'
+    where departmentId = ${departmentId};
+   `;
+   console.log(_sql);
+   return allServices.query(_sql);
+  },
   // 清空部门管理员和管理员名字
   emptyManagerIdAndName:function(departmentId) {
    let _sql = `update department_info set 

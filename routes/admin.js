@@ -172,15 +172,17 @@ router.post('/setManagerDepart', async(ctx,next) => {
     const departmentName = res_departmentName[0].departmentName;
     if (!res_isExitManager[0].departmentMangerId || res_isExitManager[0].departmentMangerId == workNumber) {
         if (res_isExitManager[0].departmentMangerId == workNumber) {
-             res_isSet = await departmentSql.emptySetManagerDepart(null, departmentId);
+             res_isSet = await departmentSql.emptyManagerIdAndName(departmentId);
              const res_clearPerssions = await allUserSql.clearpermission(workNumber);
              ctx.body = {
                  message: `重置${departmentName}管理员成功`,
                  error: 0,
              }
         } else {
-            res_isSet = await departmentSql.emptySetManagerDepart(workNumber, departmentId);
-            const res_setPerssions =  await allUserSql.setpermissions(workNumber);
+            const res_name = await allUserSql.queryNameByWorkNumber(workNumber);
+            const name = await res_name[0].userName;
+            res_isSet = await departmentSql.setDepartManageIdAndName(workNumber, name, departmentId);
+            const res_setPerssions =  await allUserSql.setDepartmentManaInfo(workNumber, departmentId);
             ctx.body = {
                 message: `设置${departmentName}管理员成功`,
                 error: 0,

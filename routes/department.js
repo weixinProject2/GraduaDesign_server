@@ -123,7 +123,15 @@ router.get('/getAllStuffInfo',async ctx=>{
 router.post('/deleteStuff', async ctx=>{
     let token = ctx.request.header.authorization;
     let res_token = getToken(token);
-    console.log(res_token);
+    console.log(res_token.permission);
+    const permission = Number(res_token.permission);
+    if(permission !== 1) {
+        ctx.status = 403;
+        return ctx.body = {
+            mess: '没有权限进行此操作',
+            error: -4
+        }
+    }
     const departmentId = res_token.departmentId;
     const ret =  ctx.request.body;
     let workNumbers = ret.ids;
@@ -136,6 +144,12 @@ router.post('/deleteStuff', async ctx=>{
     workNumberArr = workNumberArr.split(',');
     try {
         for(let i=0;i < workNumberArr.length;i++) {
+            if(res_token.workNumber == workNumberArr[i]) {
+                return ctx.body = {
+                    mess: '移除失败，没有权限',
+                    error: -4,
+                }
+            }
             let res_isDeparmentWork = await userSql.queryworkNumberisDepartment(workNumberArr[i], departmentId);
             if(!res_isDeparmentWork.length) {
                 return ctx.body = {
