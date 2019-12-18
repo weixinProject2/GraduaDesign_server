@@ -8,6 +8,7 @@ const positionSql = require('../allSqlStatement/positionSql');
 const professionalSql = require('../allSqlStatement/professionaSql');
 const departmentSql = require('../allSqlStatement/departmentSql');
 const until = require('../until/getStuffInfo');
+const getToken = require('../token/getToken');
 
 router.prefix('/admin');
 // 创建一名员工
@@ -123,6 +124,7 @@ router.get('/getAllStuffInfo', async(ctx,next) => {
             const professionalId = res_professional[0].professionalId;
             res[i].professionalId = professionalId;
         }
+        res[i].address = res[i].address.split(',');
         res[i].entryTime = entryTime;
     }
     ctx.body = {
@@ -423,8 +425,8 @@ router.post('/changeDepartmentInfo', async(ctx,next) => {
                     }
                 } else {
                     const res_setManager = await departmentSql.emptySetManagerDepart(departmentMangerId,departmentId);
-                    const res_setPerssions = await allUserSql.setpermissions(departmentMangerId);
-                    const res_getManagerName = await allUserSql.queryNameByWorkNumber(departmentMangerId);
+                    const res_setPerssions = await allUserSql.setDepartmentManaInfo(departmentMangerId, departmentId);
+                    const res_getManagerName = await allUserSql.queryNameByWorkNumber(departmenntMangerId);
                     departmentMangerName = res_getManagerName[0].userName;
                     changeInfo.departmentMangerName = departmentMangerName;
                 }
@@ -536,6 +538,100 @@ router.post('/addDepartment',async (ctx,next) => {
     } 
 })
 
+// 系统管理员查看所有职业信息
+router.get('/getAllProfessional', async ctx => {
+    let token = ctx.request.header.authorization;
+    let res_token = getToken(token);
+    const permission = Number(res_token.permission);
+    if(permission !== 0) {
+        ctx.status = 403;
+        return ctx.body = {
+            mess: '没有权限进行此操作',
+            error: -4
+        }
+    }
+    const params = ctx.query;
+    const page = params.page || 1;
+    const size = params.size || 10;
+    const initValue = {
+        "professionalId": null,
+        "professionalName": null,
+    };
+    let queryFiled = params.queryparams;
+    if (queryFiled) {
+        queryFiled = JSON.parse(queryFiled);
+    } else {
+        queryFiled = initValue;
+    }
+    try {
+        const res_result = await professionalSql.queryAllPrefossinalInfo(page, size, queryFiled);
+        const res_count =await professionalSql.queryAllProfessionaNum(queryFiled);
+        for(let i=0;i<res_result.length;i++) {
+            const res_num = await allUserSql.queryProfessionStuffNum(res_result[i].professionalName);
+            const num = res_num[0]['count(*)'];
+            res_result[i].num = num;
+        }
+        const total = res_count[0]['count(*)'];
+        ctx.body = {
+            data:res_result,
+            page: Number(page),
+            size: Number(size),
+            total,
+            totalPage: Math.ceil(total/Number(size)),
+            error: 0,
+        }
+    }catch(e) {
+        console.log(e);
+        ctx.body = {
+            mess: e,
+            error:-1,
+        }
+    }
+});
+// 系统管理员查看所有职位信息
+router.get('/getAllPosition', async ctx => {
+    let token = ctx.request.header.authorization;
+    let res_token = getToken(token);
+    const permission = Number(res_token.permission);
+    if(permission !== 0) {
+        ctx.status = 403;
+        return ctx.body = {
+            mess: '没有权限进行此操作',
+            error: -4
+        }
+    }
+    const params = ctx.query;
+    const page = params.page || 1;
+    const size = params.size || 10;
+    const initValue = {
+        "positionId": null,
+        "positionName": null,
+    };
+    let queryFiled = params.queryparams;
+    if (queryFiled) {
+        queryFiled = JSON.parse(queryFiled);
+    } else {
+        queryFiled = initValue;
+    }
+    try {
+        const res_result = await positionSql.queryAllPositionInfo(page, size, queryFiled);
+        const res_count =await positionSql.queryAllPositionNum(queryFiled);
+        const total = res_count[0]['count(*)'];
+        ctx.body = {
+            data:res_result,
+            page: Number(page),
+            size: Number(size),
+            total,
+            totalPage: Math.ceil(total/Number(size)),
+            error: 0,
+        }
+    }catch(e) {
+        ctx.body = {
+            mess: e,
+            error:-1,
+        }
+    }
+});
 // 随机创建一名员工
 router.post('/randomCreateStuff',async (ctx,next) => {
     const userName = until.getName();

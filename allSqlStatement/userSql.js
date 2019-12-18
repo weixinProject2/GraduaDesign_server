@@ -225,7 +225,11 @@ let  userSql = {
             }
         }
         return allServices.query(_sql);
-    }
-     
+    },
+    // 统计某个职业有多少人
+    queryProfessionStuffNum:function(professionalName) {
+        let _sql = `select count(*) from  user_info where professional = '${professionalName}';`;
+        return allServices.query(_sql);
+    },
 }   
 module.exports = userSql;

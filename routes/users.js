@@ -4,18 +4,21 @@
 const router = require('koa-router')();
 const allUserSql = require('../allSqlStatement/userSql');
 const departmentSql = require('../allSqlStatement/departmentSql');
+const getToken = require('../token/getToken');
 
 router.prefix('/user');
 
 // 获取用户信息
 router.get('/getUserInfo', async (ctx,next) => {
-  const user = ctx.query;
-  const workNumber = user.workNumber;
+  let token = ctx.request.header.authorization;
+  let res_token = getToken(token);
+  const workNumber = res_token.workNumber;
   const res = await allUserSql.queryUserInfo(workNumber);
   const departmentId = res[0].departmentId;
   if (departmentId) {
     const res_department = await departmentSql.queryDepartNameById(departmentId);
     const departmentName = res_department[0].departmentName;
+    res[0].address = res[0].address.split(',');
     res[0].departmentName = departmentName;
       ctx.body = {
         data: res,
@@ -31,18 +34,18 @@ router.get('/getUserInfo', async (ctx,next) => {
 
 // 修改用户信息
 router.post('/changeUserInfo',async (ctx,next) => {
+    let token = ctx.request.header.authorization;
     const userInfo = ctx.request.body;
     const telNumber = userInfo.telNumber;
     const email = userInfo.email;
     const address = userInfo.address;
-    const workNumber = userInfo.workNumber;
-    if (!workNumber) {
-      ctx.status = 400;
-      ctx.body = {
-        message: 'workNumber不能为空',
-        code: -1,
+    let res_token = getToken(token);
+    const workNumber = res_token.workNumber;
+    if(workNumber == 100000) {
+      return ctx.body = {
+        message: '管理员信息不可修改',
+        error: -1,
       }
-      return ;
     }
     const changeStatus = await allUserSql.changeUserInfo(telNumber, email, address, workNumber);
     if (changeStatus.protocol41) {

@@ -123,7 +123,6 @@ router.get('/getAllStuffInfo',async ctx=>{
 router.post('/deleteStuff', async ctx=>{
     let token = ctx.request.header.authorization;
     let res_token = getToken(token);
-    console.log(res_token.permission);
     const permission = Number(res_token.permission);
     if(permission !== 1) {
         ctx.status = 403;
