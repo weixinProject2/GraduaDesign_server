@@ -24,7 +24,8 @@ let positionSql = {
   queryAllPositionInfo: function (page, size, queryFiled) {
     let _sql = `select 
          positionId,
-         positionName
+         positionName,
+         description
          from position_info`;
     let _sql3 = ` limit ${(page - 1) * size} , ${size};`;
     let _sql2 = '';

@@ -65,8 +65,8 @@ app.use(async (ctx, next) => {
       if (res && res.exp <= new Date()/1000) {
         ctx.status = 403;
         ctx.body = {
-          msg: 'token已过期，请重新登录',
-          code: 0
+          message: 'token已过期，请重新登录',
+          error: -1
         }
       } else {
         await next();

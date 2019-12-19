@@ -193,5 +193,101 @@ router.post('/deleteStuff', async ctx=>{
         }
     }
 })
-
+// 系统管理员查看所有职业信息
+router.get('/getAllProfessional', async ctx => {
+    let token = ctx.request.header.authorization;
+    let res_token = getToken(token);
+    if(res_token.permission != 0 && res_token.permissions != 1) {
+        ctx.status = 403;
+        return ctx.body = {
+            message: '权限不足',
+            error: -1
+        }
+    } 
+    const params = ctx.query;
+    const page = params.page || 1;
+    const size = params.size || 10;
+    const initValue = {
+        "professionalId": null,
+        "professionalName": null,
+    };
+    let queryFiled = params.queryparams;
+    if (queryFiled) {
+        queryFiled = JSON.parse(queryFiled);
+    } else {
+        queryFiled = initValue;
+    }
+    try {
+        const res_result = await professionalSql.queryAllPrefossinalInfo(page, size, queryFiled);
+        const res_count =await professionalSql.queryAllProfessionaNum(queryFiled);
+        for(let i=0;i<res_result.length;i++) {
+            const res_num = await userSql.queryProfessionStuffNum(res_result[i].professionalName);
+            const num = res_num[0]['count(*)'];
+            res_result[i].num = num;
+        }
+        const total = res_count[0]['count(*)'];
+        ctx.body = {
+            data:res_result,
+            page: Number(page),
+            size: Number(size),
+            total,
+            totalPage: Math.ceil(total/Number(size)),
+            error: 0,
+        }
+    }catch(e) {
+        console.log(e);
+        ctx.body = {
+            mess: e,
+            error:-1,
+        }
+    }
+});
+// 系统管理员查看所有职位信息
+router.get('/getAllPosition', async ctx => {
+    let token = ctx.request.header.authorization;
+    let res_token = getToken(token);
+    if(res_token.permission != 0 && res_token.permission != 1) {
+        ctx.status = 403;
+        return ctx.body = {
+            message: '权限不足',
+            error: -1
+        }
+    } 
+    const params = ctx.query;
+    const page = params.page || 1;
+    const size = params.size || 10;
+    const initValue = {
+        "positionId": null,
+        "positionName": null,
+    };
+    let queryFiled = params.queryparams;
+    if (queryFiled) {
+        queryFiled = JSON.parse(queryFiled);
+    } else {
+        queryFiled = initValue;
+    }
+    try {
+        const res_result = await positionSql.queryAllPositionInfo(page, size, queryFiled);
+        const res_count =await positionSql.queryAllPositionNum(queryFiled);
+        for(let i=0;i<res_result.length;i++) {
+            const res_num = await userSql.queryPositionNum(res_result[i].positionName);
+            const num = res_num[0]['count(*)'];
+            res_result[i].totalNumbers = num;
+        }
+        const total = res_count[0]['count(*)'];
+        ctx.body = {
+            data:res_result,
+            page: Number(page),
+            size: Number(size),
+            total,
+            totalPage: Math.ceil(total/Number(size)),
+            error: 0,
+        }
+    }catch(e) {
+        ctx.body = {
+            mess: e,
+            error:-1,
+        }
+    }
+});
 module.exports = router;

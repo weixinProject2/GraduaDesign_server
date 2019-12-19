@@ -90,45 +90,6 @@ router.post('/createEmployee',async(ctx,next) => {
             error: -1
         }
     }
-    function checkId_Card(id) {
-        // 1 "验证通过!", 0 //校验不通过
-           const format = /^(([1][1-5])|([2][1-3])|([3][1-7])|([4][1-6])|([5][0-4])|([6][1-5])|([7][1])|([8][1-2]))\d{4}(([1][9]\d{2})|([2]\d{3}))(([0][1-9])|([1][0-2]))(([0][1-9])|([1-2][0-9])|([3][0-1]))\d{3}[0-9xX]$/;
-           //号码规则校验
-           if(!format.test(id)){
-               return {'status':0,'msg':'身份证号码不合规'};
-           }
-           //区位码校验
-           //出生年月日校验   前正则限制起始年份为1900;
-           const year = id.substr(6,4),//身份证年
-               month = id.substr(10,2),//身份证月
-               date = id.substr(12,2),//身份证日
-               time = Date.parse(month+'-'+date+'-'+year),//身份证日期时间戳date
-               now_time = Date.parse(new Date()),//当前时间戳
-               dates = (new Date(year,month,0)).getDate();//身份证当月天数
-           if(time>now_time||date>dates){
-               return {'status':0,'msg':'出生日期不合规'}
-           }
-           //校验码判断
-           const c = new Array(7,9,10,5,8,4,2,1,6,3,7,9,10,5,8,4,2);   //系数
-           const b = new Array('1','0','X','9','8','7','6','5','4','3','2');  //校验码对照表
-           const id_array = id.split("");
-           let sum = 0;
-           for(let k=0;k<17;k++){
-               sum+=parseInt(id_array[k])*parseInt(c[k]);
-           }
-           if(id_array[17].toUpperCase() != b[sum%11].toUpperCase()){
-               return {'status':0,'msg':'身份证校验码不合规'}
-           }
-           return {'status':1,'msg':'校验通过'}
-   }
-   const Id_CardInfo = checkId_Card(Id_Card);
-   if(!Id_CardInfo.status) {
-        ctx.status = 400;
-       return ctx.body = {
-           message: Id_CardInfo.msg,
-           error: -1,
-       }
-   }
    if(departmentId) {
        try {
         const res_isDeparmentId = await departmentSql.queryDepartmentIdfromInfo(departmentId);
@@ -762,98 +723,7 @@ router.post('/addDepartment',async (ctx,next) => {
     } 
 })
 
-// 系统管理员查看所有职业信息
-router.get('/getAllProfessional', async ctx => {
-    let token = ctx.request.header.authorization;
-    let res_token = getToken(token);
-    if(res_token.permission != 0 && res_token.permissions != 1) {
-        ctx.status = 403;
-        return ctx.body = {
-            message: '权限不足',
-            error: -1
-        }
-    } 
-    const params = ctx.query;
-    const page = params.page || 1;
-    const size = params.size || 10;
-    const initValue = {
-        "professionalId": null,
-        "professionalName": null,
-    };
-    let queryFiled = params.queryparams;
-    if (queryFiled) {
-        queryFiled = JSON.parse(queryFiled);
-    } else {
-        queryFiled = initValue;
-    }
-    try {
-        const res_result = await professionalSql.queryAllPrefossinalInfo(page, size, queryFiled);
-        const res_count =await professionalSql.queryAllProfessionaNum(queryFiled);
-        for(let i=0;i<res_result.length;i++) {
-            const res_num = await allUserSql.queryProfessionStuffNum(res_result[i].professionalName);
-            const num = res_num[0]['count(*)'];
-            res_result[i].num = num;
-        }
-        const total = res_count[0]['count(*)'];
-        ctx.body = {
-            data:res_result,
-            page: Number(page),
-            size: Number(size),
-            total,
-            totalPage: Math.ceil(total/Number(size)),
-            error: 0,
-        }
-    }catch(e) {
-        console.log(e);
-        ctx.body = {
-            mess: e,
-            error:-1,
-        }
-    }
-});
-// 系统管理员查看所有职位信息
-router.get('/getAllPosition', async ctx => {
-    let token = ctx.request.header.authorization;
-    let res_token = getToken(token);
-    if(res_token.permission != 0) {
-        ctx.status = 403;
-        return ctx.body = {
-            message: '权限不足',
-            error: -1
-        }
-    } 
-    const params = ctx.query;
-    const page = params.page || 1;
-    const size = params.size || 10;
-    const initValue = {
-        "positionId": null,
-        "positionName": null,
-    };
-    let queryFiled = params.queryparams;
-    if (queryFiled) {
-        queryFiled = JSON.parse(queryFiled);
-    } else {
-        queryFiled = initValue;
-    }
-    try {
-        const res_result = await positionSql.queryAllPositionInfo(page, size, queryFiled);
-        const res_count =await positionSql.queryAllPositionNum(queryFiled);
-        const total = res_count[0]['count(*)'];
-        ctx.body = {
-            data:res_result,
-            page: Number(page),
-            size: Number(size),
-            total,
-            totalPage: Math.ceil(total/Number(size)),
-            error: 0,
-        }
-    }catch(e) {
-        ctx.body = {
-            mess: e,
-            error:-1,
-        }
-    }
-});
+
 // 随机创建一名员工
 router.post('/randomCreateStuff',async (ctx,next) => {
     const userName = until.getName();
