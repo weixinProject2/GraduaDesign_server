@@ -13,22 +13,165 @@ const getToken = require('../token/getToken');
 router.prefix('/admin');
 // 创建一名员工
 router.post('/createEmployee',async(ctx,next) => {
+    let token = ctx.request.header.authorization;
+    let res_token = getToken(token);
+    if(res_token.permission != '0') {
+        ctx.status = 403;
+        return ctx.body = {
+            message: '权限不足',
+            error: -1
+        }
+    } 
     const userInfo = ctx.request.body;
     const userName = userInfo.userName;
     const sex = userInfo.sex;
     const telNumber = userInfo.telNumber;
     const email = userInfo.email;
-    const address = userInfo.address;
-    const departmentId = userInfo.departmentId;
+    const address = userInfo.address.join(',');
+    const departmentId = userInfo.departmentId || null;
     const professionalId = userInfo.professionalId;
     const positionId = userInfo.positionId;
     const Id_Card = userInfo.Id_Card;
+    if(!userName) {
+        ctx.status = 400;
+        return ctx.body = {
+            message: '姓名不可为空',
+            error: -1
+        }
+    }
+    if(!sex) {
+        ctx.status = 400;
+        return ctx.body = {
+            message: '性别不可为空',
+            error: -1
+        }
+    }
+    if(sex !== '男' && sex !== '女') {
+        ctx.status = 400;
+        return ctx.body = {
+            message: '性别不合法',
+            error: -1,
+        }
+    }
+    if(!telNumber) {
+        ctx.status = 400;
+        return ctx.body = {
+            message: '电话号码不可为空',
+            error: -1
+        }
+    }
+    if(!(/^1(3|4|5|6|7|8|9)\d{9}$/.test(telNumber))){ 
+            ctx.status = 400;
+            return ctx.body = {
+                message: '请上传正确的手机号码',
+                error: -1,
+            }; 
+        } 
+
+    if(!email) {
+        ctx.status = 400;
+        return ctx.body = {
+            message: '邮箱不可为空',
+            error: -1
+        }
+    }       
+    const reg = /^\w+((.\w+)|(-\w+))@[A-Za-z0-9]+((.|-)[A-Za-z0-9]+).[A-Za-z0-9]+$/; 
+    if(!reg.test(email)) {
+        ctx.status = 400;
+        return ctx.body = {
+            message: '邮箱格式不正确',
+            error: -1,
+        }
+    }
+    if(!Id_Card) {
+        ctx.status = 400;
+        return ctx.body = {
+            message: '身份证号码不可为空',
+            error: -1
+        }
+    }
+    function checkId_Card(id) {
+        // 1 "验证通过!", 0 //校验不通过
+           const format = /^(([1][1-5])|([2][1-3])|([3][1-7])|([4][1-6])|([5][0-4])|([6][1-5])|([7][1])|([8][1-2]))\d{4}(([1][9]\d{2})|([2]\d{3}))(([0][1-9])|([1][0-2]))(([0][1-9])|([1-2][0-9])|([3][0-1]))\d{3}[0-9xX]$/;
+           //号码规则校验
+           if(!format.test(id)){
+               return {'status':0,'msg':'身份证号码不合规'};
+           }
+           //区位码校验
+           //出生年月日校验   前正则限制起始年份为1900;
+           const year = id.substr(6,4),//身份证年
+               month = id.substr(10,2),//身份证月
+               date = id.substr(12,2),//身份证日
+               time = Date.parse(month+'-'+date+'-'+year),//身份证日期时间戳date
+               now_time = Date.parse(new Date()),//当前时间戳
+               dates = (new Date(year,month,0)).getDate();//身份证当月天数
+           if(time>now_time||date>dates){
+               return {'status':0,'msg':'出生日期不合规'}
+           }
+           //校验码判断
+           const c = new Array(7,9,10,5,8,4,2,1,6,3,7,9,10,5,8,4,2);   //系数
+           const b = new Array('1','0','X','9','8','7','6','5','4','3','2');  //校验码对照表
+           const id_array = id.split("");
+           let sum = 0;
+           for(let k=0;k<17;k++){
+               sum+=parseInt(id_array[k])*parseInt(c[k]);
+           }
+           if(id_array[17].toUpperCase() != b[sum%11].toUpperCase()){
+               return {'status':0,'msg':'身份证校验码不合规'}
+           }
+           return {'status':1,'msg':'校验通过'}
+   }
+   const Id_CardInfo = checkId_Card(Id_Card);
+   if(!Id_CardInfo.status) {
+        ctx.status = 400;
+       return ctx.body = {
+           message: Id_CardInfo.msg,
+           error: -1,
+       }
+   }
+   if(departmentId) {
+       try {
+        const res_isDeparmentId = await departmentSql.queryDepartmentIdfromInfo(departmentId);
+        if(!res_isDeparmentId.length) {
+            ctx.status = 400;
+            return ctx.body = {
+                mess: '不存在该部门ID',
+                error: -1,
+            }
+        }
+       }catch(e) {
+             ctx.status = 400;
+            return ctx.body = {
+                message: '部门Id不合法',
+                error: -1,
+            }
+       }
+   }
     let createTime = new Date();
     createTime = moment(createTime).format('YYYY-MM-DD HH:mm:ss');
-    const position = await positionSql.queryPositionNameById(positionId);
-    const positionName = position[0].positionName;
-    const professional = await professionalSql.queryPrefossinalById(professionalId);
-    const professionalName = professional[0].professionalName;
+    let positionName = '';
+    try {
+        const position = await positionSql.queryPositionNameById(positionId);
+        positionName = position[0].positionName;
+    }catch (e) {
+        ctx.status = 400;
+        return ctx.body = {
+            message: '请上传正确的职位ID',
+            error: -1,
+        }
+    }
+    let professionalName = '';
+    try {
+        const professional = await professionalSql.queryPrefossinalById(professionalId);
+        professionalName = professional[0].professionalName;
+    } catch(e) {
+        ctx.status = 400;
+        return ctx.body = {
+            message: '请上传正确的职业ID',
+            error: -1,
+        }
+    }
+
     const permissions = 2;
 
     const number = await allUserSql.getMaxWorkNumber();
@@ -52,7 +195,16 @@ router.post('/createEmployee',async(ctx,next) => {
         Id_Card,
         createTime,
     }
-    const res = await allUserSql.insetNewEmployee(user);
+    let res ;
+    try {
+         res = await allUserSql.insetNewEmployee(user);
+    }catch(e) {
+        ctx.status = 500;
+        return ctx.body = {
+            message: '员工增加失败',
+            error: -2,
+        }
+    }
     if (res.protocol41) {
         ctx.body = {
             message: '员工新增成功',
@@ -67,6 +219,15 @@ router.post('/createEmployee',async(ctx,next) => {
 });
 // 获取所有员工信息
 router.get('/getAllStuffInfo', async(ctx,next) => {
+    let token = ctx.request.header.authorization;
+    let res_token = getToken(token);
+    if(res_token.permission != 0) {
+        ctx.status = 403;
+        return ctx.body = {
+            message: '权限不足',
+            error: -1
+        }
+    } 
     const params = ctx.query;
     const initValue = {
         "userName": null,
@@ -137,6 +298,15 @@ router.get('/getAllStuffInfo', async(ctx,next) => {
 });
 // 批量删除员工
 router.post('/deleteStaffInfo', async(ctx,next) => {
+    let token = ctx.request.header.authorization;
+    let res_token = getToken(token);
+    if(res_token.permission != 0) {
+        ctx.status = 403;
+        return ctx.body = {
+            message: '权限不足',
+            error: -1
+        }
+    } 
     const ret =  ctx.request.body;
     let workNumbers = ret.ids;
     let res;
@@ -165,6 +335,15 @@ router.post('/deleteStaffInfo', async(ctx,next) => {
 });
 // 设置或者清空某个部门下的管理员
 router.post('/setManagerDepart', async(ctx,next) => {
+    let token = ctx.request.header.authorization;
+    let res_token = getToken(token);
+    if(res_token.permission != 0) {
+        ctx.status = 403;
+        return ctx.body = {
+            message: '权限不足',
+            error: -1
+        }
+    } 
     const params = ctx.request.body;
     const workNumber = params.workNumber || null;
     const departmentId = params.departmentId;
@@ -200,6 +379,15 @@ router.post('/setManagerDepart', async(ctx,next) => {
 
 // 管理员修改员工信息
 router.post('/changeStuffInfo', async(ctx,next) => {
+    let token = ctx.request.header.authorization;
+    let res_token = getToken(token);
+    if(res_token.permission != 0) {
+        ctx.status = 403;
+        return ctx.body = {
+            message: '权限不足',
+            error: -1
+        }
+    } 
     const info = ctx.request.body;
     const workNumber = info.workNumber;
     const professionalId = info.professionalId;
@@ -285,6 +473,15 @@ router.post('/changeStuffInfo', async(ctx,next) => {
 });
 // 管理员删除部门
 router.post('/deleteDepartment',async(ctx,next) => {
+    let token = ctx.request.header.authorization;
+    let res_token = getToken(token);
+    if(res_token.permission != 0) {
+        ctx.status = 403;
+        return ctx.body = {
+            message: '权限不足',
+            error: -1
+        }
+    } 
     const info = ctx.request.body;
     const departmentId = info.departmentId;
     try {
@@ -317,6 +514,15 @@ router.post('/deleteDepartment',async(ctx,next) => {
 })
 // 管理员修改部门信息
 router.post('/changeDepartmentInfo', async(ctx,next) => {
+    let token = ctx.request.header.authorization;
+    let res_token = getToken(token);
+    if(res_token.permission != 0) {
+        ctx.status = 403;
+        return ctx.body = {
+            message: '权限不足',
+            error: -1
+        }
+    } 
         const info =ctx.request.body;
         let departmentMangerName = '';
         const departmentName = info.departmentName;
@@ -449,6 +655,15 @@ router.post('/changeDepartmentInfo', async(ctx,next) => {
 });
 // 获取所有部门详细信息
 router.get('/getAllDepartmentInfo', async(ctx,next ) => {
+    let token = ctx.request.header.authorization;
+    let res_token = getToken(token);
+    if(res_token.permission != 0) {
+        ctx.status = 403;
+        return ctx.body = {
+            message: '权限不足',
+            error: -1
+        }
+    } 
     const params = ctx.query;
     const initValue = {
         "departmentId": null,
@@ -484,6 +699,15 @@ router.get('/getAllDepartmentInfo', async(ctx,next ) => {
 });
 // 增加一个部门 
 router.post('/addDepartment',async (ctx,next) => {
+    let token = ctx.request.header.authorization;
+    let res_token = getToken(token);
+    if(res_token.permission != 0) {
+        ctx.status = 403;
+        return ctx.body = {
+            message: '权限不足',
+            error: -1
+        }
+    } 
     const departmentInfo = ctx.request.body;
     try {
         let maxdepartmentId =await departmentSql.queryMaxDepartmentId();    
@@ -542,14 +766,13 @@ router.post('/addDepartment',async (ctx,next) => {
 router.get('/getAllProfessional', async ctx => {
     let token = ctx.request.header.authorization;
     let res_token = getToken(token);
-    const permission = Number(res_token.permission);
-    if(permission !== 0) {
+    if(res_token.permission != 0 && res_token.permissions != 1) {
         ctx.status = 403;
         return ctx.body = {
-            mess: '没有权限进行此操作',
-            error: -4
+            message: '权限不足',
+            error: -1
         }
-    }
+    } 
     const params = ctx.query;
     const page = params.page || 1;
     const size = params.size || 10;
@@ -592,14 +815,13 @@ router.get('/getAllProfessional', async ctx => {
 router.get('/getAllPosition', async ctx => {
     let token = ctx.request.header.authorization;
     let res_token = getToken(token);
-    const permission = Number(res_token.permission);
-    if(permission !== 0) {
+    if(res_token.permission != 0) {
         ctx.status = 403;
         return ctx.body = {
-            mess: '没有权限进行此操作',
-            error: -4
+            message: '权限不足',
+            error: -1
         }
-    }
+    } 
     const params = ctx.query;
     const page = params.page || 1;
     const size = params.size || 10;

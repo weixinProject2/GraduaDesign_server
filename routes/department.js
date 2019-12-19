@@ -12,6 +12,15 @@ router.prefix('/department');
 
 // 部门管理员查询其部门下所有员工信息
 router.get('/getAllStuffInfo',async ctx=>{
+    let token = ctx.request.header.authorization;
+    let res_token = getToken(token);
+    if(res_token.permission != 1 && res_token.permission != 0) {
+        ctx.status = 403;
+        return ctx.body = {
+            message: '权限不足',
+            error: -1
+        }
+    } 
     const info  = ctx.query;
     const workNumber = info.workNumber;
     const initValue = {
@@ -123,14 +132,13 @@ router.get('/getAllStuffInfo',async ctx=>{
 router.post('/deleteStuff', async ctx=>{
     let token = ctx.request.header.authorization;
     let res_token = getToken(token);
-    const permission = Number(res_token.permission);
-    if(permission !== 1) {
+    if(res_token.permission != 1 && res_token.permission != 0) {
         ctx.status = 403;
         return ctx.body = {
-            mess: '没有权限进行此操作',
-            error: -4
+            message: '权限不足',
+            error: -1
         }
-    }
+    } 
     const departmentId = res_token.departmentId;
     const ret =  ctx.request.body;
     let workNumbers = ret.ids;
