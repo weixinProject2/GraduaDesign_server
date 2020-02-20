@@ -1,10 +1,10 @@
 const config = {
     database: {
-      DATABASE: 'eleme',
+      DATABASE: 'gradu',
       USERNAME: 'root',
-      PASSWORD: 'woaini',
+      PASSWORD: 'password',
       PORT: '3306',
-      HOST:'localhost'
+      HOST:'106.54.206.102'
     }
 };
 module.exports = config;

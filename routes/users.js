@@ -5,6 +5,9 @@ const router = require('koa-router')();
 const allUserSql = require('../allSqlStatement/userSql');
 const departmentSql = require('../allSqlStatement/departmentSql');
 const getToken = require('../token/getToken');
+const crypto = require('crypto');
+const fs = require('fs');
+const path = require('path');
 
 router.prefix('/user');
 
@@ -15,6 +18,11 @@ router.get('/getUserInfo', async (ctx,next) => {
   const workNumber = res_token.workNumber;
   const res = await allUserSql.queryUserInfo(workNumber);
   const departmentId = res[0].departmentId;
+  let imgUrl = res[0].headerImg;
+  if(imgUrl) {
+    imgUrl = `http://106.54.206.102:8080/header/${imgUrl}`;
+  }
+  res[0].headerImg = imgUrl;
   if (departmentId) {
     const res_department = await departmentSql.queryDepartNameById(departmentId);
     const departmentName = res_department[0].departmentName;
@@ -28,7 +36,6 @@ router.get('/getUserInfo', async (ctx,next) => {
       data: res
     }
   }
-  
 });
 
 
@@ -89,5 +96,42 @@ router.post('/changePassword', async(ctx,next) => {
     }
 });
 
-
+// 用户上传头像
+router.post('/postHeaderImg', async (ctx) => {
+  let token = ctx.request.header.authorization;
+  let res_token = getToken(token);
+  const workNumber = res_token.workNumber;
+  const file = ctx.request.files.file; // 获取上传文件
+  // 创建可读流
+  const reader = fs.createReadStream(file.path);
+  const format = file.name.split('.');
+  var current_date = (new Date()).valueOf().toString();
+  var random = Math.random().toString();
+  var fileName = crypto.createHash('sha1', file.name).update(current_date + random).digest('hex');
+  let filePath = path.join('../file/header/') + `/${fileName}.${format[format.length - 1]}`;
+  try {
+    const res_header_isSave = await allUserSql.queryUserHeader(workNumber);
+    const imgPath = res_header_isSave[0].headerImg || null;
+    if(imgPath) {
+      // 异步删除已经存在的用户头像
+      fs.unlink(`../file/header/${imgPath}`, err => {
+        if(err) {
+            throw err;
+        }
+      })
+    }
+    const res = await allUserSql.uploadHeaderImg(`${fileName}.${format[format.length - 1]}`, workNumber);
+      // 创建可写流
+    const upStream = fs.createWriteStream(filePath);
+     // 可读流通过管道写入可写流
+     reader.pipe(upStream);
+     return ctx.body = "头像上传成功！";
+  }catch(e) {
+    console.log(e);
+    return ctx.body = {
+      error: -1,
+      message: '上传头像失败'
+    }
+  }
+})
 module.exports = router;

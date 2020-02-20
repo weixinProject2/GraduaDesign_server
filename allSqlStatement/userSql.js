@@ -46,7 +46,7 @@ let userSql = {
     },
     // 查询用户信息
     queryUserInfo: function (workNumber) {
-        let _sql = `select userName, workNumber,position,professional,departmentId,email,telNumber,sex,address,Id_Card from user_info where workNumber = ${workNumber};`
+        let _sql = `select userName, workNumber,position,professional,departmentId,email,telNumber,sex,address,Id_Card, headerImg from user_info where workNumber = ${workNumber};`
         return allServices.query(_sql);
     },
     // 根据工号查询部门管理员名称
@@ -236,5 +236,15 @@ let userSql = {
         let _sql = `select count(*) from  user_info where position = '${positionName}';`;
         return allServices.query(_sql);
     },
+    // 测试头像上传
+    uploadHeaderImg: function (imgUrl, workNumber) {
+        let _sql = `update user_info set headerImg = '${imgUrl}' where workNumber = ${workNumber};`;
+        return allServices.query(_sql);
+    },
+    // 判断用户头像是否已经存在
+    queryUserHeader: function(workNumber) {
+        let _sql = `select headerImg from user_info where workNumber = ${workNumber};`;
+        return allServices.query(_sql);
+    }
 }
 module.exports = userSql;
