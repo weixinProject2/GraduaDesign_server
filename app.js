@@ -14,7 +14,7 @@ const department = require('./routes/department');
 const admin = require('./routes/admin');
 
 const getToken = require('./token/getToken');
-// error handler
+// error handler sds
 onerror(app);
 // cors
 app.use(cors({
