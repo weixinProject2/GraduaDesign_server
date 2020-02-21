@@ -127,7 +127,6 @@ router.post('/postHeaderImg', async (ctx) => {
      reader.pipe(upStream);
      return ctx.body = "头像上传成功！";
   }catch(e) {
-    console.log(e);
     return ctx.body = {
       error: -1,
       message: '上传头像失败'
