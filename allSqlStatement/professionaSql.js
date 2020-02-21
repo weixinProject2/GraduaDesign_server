@@ -24,7 +24,8 @@ let professionaSql = {
     queryAllPrefossinalInfo:function(page, size, queryFiled) {
         let _sql = `select 
         professionalId,
-        professionalName
+        professionalName,
+        description
          from professional_info`;
          let _sql3 = ` limit ${(page -1) * size} , ${size};`;
          let _sql2 = '';

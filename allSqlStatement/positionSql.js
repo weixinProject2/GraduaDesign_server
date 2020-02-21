@@ -10,11 +10,10 @@ let positionSql = {
   },
 
   // 查询所有职位信息
-  queryAllPositionInfo: function () {
+  queryPositionInfo: function () {
     let _sql = 'select positionId,positionName from position_info;'
     return allServices.query(_sql);
   },
-
   // 根据名称模糊查询职位信息
   queryPositionByName: function (positionName) {
     let _sql = `select positionId,positionName from position_info where positionName like '%${positionName}%';`;

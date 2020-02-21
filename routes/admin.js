@@ -432,6 +432,8 @@ router.post('/changeStuffInfo', async(ctx,next) => {
     }
    
 });
+
+/* 部门相关接口  */
 // 管理员删除部门
 router.post('/deleteDepartment',async(ctx,next) => {
     let token = ctx.request.header.authorization;
@@ -614,50 +616,7 @@ router.post('/changeDepartmentInfo', async(ctx,next) => {
             }
         }
 });
-// 获取所有部门详细信息
-router.get('/getAllDepartmentInfo', async(ctx,next ) => {
-    let token = ctx.request.header.authorization;
-    let res_token = getToken(token);
-    if(res_token.permission != 0) {
-        ctx.status = 403;
-        return ctx.body = {
-            message: '权限不足',
-            error: -1
-        }
-    } 
-    const params = ctx.query;
-    const initValue = {
-        "departmentId": null,
-        "departmentName": null,
-        "departmentMangerName": null,
-    };
-    let queryFiled = params.queryparams;
-    if (queryFiled) {
-        queryFiled = JSON.parse(queryFiled);
-    } else {
-        queryFiled = initValue;
-    }
-    const page = params.page || 1;
-    const size = params.size || 10;
-    try {
-        const res_result = await departmentSql.queryAllDepartmentInfo(page, size, queryFiled);
-        const res_count =await departmentSql.queryAllDepartmentNum(queryFiled);
-        const total = res_count[0]['count(*)'];
-        ctx.body = {
-            data:res_result,
-            page: Number(page),
-            size: Number(size),
-            total,
-            totalPage: Math.ceil(total/Number(size)),
-            error: 0,
-        }
-    }catch(e) {
-        ctx.body = {
-            mess: e,
-            error:-1,
-        }
-    }
-});
+
 // 增加一个部门 
 router.post('/addDepartment',async (ctx,next) => {
     let token = ctx.request.header.authorization;
@@ -722,6 +681,10 @@ router.post('/addDepartment',async (ctx,next) => {
         }
     } 
 })
+
+/* 职业信息相关接口 */
+
+
 
 
 // 随机创建一名员工

@@ -1,13 +1,10 @@
 const router = require('koa-router')();
-var fs=require("fs");
-const path = require('path');
-const moment = require('moment');
 
 const allUserSql = require('../allSqlStatement/userSql');
-const allOtherSql  = require('../allSqlStatement/otherSql');
 const positionSql = require('../allSqlStatement/positionSql');
 const professionalSql = require('../allSqlStatement/professionaSql');
 const departmentSql = require('../allSqlStatement/departmentSql');
+const userSql = require('../allSqlStatement/userSql');
 const addtoken = require('../token/index'); 
 const getToken = require('../token/getToken');
 
@@ -29,41 +26,16 @@ router.get('/login',async (ctx,next) => {
   }
 });
 
-// 获取侧边栏
-router.get('/getMenu',async (ctx,next) => {
-  let token = ctx.request.header.authorization;
-  let res = getToken(token);
-  const permissionId = res.permission;
-  const data = await allOtherSql.getSiderMenu(permissionId);
-  for (let i = 0;i < data.length; i++) {
-    if(data[i].fatherMenuId){
-      const fatherId = data[i].fatherMenuId;
-      for(let j=0;j<data.length;j++){
-        if(data[j].menuId === Number(fatherId)){
-          if(!data[j].children){
-            data[j].children = [];
-          }
-          data[j].children.push(data[i]);
-        }
-      }
-    }
-  }
-  const temData = data.filter((item)=>!item.fatherMenuId);
-  ctx.body = {
-    menus: temData,
-  }
-});
 // 查询职位信息
 router.get('/getPosition', async(ctx,next) => {
   const info = ctx.query;
-  const professionalName = info.professionalName;
+  const positionName = info.positionName;
   let list;
-  if (!professionalName) {
-    list = await positionSql.queryAllPositionInfo();
+  if (!positionName) {
+    list = await positionSql.queryPositionInfo();
   } else {
-    list = await positionSql.queryPositionByName(professionalName);
+    list = await positionSql.queryPositionByName(positionName);
   }
-  console.log(list)
   ctx.body = {
     data: list,
     code: 0,
@@ -88,7 +60,6 @@ router.get('/getProfessional', async(ctx,next) => {
 });
 
 // 查询部门信息
-
 router.get('/getDepartment',async(ctx,next) => {
   const info = ctx.query;
   const departmentName = info.departmentName;
@@ -105,43 +76,123 @@ router.get('/getDepartment',async(ctx,next) => {
   }
 });
 
-// 管理员创建员工 
-router.post('/createEmploye',async (ctx,next) => {
-      const userInfo = ctx.request.body;
-      
-});
 
-// 管理员修改员工信息
-router.post('/createEmploy', async(ctx,next) => {
-  
-});
 
-router.post("/upload", async (ctx)=>{
-  const uploadUrl="http://106.54.206.102/static";
-  const file=ctx.request.files.file;
-  const uploadFilePath = file.path.split('\\');
-  const fileKey = uploadFilePath[uploadFilePath.length - 1];
-  const reader=fs.createReadStream(file.path);
-  let filePath = path.join('/root/static');
-  let fileResource=filePath+`/${fileKey}${file.name}`;
-  if(!fs.existsSync(filePath)){ 
-    fs.mkdir(filePath,(err)=>{
-      if(err){
-        throw new Error(err)
-      }else{
-        let upstream=fs.createWriteStream(fileResource);
-        reader.pipe(upstream);
-        ctx.response.body={
-          url:uploadUrl+`/${fileKey}${file.name}`
-        }
-      }
-    })
-  }else{
-    let upstream=fs.createWriteStream(fileResource)
-    reader.pipe(upstream);
-    ctx.response.body={
-       url:uploadUrl+`/${fileKey}${file.name}` //返给前端一个url地址
-    }
+
+// 获取所有部门详细信息
+router.get('/getAllDepartmentInfo', async(ctx,next ) => {
+  const params = ctx.query;
+  const initValue = {
+      "departmentId": null,
+      "departmentName": null,
+      "departmentMangerName": null,
+  };
+  let queryFiled = params.queryparams;
+  if (queryFiled) {
+      queryFiled = JSON.parse(queryFiled);
+  } else {
+      queryFiled = initValue;
   }
-})
+  const page = params.page || 1;
+  const size = params.size || 10;
+  try {
+      const res_result = await departmentSql.queryAllDepartmentInfo(page, size, queryFiled);
+      const res_count =await departmentSql.queryAllDepartmentNum(queryFiled);
+      const total = res_count[0]['count(*)'];
+      ctx.body = {
+          data:res_result,
+          page: Number(page),
+          size: Number(size),
+          total,
+          totalPage: Math.ceil(total/Number(size)),
+          error: 0,
+      }
+  }catch(e) {
+      ctx.body = {
+          mess: e,
+          error:-1,
+      }
+  }
+});
+
+// 查看所有职业详细信息
+router.get('/getAllProfessionalInfo', async ctx => {
+  const params = ctx.query;
+  const page = params.page || 1;
+  const size = params.size || 10;
+  const initValue = {
+      "professionalId": null,
+      "professionalName": null,
+  };
+  let queryFiled = params.queryparams;
+  if (queryFiled) {
+      queryFiled = JSON.parse(queryFiled);
+  } else {
+      queryFiled = initValue;
+  }
+  try {
+      const res_result = await professionalSql.queryAllPrefossinalInfo(page, size, queryFiled);
+      const res_count =await professionalSql.queryAllProfessionaNum(queryFiled);
+      for(let i=0;i<res_result.length;i++) {
+          const res_num = await userSql.queryProfessionStuffNum(res_result[i].professionalName);
+          const num = res_num[0]['count(*)'];
+          res_result[i].num = num;
+      }
+      const total = res_count[0]['count(*)'];
+      ctx.body = {
+          data:res_result,
+          page: Number(page),
+          size: Number(size),
+          total,
+          totalPage: Math.ceil(total/Number(size)),
+          error: 0,
+      }
+  }catch(e) {
+      ctx.body = {
+          mess: e,
+          error:-1,
+      }
+  }
+});
+
+// 查看所有职位详细信息
+router.get('/getAllPositionInfo', async ctx => {
+  const params = ctx.query;
+  const page = params.page || 1;
+  const size = params.size || 10;
+  const initValue = {
+      "positionId": null,
+      "positionName": null,
+  };
+  let queryFiled = params.queryparams;
+  if (queryFiled) {
+      queryFiled = JSON.parse(queryFiled);
+  } else {
+      queryFiled = initValue;
+  }
+  try {
+      const res_result = await positionSql.queryAllPositionInfo(page, size, queryFiled);
+      const res_count =await positionSql.queryAllPositionNum(queryFiled);
+      for(let i=0;i<res_result.length;i++) {
+          const res_num = await userSql.queryPositionNum(res_result[i].positionName);
+          const num = res_num[0]['count(*)'];
+          res_result[i].totalNumbers = num;
+      }
+      const total = res_count[0]['count(*)'];
+      ctx.body = {
+          data:res_result,
+          page: Number(page),
+          size: Number(size),
+          total,
+          totalPage: Math.ceil(total/Number(size)),
+          error: 0,
+      }
+  }catch(e) {
+      ctx.body = {
+          mess: e,
+          error:-1,
+      }
+  }
+});
+
 module.exports = router;
