@@ -115,7 +115,7 @@ router.post('/postHeaderImg', async (ctx) => {
     if(imgPath) {
       //  同步删除已经存在的用户头像 // 
       try {
-        fs.unlinkSync(`../file/header/${imgPath}`, err => {
+        fs.unlinkSync(`../../file/header/${imgPath}`, err => {
           if(err) {
                throw  new Error(err);
           }
