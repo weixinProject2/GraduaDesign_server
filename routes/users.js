@@ -108,7 +108,7 @@ router.post('/postHeaderImg', async (ctx) => {
   var current_date = (new Date()).valueOf().toString();
   var random = Math.random().toString();
   var fileName = crypto.createHash('sha1', file.name).update(current_date + random).digest('hex');
-  let filePath = path.join('../file/header/') + `/${fileName}.${format[format.length - 1]}`;
+  let filePath = path.join('../file/header/') + `${fileName}.${format[format.length - 1]}`;
   try {
     const res_header_isSave = await allUserSql.queryUserHeader(workNumber);
     const imgPath = res_header_isSave[0].headerImg || null;
