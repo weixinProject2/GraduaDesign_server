@@ -113,12 +113,16 @@ router.post('/postHeaderImg', async (ctx) => {
     const res_header_isSave = await allUserSql.queryUserHeader(workNumber);
     const imgPath = res_header_isSave[0].headerImg || null;
     if(imgPath) {
-      // 异步删除已经存在的用户头像
-      fs.unlink(`../file/header/${imgPath}`, err => {
-        if(err) {
-            throw err;
-        }
-      })
+      //  同步删除已经存在的用户头像
+      try {
+        fs.unlinkSync(`../file/header/${imgPath}`, err => {
+          if(err) {
+               throw  new Error(err);
+          }
+        })
+      }catch(e) {
+        console.log('文件删除失败');
+      }
     }
     const res = await allUserSql.uploadHeaderImg(`${fileName}.${format[format.length - 1]}`, workNumber);
       // 创建可写流
