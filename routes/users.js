@@ -113,7 +113,7 @@ router.post('/postHeaderImg', async (ctx) => {
     const res_header_isSave = await allUserSql.queryUserHeader(workNumber);
     const imgPath = res_header_isSave[0].headerImg || null;
     if(imgPath) {
-      //  同步删除已经存在的用户头像
+      //  同步删除已经存在的用户头像 // 
       try {
         fs.unlinkSync(`../file/header/${imgPath}`, err => {
           if(err) {
