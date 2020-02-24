@@ -682,6 +682,121 @@ router.post('/addDepartment',async (ctx,next) => {
     } 
 })
 
+//  增加一个职业
+router.post('/addProfessional', async ctx => {
+    let token = ctx.request.header.authorization;
+    let res_token = getToken(token);
+    if(res_token.permission != 0) {
+        ctx.status = 403;
+        return ctx.body = {
+            message: '权限不足',
+            error: -1
+        }
+    } 
+    const professionalInfo = ctx.request.body;
+    if(!professionalInfo.professionaName || !professionalInfo.description) {
+        ctx.status = 400;
+        return ctx.body = {
+            message: '请求参数有误',
+            error: -2,
+        }
+    }
+    try {
+        const res_result = await professionalSql.queryPrefossinalByNmae(professionalInfo.professionaName);
+        if(res_result.length) {
+            return ctx.body = {
+                message: '不可重复添加已经存在的职业',
+                error: -3,
+            }
+        }
+    }catch (e) {
+        const str = e.toString();
+        return ctx.body = {
+            message: str,
+            error: -4,
+        }
+    }
+    let professionalId =  null;
+    try {
+        const res_maxProfessionalId = await professionalSql.queryMaxProfessionalId();
+        professionalId = res_maxProfessionalId[0]['max(professionalId)'] + 1;
+    }catch(e) {
+        professionalId = 10001;
+    }
+    professionalInfo.professionalId = professionalId;
+    try {
+        const res_result = await professionalSql.addNewProfessional(professionalInfo);
+        if(res_result.protocol41) {
+            return ctx.body = {
+                message: '新增职业成功',
+                error: 0,
+            }
+        }
+    }catch(e) {
+        return ctx.body = {
+            message: '新增职业失败',
+            error: -1
+        }
+    }
+}) 
+// 增加一个职位
+router.post('/addPosition', async ctx => {
+    let token = ctx.request.header.authorization;
+    let res_token = getToken(token);
+    if(res_token.permission != 0) {
+        ctx.status = 403;
+        return ctx.body = {
+            message: '权限不足',
+            error: -1
+        }
+    } 
+    const positionInfo = ctx.request.body;
+    if(!positionInfo.positionName || !positionInfo.description) {
+        ctx.status = 400;
+        return ctx.body = {
+            message: '请求参数有误',
+            error: -2,
+        }
+    }
+    try {
+        const res_result = await positionSql.queryPositionByName(positionInfo.positionName);
+        if(res_result.length) {
+            return ctx.body = {
+                message: '不可重复添加已经存在的职位',
+                error: -3,
+            }
+        }
+    }catch (e) {
+        const str = e.toString();
+        return ctx.body = {
+            message: str,
+            error: -4,
+        }
+    }
+    let positionId =  null;
+    try {
+        const res_maxPositionId = await positionSql.queryMaxPositionId();
+        positionId = res_maxPositionId[0]['max(positionId)'] + 1;
+    }catch(e) {
+        positionId = 1200001;
+    }
+    positionInfo.positionId = positionId;
+    try {
+        const res_result = await positionSql.addNewPosition(positionInfo);
+        if(res_result.protocol41) {
+            return ctx.body = {
+                message: '新增职位成功',
+                error: 0,
+            }
+        }
+    }catch(e) {
+        return ctx.body = {
+            message: '新增职位失败',
+            error: -1
+        }
+    }
+})
+
 /* 职业信息相关接口 */
 
 

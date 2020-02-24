@@ -19,7 +19,7 @@ let positionSql = {
     let _sql = `select positionId,positionName from position_info where positionName like '%${positionName}%';`;
     return allServices.query(_sql);
   },
-  // 分页查询过滤查询所有职业信息
+  // 分页查询过滤查询所有职位信息
   queryAllPositionInfo: function (page, size, queryFiled) {
     let _sql = `select 
          positionId,
@@ -43,7 +43,7 @@ let positionSql = {
     _sql += _sql3;
     return allServices.query(_sql);
   },
-  // 查询所有满足条件的部门的数量
+  // 查询所有满足条件的职位的数量
   queryAllPositionNum: function (queryFiled) {
     let _sql = 'select count(*) from position_info';
     let _sql2 = '';
@@ -61,5 +61,23 @@ let positionSql = {
     }
     return allServices.query(_sql);
   },
+    // 查询当前最大的职位ID
+    queryMaxPositionId:function() {
+      let _sql = 'select max(positionId) from position_info';
+      return allServices.query(_sql);
+    },
+     // 增加一个新的职业
+     addNewPosition: function(protisionInfo) {
+       let _sql = `insert into position_info (
+        positionName, 
+        positionId, 
+         description
+         ) VALUES (
+           '${protisionInfo.positionName}',
+            ${protisionInfo.positionId},
+            '${protisionInfo.description}'
+           );`;
+           return allServices.query(_sql);
+     }
 }
 module.exports = positionSql;

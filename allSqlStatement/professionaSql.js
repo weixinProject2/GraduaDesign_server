@@ -44,7 +44,7 @@ let professionaSql = {
       _sql += _sql3;
         return allServices.query(_sql);
       },
-     // 查询所有满足条件的部门的数量
+     // 查询所有满足条件的职业的数量
   queryAllProfessionaNum:function(queryFiled) {
     let _sql = 'select count(*) from professional_info';
     let _sql2 = '';
@@ -62,5 +62,25 @@ let professionaSql = {
  }
     return allServices.query(_sql);
   },
+
+  // 查询当前最大的职业ID
+  queryMaxProfessionalId:function() {
+    let _sql = 'select max(professionalId) from professional_info';
+    return allServices.query(_sql);
+  },
+   // 增加一个新的职业
+   addNewProfessional: function(professionalInfo) {
+     let _sql = `insert into professional_info (
+       professionalName, 
+       professionalId, 
+       description
+       ) VALUES (
+         '${professionalInfo.professionaName}',
+          ${professionalInfo.professionalId},
+          '${professionalInfo.description}'
+         );`;
+         return allServices.query(_sql);
+   }
+
 }
 module.exports = professionaSql;
