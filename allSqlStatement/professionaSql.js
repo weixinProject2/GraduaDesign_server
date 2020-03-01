@@ -80,7 +80,11 @@ let professionaSql = {
           '${professionalInfo.description}'
          );`;
          return allServices.query(_sql);
+   },
+   // 删除一个职业
+   deleteProfessional: function(professionalId) {
+     let _sql = `delete from professional_info where professionalId = ${professionalId};`;
+     return allServices.query(_sql);
    }
-
 }
 module.exports = professionaSql;

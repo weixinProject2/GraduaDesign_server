@@ -739,6 +739,44 @@ router.post('/addProfessional', async ctx => {
         }
     }
 }) 
+
+// 删除一个职业
+router.delete('/deleteProfessional', async ctx => {
+    let token = ctx.request.header.authorization;
+    let res_token = getToken(token);
+    if(res_token.permission != 0) {
+        ctx.status = 403;
+        return ctx.body = {
+            message: '权限不足',
+            error: -1
+        }
+    }
+    const professionalId = ctx.query.professionalId;
+    if(!professionalId) {
+        ctx.status = 400;
+        return ctx.body = {
+            message: '参数错误',
+            error: -2,
+        }
+    }
+    const res_Profession = await professionalSql.queryPrefossinalById(professionalId);
+    if(res_Profession.length === 0) {
+        return ctx.body = {
+            message: '没有当前ID所对应的职业',
+            error: 0
+        }
+    }else {
+        const res_deleteisTure = await professionalSql.deleteProfessional(professionalId);
+        return ctx.body = {
+            message: '删除职业成功',
+            error: 0
+        }
+    }
+}) 
+
+
+
+
 // 增加一个职位
 router.post('/addPosition', async ctx => {
     let token = ctx.request.header.authorization;
@@ -797,7 +835,40 @@ router.post('/addPosition', async ctx => {
     }
 })
 
-/* 职业信息相关接口 */
+// 删除一个职位
+router.delete('/deletePosition', async ctx => {
+    let token = ctx.request.header.authorization;
+    let res_token = getToken(token);
+    if(res_token.permission != 0) {
+        ctx.status = 403;
+        return ctx.body = {
+            message: '权限不足',
+            error: -1
+        }
+    }
+    const positionId = ctx.query.positionId;
+    if(!positionId) {
+        ctx.status = 400;
+        return ctx.body = {
+            message: '参数错误',
+            error: -2,
+        }
+    }
+    const res_Prosition = await positionSql.queryPositionNameById(positionId);
+    if(res_Prosition.length === 0) {
+        return ctx.body = {
+            message: '没有当前ID所对应的职位',
+            error: 0
+        }
+    }else {
+        const res_deleteIsTure = await positionSql.queryPositionNameById(positionId);
+        return ctx.body = {
+            message: '删除职位成功',
+            error: 0
+        }
+    }
+}) 
+
 
 
 

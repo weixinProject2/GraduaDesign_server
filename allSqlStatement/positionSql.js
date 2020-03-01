@@ -67,7 +67,7 @@ let positionSql = {
       return allServices.query(_sql);
     },
      // 增加一个新的职业
-     addNewPosition: function(protisionInfo) {
+    addNewPosition: function(protisionInfo) {
        let _sql = `insert into position_info (
         positionName, 
         positionId, 
@@ -78,6 +78,10 @@ let positionSql = {
             '${protisionInfo.description}'
            );`;
            return allServices.query(_sql);
+     },
+     deletePosition: function(positionId) {
+       let _sql = `delete from position_info where positionId = ${positionId};`;
+       return allServices.query(_sql);
      }
 }
 module.exports = positionSql;
