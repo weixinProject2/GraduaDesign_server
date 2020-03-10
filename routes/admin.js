@@ -7,21 +7,22 @@ const allUserSql = require('../allSqlStatement/userSql');
 const positionSql = require('../allSqlStatement/positionSql');
 const professionalSql = require('../allSqlStatement/professionaSql');
 const departmentSql = require('../allSqlStatement/departmentSql');
+const projectSql = require('../allSqlStatement/projectSql');
 const until = require('../until/getStuffInfo');
 const getToken = require('../token/getToken');
 
 router.prefix('/admin');
 // 创建一名员工
-router.post('/createEmployee',async(ctx,next) => {
+router.post('/createEmployee', async (ctx, next) => {
     let token = ctx.request.header.authorization;
     let res_token = getToken(token);
-    if(res_token.permission != '0') {
+    if (res_token.permission != '0') {
         ctx.status = 403;
         return ctx.body = {
             message: '权限不足',
             error: -1
         }
-    } 
+    }
     const userInfo = ctx.request.body;
     const userName = userInfo.userName;
     const sex = userInfo.sex;
@@ -32,89 +33,89 @@ router.post('/createEmployee',async(ctx,next) => {
     const professionalId = userInfo.professionalId;
     const positionId = userInfo.positionId;
     const Id_Card = userInfo.Id_Card;
-    if(!userName) {
+    if (!userName) {
         ctx.status = 400;
         return ctx.body = {
             message: '姓名不可为空',
             error: -1
         }
     }
-    if(!sex) {
+    if (!sex) {
         ctx.status = 400;
         return ctx.body = {
             message: '性别不可为空',
             error: -1
         }
     }
-    if(sex !== '男' && sex !== '女') {
+    if (sex !== '男' && sex !== '女') {
         ctx.status = 400;
         return ctx.body = {
             message: '性别不合法',
             error: -1,
         }
     }
-    if(!telNumber) {
+    if (!telNumber) {
         ctx.status = 400;
         return ctx.body = {
             message: '电话号码不可为空',
             error: -1
         }
     }
-    if(!(/^1(3|4|5|6|7|8|9)\d{9}$/.test(telNumber))){ 
-            ctx.status = 400;
-            return ctx.body = {
-                message: '请上传正确的手机号码',
-                error: -1,
-            }; 
-        } 
+    if (!(/^1(3|4|5|6|7|8|9)\d{9}$/.test(telNumber))) {
+        ctx.status = 400;
+        return ctx.body = {
+            message: '请上传正确的手机号码',
+            error: -1,
+        };
+    }
 
-    if(!email) {
+    if (!email) {
         ctx.status = 400;
         return ctx.body = {
             message: '邮箱不可为空',
             error: -1
         }
-    }       
-    const reg = /^\w+((.\w+)|(-\w+))@[A-Za-z0-9]+((.|-)[A-Za-z0-9]+).[A-Za-z0-9]+$/; 
-    if(!reg.test(email)) {
+    }
+    const reg = /^\w+((.\w+)|(-\w+))@[A-Za-z0-9]+((.|-)[A-Za-z0-9]+).[A-Za-z0-9]+$/;
+    if (!reg.test(email)) {
         ctx.status = 400;
         return ctx.body = {
             message: '邮箱格式不正确',
             error: -1,
         }
     }
-    if(!Id_Card) {
+    if (!Id_Card) {
         ctx.status = 400;
         return ctx.body = {
             message: '身份证号码不可为空',
             error: -1
         }
     }
-   if(departmentId) {
-       try {
-        const res_isDeparmentId = await departmentSql.queryDepartmentIdfromInfo(departmentId);
-        if(!res_isDeparmentId.length) {
-            ctx.status = 400;
-            return ctx.body = {
-                mess: '不存在该部门ID',
-                error: -1,
+    if (departmentId) {
+        try {
+            const res_isDeparmentId = await departmentSql.queryDepartmentIdfromInfo(departmentId);
+            if (!res_isDeparmentId.length) {
+                ctx.status = 400;
+                return ctx.body = {
+                    mess: '不存在该部门ID',
+                    error: -1,
+                }
             }
-        }
-       }catch(e) {
-             ctx.status = 400;
+        } catch (e) {
+            ctx.status = 400;
             return ctx.body = {
                 message: '部门Id不合法',
                 error: -1,
             }
-       }
-   }
+        }
+    }
     let createTime = new Date();
     createTime = moment(createTime).format('YYYY-MM-DD HH:mm:ss');
     let positionName = '';
     try {
         const position = await positionSql.queryPositionNameById(positionId);
         positionName = position[0].positionName;
-    }catch (e) {
+    } catch (e) {
         ctx.status = 400;
         return ctx.body = {
             message: '请上传正确的职位ID',
@@ -125,7 +126,7 @@ router.post('/createEmployee',async(ctx,next) => {
     try {
         const professional = await professionalSql.queryPrefossinalById(professionalId);
         professionalName = professional[0].professionalName;
-    } catch(e) {
+    } catch (e) {
         ctx.status = 400;
         return ctx.body = {
             message: '请上传正确的职业ID',
@@ -156,10 +157,10 @@ router.post('/createEmployee',async(ctx,next) => {
         Id_Card,
         createTime,
     }
-    let res ;
+    let res;
     try {
-         res = await allUserSql.insetNewEmployee(user);
-    }catch(e) {
+        res = await allUserSql.insetNewEmployee(user);
+    } catch (e) {
         ctx.status = 500;
         return ctx.body = {
             message: '员工增加失败',
@@ -173,22 +174,22 @@ router.post('/createEmployee',async(ctx,next) => {
         }
     } else {
         ctx.body = {
-            message : '新增员工失败',
+            message: '新增员工失败',
             error: -1,
         }
     }
 });
 // 获取所有员工信息
-router.get('/getAllStuffInfo', async(ctx,next) => {
+router.get('/getAllStuffInfo', async (ctx, next) => {
     let token = ctx.request.header.authorization;
     let res_token = getToken(token);
-    if(res_token.permission != 0) {
+    if (res_token.permission != 0) {
         ctx.status = 403;
         return ctx.body = {
             message: '权限不足',
             error: -1
         }
-    } 
+    }
     const params = ctx.query;
     const initValue = {
         "userName": null,
@@ -223,7 +224,7 @@ router.get('/getAllStuffInfo', async(ctx,next) => {
     const res = await allUserSql.queryAllUserInfo(page, size, queryFiled);
     const res_total = await allUserSql.countAllStuff(queryFiled);
     const total = res_total[0]['count(*)'];
-    for (let i=0;i<res.length;i++){
+    for (let i = 0; i < res.length; i++) {
         const departmentId = res[i].departmentId;
         const positionName = res[i].position;
         const professionalName = res[i].professional;
@@ -253,29 +254,29 @@ router.get('/getAllStuffInfo', async(ctx,next) => {
         list: res,
         page: Number(page),
         size: Number(size),
-        totalPage: Math.ceil(total/Number(size)),
+        totalPage: Math.ceil(total / Number(size)),
         total,
     }
 });
 // 批量删除员工
-router.post('/deleteStaffInfo', async(ctx,next) => {
+router.post('/deleteStaffInfo', async (ctx, next) => {
     let token = ctx.request.header.authorization;
     let res_token = getToken(token);
-    if(res_token.permission != 0) {
+    if (res_token.permission != 0) {
         ctx.status = 403;
         return ctx.body = {
             message: '权限不足',
             error: -1
         }
-    } 
-    const ret =  ctx.request.body;
+    }
+    const ret = ctx.request.body;
     let workNumbers = ret.ids;
     let res;
     workNumbers = workNumbers.replace('[', '(');
     workNumbers = workNumbers.replace(']', ')');
     try {
-         res = await allUserSql.deleteStuff(workNumbers);
-         if (res.protocol41) {
+        res = await allUserSql.deleteStuff(workNumbers);
+        if (res.protocol41) {
             ctx.body = {
                 message: '删除成功',
                 error: 0,
@@ -288,23 +289,23 @@ router.post('/deleteStaffInfo', async(ctx,next) => {
         }
     } catch (e) {
         ctx.body = {
-            message : '此人为部门管理员，无法删除',
+            message: '此人为部门管理员，无法删除',
             error: 1,
         }
     }
 
 });
 // 设置或者清空某个部门下的管理员
-router.post('/setManagerDepart', async(ctx,next) => {
+router.post('/setManagerDepart', async (ctx, next) => {
     let token = ctx.request.header.authorization;
     let res_token = getToken(token);
-    if(res_token.permission != 0) {
+    if (res_token.permission != 0) {
         ctx.status = 403;
         return ctx.body = {
             message: '权限不足',
             error: -1
         }
-    } 
+    }
     const params = ctx.request.body;
     const workNumber = params.workNumber || null;
     const departmentId = params.departmentId;
@@ -314,17 +315,17 @@ router.post('/setManagerDepart', async(ctx,next) => {
     const departmentName = res_departmentName[0].departmentName;
     if (!res_isExitManager[0].departmentMangerId || res_isExitManager[0].departmentMangerId == workNumber) {
         if (res_isExitManager[0].departmentMangerId == workNumber) {
-             res_isSet = await departmentSql.emptyManagerIdAndName(departmentId);
-             const res_clearPerssions = await allUserSql.clearpermission(workNumber);
-             ctx.body = {
-                 message: `重置${departmentName}管理员成功`,
-                 error: 0,
-             }
+            res_isSet = await departmentSql.emptyManagerIdAndName(departmentId);
+            const res_clearPerssions = await allUserSql.clearpermission(workNumber);
+            ctx.body = {
+                message: `重置${departmentName}管理员成功`,
+                error: 0,
+            }
         } else {
             const res_name = await allUserSql.queryNameByWorkNumber(workNumber);
             const name = await res_name[0].userName;
             res_isSet = await departmentSql.setDepartManageIdAndName(workNumber, name, departmentId);
-            const res_setPerssions =  await allUserSql.setDepartmentManaInfo(workNumber, departmentId);
+            const res_setPerssions = await allUserSql.setDepartmentManaInfo(workNumber, departmentId);
             ctx.body = {
                 message: `设置${departmentName}管理员成功`,
                 error: 0,
@@ -339,16 +340,16 @@ router.post('/setManagerDepart', async(ctx,next) => {
 });
 
 // 管理员修改员工信息
-router.post('/changeStuffInfo', async(ctx,next) => {
+router.post('/changeStuffInfo', async (ctx, next) => {
     let token = ctx.request.header.authorization;
     let res_token = getToken(token);
-    if(res_token.permission != 0) {
+    if (res_token.permission != 0) {
         ctx.status = 403;
         return ctx.body = {
             message: '权限不足',
             error: -1
         }
-    } 
+    }
     const info = ctx.request.body;
     const workNumber = info.workNumber;
     const professionalId = info.professionalId;
@@ -356,7 +357,7 @@ router.post('/changeStuffInfo', async(ctx,next) => {
     const departmentId = info.departmentId;
     let professionalName = '';
     let positionName = '';
-    if(!workNumber || !professionalId || !positionId || !departmentId) {
+    if (!workNumber || !professionalId || !positionId || !departmentId) {
         ctx.status = 400;
         return ctx.body = {
             mess: '缺少必要的请求字段',
@@ -365,8 +366,8 @@ router.post('/changeStuffInfo', async(ctx,next) => {
     }
     try {
         const res_professional = await professionalSql.queryPrefossinalById(professionalId);
-         professionalName = res_professional[0].professionalName;
-    } catch(e) {
+        professionalName = res_professional[0].professionalName;
+    } catch (e) {
         ctx.body = 400;
         return ctx.body = {
             mess: '请输入正确的职业ID',
@@ -375,8 +376,8 @@ router.post('/changeStuffInfo', async(ctx,next) => {
     }
     try {
         const res_position = await positionSql.queryPositionNameById(positionId);
-         positionName = res_position[0].positionName;
-    } catch(e) {
+        positionName = res_position[0].positionName;
+    } catch (e) {
         ctx.status = 400;
         return ctx.body = {
             mess: '请输入正确的职位ID',
@@ -385,14 +386,14 @@ router.post('/changeStuffInfo', async(ctx,next) => {
     }
     try {
         const res_isDeparmentId = await departmentSql.queryDepartmentIdfromInfo(departmentId);
-        if(!res_isDeparmentId.length) {
+        if (!res_isDeparmentId.length) {
             ctx.status = 400;
             return ctx.body = {
                 mess: '不存在该部门ID',
                 error: -1,
             }
         }
-    }catch(e) {
+    } catch (e) {
         return ctx.body = {
             mess: '部门ID错误，修改信息失败',
             error: -2,
@@ -404,7 +405,7 @@ router.post('/changeStuffInfo', async(ctx,next) => {
         professionalName,
         positionName,
     }
-    if(workNumber === 100000) {
+    if (workNumber === 100000) {
         return ctx.body = {
             mess: '您没有权限修改',
             error: -1,
@@ -416,8 +417,8 @@ router.post('/changeStuffInfo', async(ctx,next) => {
         if (ret.protocol41) {
             ctx.body = {
                 message: '信息修改成功',
-                error : 0,
-            }    
+                error: 0,
+            }
         } else {
             ctx.body = {
                 message: '信息修改失败',
@@ -430,27 +431,27 @@ router.post('/changeStuffInfo', async(ctx,next) => {
             error: -2,
         }
     }
-   
+
 });
 
 /* 部门相关接口  */
 // 管理员删除部门
-router.post('/deleteDepartment',async(ctx,next) => {
+router.post('/deleteDepartment', async (ctx, next) => {
     let token = ctx.request.header.authorization;
     let res_token = getToken(token);
-    if(res_token.permission != 0) {
+    if (res_token.permission != 0) {
         ctx.status = 403;
         return ctx.body = {
             message: '权限不足',
             error: -1
         }
-    } 
+    }
     const info = ctx.request.body;
     const departmentId = info.departmentId;
     try {
-        const res_StuffNumber =await allUserSql.countStuffByDepartmentId(departmentId);
-        if(res_StuffNumber[0]['count(*)'] > 0) {
-            return ctx.body ={
+        const res_StuffNumber = await allUserSql.countStuffByDepartmentId(departmentId);
+        if (res_StuffNumber[0]['count(*)'] > 0) {
+            return ctx.body = {
                 mess: '还有员工隶属当前部门，无法删除',
                 error: -3,
             }
@@ -460,8 +461,8 @@ router.post('/deleteDepartment',async(ctx,next) => {
             mess: '部门删除成功',
             error: 0,
         }
-    }catch(e) {
-        if(!departmentId) {
+    } catch (e) {
+        if (!departmentId) {
             ctx.body = {
                 mess: '部门Id不能为空',
                 error: -2,
@@ -476,166 +477,166 @@ router.post('/deleteDepartment',async(ctx,next) => {
 
 })
 // 管理员修改部门信息
-router.post('/changeDepartmentInfo', async(ctx,next) => {
+router.post('/changeDepartmentInfo', async (ctx, next) => {
     let token = ctx.request.header.authorization;
     let res_token = getToken(token);
-    if(res_token.permission != 0) {
+    if (res_token.permission != 0) {
         ctx.status = 403;
         return ctx.body = {
             message: '权限不足',
             error: -1
         }
-    } 
-        const info =ctx.request.body;
-        let departmentMangerName = '';
-        const departmentName = info.departmentName;
-        const departmentDesc = info.departmentDesc;
-        const departmentAddress = info.departmentAddress;
-        const departmentMangerId = info.departmentMangerId;
-        const departmentId = info.departmentId;
-        try {
-            if(!departmentId) {
-                return ctx.body = {
-                    mess: '部门ID不能为空',
-                    error: -1,
-                }
-            } else {
-                const res_isDeparmentId = await departmentSql.queryDepartmentByDepartmentId(departmentId);
-                if(!res_isDeparmentId.length) {
-                    return ctx.body = {
-                        mess: '没有该部门Id对应的部门，请更正后重新输入',
-                        error: -2
-                    }
-                }
-            }
-            if(departmentMangerId) {
-                const res_stuffInfo = await allUserSql.queryUserInfo(departmentMangerId);
-                const stuff_departmentId = res_stuffInfo[0].departmentId;
-                if(stuff_departmentId && stuff_departmentId != departmentId) {
-                    return ctx.body = {
-                        mess: '该员工不属于当前部门，请先将员工添加到部门中',
-                        error: -1,
-                    }
-                }
-                if(!res_stuffInfo.length) {
-                    return ctx.body = {
-                        mess: '系统中不存在该工号，请输入正确的工号',
-                        error: -2,
-                    }
-                }
-            } 
-        }catch(e) {
-            ctx.body = {
-                mess: e,
+    }
+    const info = ctx.request.body;
+    let departmentMangerName = '';
+    const departmentName = info.departmentName;
+    const departmentDesc = info.departmentDesc;
+    const departmentAddress = info.departmentAddress;
+    const departmentMangerId = info.departmentMangerId;
+    const departmentId = info.departmentId;
+    try {
+        if (!departmentId) {
+            return ctx.body = {
+                mess: '部门ID不能为空',
                 error: -1,
             }
+        } else {
+            const res_isDeparmentId = await departmentSql.queryDepartmentByDepartmentId(departmentId);
+            if (!res_isDeparmentId.length) {
+                return ctx.body = {
+                    mess: '没有该部门Id对应的部门，请更正后重新输入',
+                    error: -2
+                }
+            }
         }
-        try {
-            if(departmentName) {
-                const res_isDepartmentName = await departmentSql.queryDepartmentName(departmentName);
-                if (res_isDepartmentName.length > 0) {
-                    for (item of res_isDepartmentName) {
-                        if(item.departmentId != departmentId){
-                            return ctx.body = {
-                                mess: '部门名称已经存在，修改失败',
-                                error: -3,
-                            }
+        if (departmentMangerId) {
+            const res_stuffInfo = await allUserSql.queryUserInfo(departmentMangerId);
+            const stuff_departmentId = res_stuffInfo[0].departmentId;
+            if (stuff_departmentId && stuff_departmentId != departmentId) {
+                return ctx.body = {
+                    mess: '该员工不属于当前部门，请先将员工添加到部门中',
+                    error: -1,
+                }
+            }
+            if (!res_stuffInfo.length) {
+                return ctx.body = {
+                    mess: '系统中不存在该工号，请输入正确的工号',
+                    error: -2,
+                }
+            }
+        }
+    } catch (e) {
+        ctx.body = {
+            mess: e,
+            error: -1,
+        }
+    }
+    try {
+        if (departmentName) {
+            const res_isDepartmentName = await departmentSql.queryDepartmentName(departmentName);
+            if (res_isDepartmentName.length > 0) {
+                for (item of res_isDepartmentName) {
+                    if (item.departmentId != departmentId) {
+                        return ctx.body = {
+                            mess: '部门名称已经存在，修改失败',
+                            error: -3,
                         }
                     }
                 }
             }
-        }catch(e) {
-            return ctx.body = {
-                mess: e,
-                error: -2,
-            }
         }
-        try {
-            if(departmentMangerId) {
-                const res_isDeparmentManagerId = await departmentSql.queryDeparmentManagerId(departmentMangerId);
-                if (res_isDeparmentManagerId.length > 0) {
-                    for (item of res_isDeparmentManagerId) {
-                        if(item.departmentId != departmentId){
-                            return ctx.body = {
-                                mess: '当前员工已经是其他部门管理员，修改失败',
-                                error: -2,
-                            }
+    } catch (e) {
+        return ctx.body = {
+            mess: e,
+            error: -2,
+        }
+    }
+    try {
+        if (departmentMangerId) {
+            const res_isDeparmentManagerId = await departmentSql.queryDeparmentManagerId(departmentMangerId);
+            if (res_isDeparmentManagerId.length > 0) {
+                for (item of res_isDeparmentManagerId) {
+                    if (item.departmentId != departmentId) {
+                        return ctx.body = {
+                            mess: '当前员工已经是其他部门管理员，修改失败',
+                            error: -2,
                         }
                     }
                 }
             }
-        }catch(e) {
-            return ctx.body = {
-                mess: e,
-                error: -2,
-            }
         }
-        const changeInfo =  {
-            departmentName,
-            departmentDesc,
-            departmentAddress,
-            departmentId,
+    } catch (e) {
+        return ctx.body = {
+            mess: e,
+            error: -2,
         }
-        try {
-            const res_departmentManId = await departmentSql.queryManagerDepart(departmentId);
-            const isDeparmentManagerId = res_departmentManId[0].departmentMangerId;
-            if (departmentMangerId) {
-                if (isDeparmentManagerId) {
-                    if (departmentMangerId === isDeparmentManagerId) {
-                        // 相等 不做任何处理
-                    } else {
-                        // 不相等 判断上传的管理员ID是否合法
-                        const res_clearPerssions = await allUserSql.clearpermission(isDeparmentManagerId);
-                        const res_setPerssions = await allUserSql.setpermissions(departmentMangerId);
-                        const res_setManager = await departmentSql.emptySetManagerDepart(departmentMangerId,departmentId)
-                        const res_getManagerName = await allUserSql.queryNameByWorkNumber(departmentMangerId);
-                        departmentMangerName = res_getManagerName[0].userName;
-                        changeInfo.departmentMangerName = departmentMangerName;
-                    }
+    }
+    const changeInfo = {
+        departmentName,
+        departmentDesc,
+        departmentAddress,
+        departmentId,
+    }
+    try {
+        const res_departmentManId = await departmentSql.queryManagerDepart(departmentId);
+        const isDeparmentManagerId = res_departmentManId[0].departmentMangerId;
+        if (departmentMangerId) {
+            if (isDeparmentManagerId) {
+                if (departmentMangerId === isDeparmentManagerId) {
+                    // 相等 不做任何处理
                 } else {
-                    const res_setManager = await departmentSql.emptySetManagerDepart(departmentMangerId,departmentId);
-                    const res_setPerssions = await allUserSql.setDepartmentManaInfo(departmentMangerId, departmentId);
-                    const res_getManagerName = await allUserSql.queryNameByWorkNumber(departmenntMangerId);
+                    // 不相等 判断上传的管理员ID是否合法
+                    const res_clearPerssions = await allUserSql.clearpermission(isDeparmentManagerId);
+                    const res_setPerssions = await allUserSql.setpermissions(departmentMangerId);
+                    const res_setManager = await departmentSql.emptySetManagerDepart(departmentMangerId, departmentId)
+                    const res_getManagerName = await allUserSql.queryNameByWorkNumber(departmentMangerId);
                     departmentMangerName = res_getManagerName[0].userName;
                     changeInfo.departmentMangerName = departmentMangerName;
                 }
             } else {
-                const res_clearPerssions = await allUserSql.clearpermission(isDeparmentManagerId);
-                const res_setManager = await departmentSql.emptyManagerIdAndName(departmentId);
+                const res_setManager = await departmentSql.emptySetManagerDepart(departmentMangerId, departmentId);
+                const res_setPerssions = await allUserSql.setDepartmentManaInfo(departmentMangerId, departmentId);
+                const res_getManagerName = await allUserSql.queryNameByWorkNumber(departmenntMangerId);
+                departmentMangerName = res_getManagerName[0].userName;
+                changeInfo.departmentMangerName = departmentMangerName;
             }
-            const res_changeInfo = await departmentSql.changeDepartmentInfo(changeInfo);
-            ctx.body = {
-                mess: '修改部门信息成功',
-                error: 0,
-            }
-        }catch(e) {
-            console.log(e);
-            ctx.body = {
-                mess: "系统中没有当前工号，请更正后重新录入",
-                error: -1,
-            }
+        } else {
+            const res_clearPerssions = await allUserSql.clearpermission(isDeparmentManagerId);
+            const res_setManager = await departmentSql.emptyManagerIdAndName(departmentId);
         }
+        const res_changeInfo = await departmentSql.changeDepartmentInfo(changeInfo);
+        ctx.body = {
+            mess: '修改部门信息成功',
+            error: 0,
+        }
+    } catch (e) {
+        console.log(e);
+        ctx.body = {
+            mess: "系统中没有当前工号，请更正后重新录入",
+            error: -1,
+        }
+    }
 });
 
 // 增加一个部门 
-router.post('/addDepartment',async (ctx,next) => {
+router.post('/addDepartment', async (ctx, next) => {
     let token = ctx.request.header.authorization;
     let res_token = getToken(token);
-    if(res_token.permission != 0) {
+    if (res_token.permission != 0) {
         ctx.status = 403;
         return ctx.body = {
             message: '权限不足',
             error: -1
         }
-    } 
+    }
     const departmentInfo = ctx.request.body;
     try {
-        let maxdepartmentId =await departmentSql.queryMaxDepartmentId();    
+        let maxdepartmentId = await departmentSql.queryMaxDepartmentId();
         let departmentManagerName = '';
         const departmentId = maxdepartmentId[0]['max(departmentId)'] + 100;
         departmentInfo.departmentId = departmentId;
         departmentInfo.departmentMangerId = departmentInfo.departmentMangerId || null;
-        if(departmentInfo.departmentMangerId) {
+        if (departmentInfo.departmentMangerId) {
             departmentManagerName = await allUserSql.queryNameByWorkNumber(departmentInfo.departmentMangerId);
             departmentInfo.departmentManagerName = departmentManagerName[0].userName;
         }
@@ -655,46 +656,46 @@ router.post('/addDepartment',async (ctx,next) => {
             }
         }
         const res_isDepartmentName = await departmentSql.queryDepartmentName(departmentInfo.departmentName);
-        if(res_isDepartmentName.length > 0) {
+        if (res_isDepartmentName.length > 0) {
             return ctx.body = {
                 mess: '该部门名称已经存在',
-                error : -2,
+                error: -2,
             }
         }
         const res_isDeparmentManagerId = await departmentSql.queryDeparmentManagerId(departmentInfo.departmentMangerId);
-        if(res_isDeparmentManagerId.length > 0) {
+        if (res_isDeparmentManagerId.length > 0) {
             return ctx.body = {
                 mess: '当前工号已经为部门管理员',
                 error: -3,
             }
-        } 
+        }
         const res_setDeparmentManger = await allUserSql.setpermissions(departmentInfo.departmentMangerId);
         const res_addResult = await departmentSql.addDepartment(departmentInfo);
         ctx.body = {
             mess: '创建部门成功',
             error: 0,
         }
-    } catch(e) {
+    } catch (e) {
         ctx.body = {
             mess: "系统中没有当前工号，请更正后重新录入",
-            error : -1,
+            error: -1,
         }
-    } 
+    }
 })
 
 //  增加一个职业
 router.post('/addProfessional', async ctx => {
     let token = ctx.request.header.authorization;
     let res_token = getToken(token);
-    if(res_token.permission != 0) {
+    if (res_token.permission != 0) {
         ctx.status = 403;
         return ctx.body = {
             message: '权限不足',
             error: -1
         }
-    } 
+    }
     const professionalInfo = ctx.request.body;
-    if(!professionalInfo.professionaName || !professionalInfo.description) {
+    if (!professionalInfo.professionaName || !professionalInfo.description) {
         ctx.status = 400;
         return ctx.body = {
             message: '请求参数有误',
@@ -703,48 +704,48 @@ router.post('/addProfessional', async ctx => {
     }
     try {
         const res_result = await professionalSql.queryPrefossinalByNmae(professionalInfo.professionaName);
-        if(res_result.length) {
+        if (res_result.length) {
             return ctx.body = {
                 message: '不可重复添加已经存在的职业',
                 error: -3,
             }
         }
-    }catch (e) {
+    } catch (e) {
         const str = e.toString();
         return ctx.body = {
             message: str,
             error: -4,
         }
     }
-    let professionalId =  null;
+    let professionalId = null;
     try {
         const res_maxProfessionalId = await professionalSql.queryMaxProfessionalId();
         professionalId = res_maxProfessionalId[0]['max(professionalId)'] + 1;
-    }catch(e) {
+    } catch (e) {
         professionalId = 10001;
     }
     professionalInfo.professionalId = professionalId;
     try {
         const res_result = await professionalSql.addNewProfessional(professionalInfo);
-        if(res_result.protocol41) {
+        if (res_result.protocol41) {
             return ctx.body = {
                 message: '新增职业成功',
                 error: 0,
             }
         }
-    }catch(e) {
+    } catch (e) {
         return ctx.body = {
             message: '新增职业失败',
             error: -1
         }
     }
-}) 
+})
 
 // 删除一个职业
 router.delete('/deleteProfessional', async ctx => {
     let token = ctx.request.header.authorization;
     let res_token = getToken(token);
-    if(res_token.permission != 0) {
+    if (res_token.permission != 0) {
         ctx.status = 403;
         return ctx.body = {
             message: '权限不足',
@@ -752,7 +753,7 @@ router.delete('/deleteProfessional', async ctx => {
         }
     }
     const professionalId = ctx.query.professionalId;
-    if(!professionalId) {
+    if (!professionalId) {
         ctx.status = 400;
         return ctx.body = {
             message: '参数错误',
@@ -760,36 +761,33 @@ router.delete('/deleteProfessional', async ctx => {
         }
     }
     const res_Profession = await professionalSql.queryPrefossinalById(professionalId);
-    if(res_Profession.length === 0) {
+    if (res_Profession.length === 0) {
         return ctx.body = {
             message: '没有当前ID所对应的职业',
             error: 0
         }
-    }else {
+    } else {
         const res_deleteisTure = await professionalSql.deleteProfessional(professionalId);
         return ctx.body = {
             message: '删除职业成功',
             error: 0
         }
     }
-}) 
-
-
-
+})
 
 // 增加一个职位
 router.post('/addPosition', async ctx => {
     let token = ctx.request.header.authorization;
     let res_token = getToken(token);
-    if(res_token.permission != 0) {
+    if (res_token.permission != 0) {
         ctx.status = 403;
         return ctx.body = {
             message: '权限不足',
             error: -1
         }
-    } 
+    }
     const positionInfo = ctx.request.body;
-    if(!positionInfo.positionName || !positionInfo.description) {
+    if (!positionInfo.positionName || !positionInfo.description) {
         ctx.status = 400;
         return ctx.body = {
             message: '请求参数有误',
@@ -798,36 +796,36 @@ router.post('/addPosition', async ctx => {
     }
     try {
         const res_result = await positionSql.queryPositionByName(positionInfo.positionName);
-        if(res_result.length) {
+        if (res_result.length) {
             return ctx.body = {
                 message: '不可重复添加已经存在的职位',
                 error: -3,
             }
         }
-    }catch (e) {
+    } catch (e) {
         const str = e.toString();
         return ctx.body = {
             message: str,
             error: -4,
         }
     }
-    let positionId =  null;
+    let positionId = null;
     try {
         const res_maxPositionId = await positionSql.queryMaxPositionId();
         positionId = res_maxPositionId[0]['max(positionId)'] + 1;
-    }catch(e) {
+    } catch (e) {
         positionId = 1200001;
     }
     positionInfo.positionId = positionId;
     try {
         const res_result = await positionSql.addNewPosition(positionInfo);
-        if(res_result.protocol41) {
+        if (res_result.protocol41) {
             return ctx.body = {
                 message: '新增职位成功',
                 error: 0,
             }
         }
-    }catch(e) {
+    } catch (e) {
         return ctx.body = {
             message: '新增职位失败',
             error: -1
@@ -839,7 +837,7 @@ router.post('/addPosition', async ctx => {
 router.delete('/deletePosition', async ctx => {
     let token = ctx.request.header.authorization;
     let res_token = getToken(token);
-    if(res_token.permission != 0) {
+    if (res_token.permission != 0) {
         ctx.status = 403;
         return ctx.body = {
             message: '权限不足',
@@ -847,7 +845,7 @@ router.delete('/deletePosition', async ctx => {
         }
     }
     const positionId = ctx.query.positionId;
-    if(!positionId) {
+    if (!positionId) {
         ctx.status = 400;
         return ctx.body = {
             message: '参数错误',
@@ -855,26 +853,135 @@ router.delete('/deletePosition', async ctx => {
         }
     }
     const res_Prosition = await positionSql.queryPositionNameById(positionId);
-    if(res_Prosition.length === 0) {
+    if (res_Prosition.length === 0) {
         return ctx.body = {
             message: '没有当前ID所对应的职位',
             error: 0
         }
-    }else {
+    } else {
         const res_deleteIsTure = await positionSql.queryPositionNameById(positionId);
         return ctx.body = {
             message: '删除职位成功',
             error: 0
         }
     }
-}) 
+})
 
 
-
-
+// 查看所有项目详细信息
+router.get('/queryAllProject', async ctx => {
+    let token = ctx.request.header.authorization;
+    let res_token = getToken(token);
+    if (res_token.permission != 0) {
+        ctx.status = 403;
+        return ctx.body = {
+            message: '权限不足',
+            error: -1
+        }
+    }
+    const params = ctx.query;
+    const page = params.page || 1;
+    const size = params.size || 10;
+    const initValue = {
+        "projectId": null,
+        "projectName": null,
+    };
+    let queryFiled = params.queryparams;
+    if (queryFiled) {
+        queryFiled = JSON.parse(queryFiled);
+    } else {
+        queryFiled = initValue;
+    }
+    try {
+        const res_result = await projectSql.queryAllProjectInfo(page, size, queryFiled);
+        const res_count = await projectSql.queryAllProjectNum(queryFiled);
+        const total = res_count[0]['count(*)'];
+        ctx.body = {
+            data: res_result,
+            page: Number(page),
+            size: Number(size),
+            total,
+            totalPage: Math.ceil(total / Number(size)),
+            error: 0,
+        }
+    } catch (e) {
+        ctx.body = {
+            mess: e,
+            error: -1,
+        }
+    }
+});
+// 新增一个项目
+router.post('/addProject', async ctx => {
+    let token = ctx.request.header.authorization;
+    let res_token = getToken(token);
+    if (res_token.permission != 0) {
+        ctx.status = 403;
+        return ctx.body = {
+            message: '权限不足',
+            error: -1
+        }
+    }
+    const projectInfo = ctx.request.body;
+    if (!projectInfo.projectName) {
+        ctx.status = 400;
+        return ctx.body = {
+            message: '项目名称不能为空',
+            error: -2,
+        }
+    }
+    if(!projectInfo.describe) {
+        ctx.status = 400;
+        return ctx.body = {
+            message: '项目描述不能为空',
+            error: -2,
+        }
+    }
+    try {
+        const res_result = await projectSql.queryProjectByName(projectInfo.projectName);
+        if (res_result.length) {
+            return ctx.body = {
+                message: '不可重复添加已经存在的项目',
+                error: -3,
+            }
+        }
+    } catch (e) {
+        const str = e.toString();
+        return ctx.body = {
+            message: str,
+            error: -4,
+        }
+    }
+    let projectId = null;
+    try {
+        const res_maxProjectId = await projectSql.queryMaxProjectId();
+        projectId = res_maxProjectId[0]['max(projectId)'] + 1;
+    } catch (e) {
+        projectId = 750001;
+    }
+    projectInfo.projectId = projectId;
+    projectInfo.schedule = '0%';
+    let createTime = moment(new Date()).format('YYYY-MM-DD');;
+    projectInfo.createTime = createTime;
+    try {
+        const res_result = await projectSql.addNewProject(projectInfo);
+        if (res_result.protocol41) {
+            return ctx.body = {
+                message: '新增项目成功',
+                error: 0,
+            }
+        }
+    } catch (e) {
+        console.log(e);
+        return ctx.body = {
+            message: '新增项目失败',
+            error: -1
+        }
+    }
+})
 
 // 随机创建一名员工
-router.post('/randomCreateStuff',async (ctx,next) => {
+router.post('/randomCreateStuff', async (ctx, next) => {
     const userName = until.getName();
     const sex = until.getSex();
     const email = until.getEmail();
@@ -923,11 +1030,11 @@ router.post('/randomCreateStuff',async (ctx,next) => {
             }
         } else {
             ctx.body = {
-                message : '新增员工失败',
+                message: '新增员工失败',
                 error: -1,
             }
         }
-    }catch(e) {
+    } catch (e) {
         console.log(e);
     }
 });
