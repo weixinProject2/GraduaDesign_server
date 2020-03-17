@@ -245,6 +245,11 @@ let userSql = {
     queryUserHeader: function(workNumber) {
         let _sql = `select headerImg from user_info where workNumber = ${workNumber};`;
         return allServices.query(_sql);
+    },
+    // 查询该员工所参与的项目
+    queryMyProject: function(workNumber) {
+        let _sql = `select currentProjectID from user_info where workNumber = ${workNumber};`;
+        return allServices.query(_sql);
     }
 }
 module.exports = userSql;

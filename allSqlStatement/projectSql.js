@@ -8,6 +8,11 @@ let projectSql = {
         let _sql = `select projectId,projectName from project_info where projectName like '%${projectName}%';`;
         return allServices.query(_sql);
     },
+    // 根据项目ID查询项目名
+    queryProjectNameById: function(projectId) {
+        let _sql = `select projectName from project_info where projectId = ${projectId};`;
+        return allServices.query(_sql);
+    },
     // 查询当前最大的项目于ID
     queryMaxProjectId: function () {
         let _sql = 'select max(projectId) from project_info';
