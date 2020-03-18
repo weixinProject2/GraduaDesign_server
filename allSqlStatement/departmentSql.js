@@ -11,7 +11,7 @@ let departmentSql  = {
 
   // 查询所有部门信息
   queryAllDepartInfo:function(){
-    let _sql = 'select departmentId,departmentName from department_info;'
+    let _sql = 'select departmentId,departmentMangerId ,departmentName from department_info;'
     return allServices.query(_sql);
   },
 
@@ -37,7 +37,6 @@ let departmentSql  = {
     departmentMangerName = '${name}'
     where departmentId = ${departmentId};
    `;
-   console.log(_sql);
    return allServices.query(_sql);
   },
   // 清空部门管理员和管理员名字

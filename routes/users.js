@@ -5,6 +5,7 @@ const router = require('koa-router')();
 const allUserSql = require('../allSqlStatement/userSql');
 const departmentSql = require('../allSqlStatement/departmentSql');
 const getToken = require('../token/getToken');
+const projectSql = require('../allSqlStatement/projectSql');
 const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
@@ -16,6 +17,19 @@ router.get('/getUserInfo', async (ctx,next) => {
   let token = ctx.request.header.authorization;
   let res_token = getToken(token);
   const workNumber = res_token.workNumber;
+
+  const res_projectId = await allUserSql.queryMyProject(workNumber);
+  let projectIdArr = res_projectId[0].currentProjectID.split(',');
+  const arr = []; 
+  for(let item of projectIdArr) {
+    const res_name = await projectSql.queryProjectNameById(item);
+    const name = res_name[0].projectName;
+    arr.push({
+      projectName: name,
+      projectId: item,
+    })
+  }
+  
   const res = await allUserSql.queryUserInfo(workNumber);
   const departmentId = res[0].departmentId;
   let imgUrl = res[0].headerImg;
@@ -23,6 +37,7 @@ router.get('/getUserInfo', async (ctx,next) => {
     imgUrl = `http://106.54.206.102:8080/header/${imgUrl}`;
   }
   res[0].headerImg = imgUrl;
+  res[0].projectList = arr;
   if (departmentId) {
     const res_department = await departmentSql.queryDepartNameById(departmentId);
     const departmentName = res_department[0].departmentName;

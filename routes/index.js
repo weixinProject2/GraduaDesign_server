@@ -64,9 +64,15 @@ router.get('/getProfessional', async(ctx,next) => {
 router.get('/getDepartment',async(ctx,next) => {
   const info = ctx.query;
   const departmentName = info.departmentName;
-  let list;
+  const isProjectAssign = info.isProjectAssign;
+  let list = [];
   if (!departmentName) {
     list = await departmentSql.queryAllDepartInfo();
+    if(isProjectAssign) {
+      list = list.filter((item) => {
+        return item.departmentMangerId
+      })
+    }
   } else {
     list = await departmentSql.queryDepartmentByName(departmentName);
   }
@@ -76,6 +82,7 @@ router.get('/getDepartment',async(ctx,next) => {
     total: list.length,
   }
 });
+
 // 查询所属于项目
  router.get('/getMyProject', async ctx => {
     let token = ctx.request.header.authorization;
