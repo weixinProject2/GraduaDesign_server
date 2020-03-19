@@ -17,17 +17,18 @@ router.get('/getUserInfo', async (ctx,next) => {
   let token = ctx.request.header.authorization;
   let res_token = getToken(token);
   const workNumber = res_token.workNumber;
- // sdasd
   const res_projectId = await allUserSql.queryMyProject(workNumber);
-  let projectIdArr = res_projectId[0].currentProjectID.split(',');
   const arr = []; 
-  for(let item of projectIdArr) {
-    const res_name = await projectSql.queryProjectNameById(item);
-    const name = res_name[0].projectName;
-    arr.push({
-      projectName: name,
-      projectId: item,
-    })
+  if(res_projectId[0].currentProjectID) {
+    let projectIdArr = res_projectId[0].currentProjectID.split(',');
+    for(let item of projectIdArr) {
+      const res_name = await projectSql.queryProjectNameById(item);
+      const name = res_name[0].projectName;
+      arr.push({
+        projectName: name,
+        projectId: item,
+      })
+    }
   }
   
   const res = await allUserSql.queryUserInfo(workNumber);
