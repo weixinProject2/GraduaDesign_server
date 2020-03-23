@@ -59,19 +59,44 @@ let projectSql = {
     },
     // 增加一个新的项目
     addNewProject: function (projectInfo) {
-        let _sql = `insert into project_info (
-            projectName, 
-            projectId, 
-            schedultion,
-            describtion,
-            createTime
-              ) VALUES (
-                '${projectInfo.projectName}',
-                 ${projectInfo.projectId},
-                 '${projectInfo.schedule}',
-                 '${projectInfo.describe}',
-                 '${projectInfo.createTime}'
-                );`;
+        let _sql = '';
+        if(projectInfo.bToDepartmentAdminID) {
+            _sql = `insert into project_info (
+                projectName, 
+                projectId, 
+                bToDepartment,
+                bToDepartmentAdmin,
+                schedultion,
+                bToDepartmentID,
+                bToDepartmentAdminID,
+                describtion,
+                createTime
+                  ) VALUES (
+                    '${projectInfo.projectName}',
+                     ${projectInfo.projectId},
+                     '${projectInfo.bToDepartment}',
+                     '${projectInfo.bToDepartmentAdmin}',
+                     '${projectInfo.schedule}',
+                     ${projectInfo.bToDepartmentID},
+                     ${projectInfo.bToDepartmentAdminID},
+                     '${projectInfo.describe}',
+                     '${projectInfo.createTime}'
+                    );`;
+        }else {
+            _sql = `insert into project_info (
+                projectName, 
+                projectId, 
+                schedultion,
+                describtion,
+                createTime
+                  ) VALUES (
+                    '${projectInfo.projectName}',
+                     ${projectInfo.projectId},
+                     '${projectInfo.schedule}',
+                     '${projectInfo.describe}',
+                     '${projectInfo.createTime}'
+                    );`;
+        }
         return allServices.query(_sql);
     },
 }

@@ -250,6 +250,11 @@ let userSql = {
     queryMyProject: function(workNumber) {
         let _sql = `select currentProjectID from user_info where workNumber = ${workNumber};`;
         return allServices.query(_sql);
+    },
+    // 更改员工所参与的项目
+    updateProject: function(workNumber, currentProjectID) {
+        let _sql = `update user_info set currentProjectID = '${currentProjectID}' where workNumber = ${workNumber};`;
+        return allServices.query(_sql);
     }
 }
 module.exports = userSql;

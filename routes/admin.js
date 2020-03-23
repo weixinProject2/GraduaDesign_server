@@ -911,6 +911,7 @@ router.get('/queryAllProject', async ctx => {
         }
     }
 });
+
 // 新增一个项目
 router.post('/addProject', async ctx => {
     let token = ctx.request.header.authorization;
@@ -923,6 +924,24 @@ router.post('/addProject', async ctx => {
         }
     }
     const projectInfo = ctx.request.body;
+    const bToDepartmentAdminID = projectInfo.bToDepartmentAdminID;
+    let res_isDeparmentId = [];
+    if(bToDepartmentAdminID) {
+        try {
+             res_isDeparmentId = await departmentSql.queryDeparmentManagerId(bToDepartmentAdminID);
+            if(!res_isDeparmentId.length) {
+                return ctx.body = {
+                    message: '该工号不是系统管理员，项目创建失败',
+                    error: -2
+                }
+            }
+        }catch (e) {
+            return ctx.body = {
+                message: e.toString(),
+                error: -1
+            }
+        }
+    }
     if (!projectInfo.projectName) {
         ctx.status = 400;
         return ctx.body = {
@@ -937,6 +956,7 @@ router.post('/addProject', async ctx => {
             error: -2,
         }
     }
+   
     try {
         const res_result = await projectSql.queryProjectByName(projectInfo.projectName);
         if (res_result.length) {
@@ -953,18 +973,40 @@ router.post('/addProject', async ctx => {
         }
     }
     let projectId = null;
+    let currentProjectId = '';
     try {
         const res_maxProjectId = await projectSql.queryMaxProjectId();
         projectId = res_maxProjectId[0]['max(projectId)'] + 1;
     } catch (e) {
         projectId = 750001;
     }
+    if(bToDepartmentAdminID) {
+        try {
+            const res_currentProjectId = await allUserSql.queryMyProject(bToDepartmentAdminID);
+            currentProjectId = res_currentProjectId[0].currentProjectID || '';
+        }catch (e) {
+            return ctx.body = {
+                message: e.toString(),
+                error: -1,
+            }
+        }
+        const departmentInfo = res_isDeparmentId[0];
+        projectInfo.bToDepartment = departmentInfo.departmentName;
+        projectInfo.bToDepartmentAdmin = departmentInfo.departmentMangerName;
+        projectInfo.bToDepartmentID = departmentInfo.departmentId;
+        projectInfo.bToDepartmentAdminID = bToDepartmentAdminID;
+    }
+    currentProjectId ? currentProjectId += `,${projectId}` : currentProjectId += `${projectId}`;
     projectInfo.projectId = projectId;
     projectInfo.schedule = '0%';
     let createTime = moment(new Date()).format('YYYY-MM-DD');;
     projectInfo.createTime = createTime;
+
     try {
         const res_result = await projectSql.addNewProject(projectInfo);
+        if(bToDepartmentAdminID) {
+           const res_resultAddProject = await allUserSql.updateProject(bToDepartmentAdminID, currentProjectId);
+        }
         if (res_result.protocol41) {
             return ctx.body = {
                 message: '新增项目成功',
