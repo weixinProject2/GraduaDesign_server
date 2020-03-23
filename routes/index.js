@@ -20,7 +20,23 @@ router.get('/login',async (ctx,next) => {
     }
   } else {
     const tk = addtoken(userInfo[0]);
-    ctx.body = {
+    const workNumber = userInfo[0].workNumber;
+    const res_projectId = await allUserSql.queryMyProject(workNumber);
+    let projectIdArr = [];
+      if(res_projectId[0].currentProjectID) {
+        projectIdArr = res_projectId[0].currentProjectID && res_projectId[0].currentProjectID.split(',');
+      }
+      const arr = []; 
+      for(let item of projectIdArr) {
+        const res_name = await projectSql.queryProjectNameById(item);
+        const name = res_name[0].projectName;
+        arr.push({
+          projectName: name,
+          projectId: item,
+        })
+    }
+    userInfo[0].projectList = arr;
+   return  ctx.body = {
       token: tk,
       userInfo:userInfo[0],
     }
@@ -90,7 +106,7 @@ router.get('/getDepartment',async(ctx,next) => {
     const workNumber = res_token.workNumber; 
     try {
       const res_projectId = await allUserSql.queryMyProject(workNumber);
-      let projectIdArr = res_projectId[0].currentProjectID.split(',');
+      let projectIdArr = res_projectId[0].currentProjectID && res_projectId[0].currentProjectID.split(',');
       const arr = []; 
       for(let item of projectIdArr) {
         const res_name = await projectSql.queryProjectNameById(item);
