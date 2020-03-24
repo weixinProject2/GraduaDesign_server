@@ -882,19 +882,16 @@ router.get('/queryAllProject', async ctx => {
     const params = ctx.query;
     const page = params.page || 1;
     const size = params.size || 10;
+
+    const projectName = params.projectName || null;
+    const bToDepartmentID = params.bToDepartmentID || null;
     const initValue = {
-        "projectId": null,
-        "projectName": null,
+        projectName,
+        bToDepartmentID,
     };
-    let queryFiled = params.queryparams;
-    if (queryFiled) {
-        queryFiled = JSON.parse(queryFiled);
-    } else {
-        queryFiled = initValue;
-    }
     try {
-        const res_result = await projectSql.queryAllProjectInfo(page, size, queryFiled);
-        const res_count = await projectSql.queryAllProjectNum(queryFiled);
+        const res_result = await projectSql.queryAllProjectInfo(page, size, initValue);
+        const res_count = await projectSql.queryAllProjectNum(initValue);
         const total = res_count[0]['count(*)'];
         ctx.body = {
             data: res_result,
@@ -906,7 +903,7 @@ router.get('/queryAllProject', async ctx => {
         }
     } catch (e) {
         ctx.body = {
-            mess: e,
+            mess: e.toString(),
             error: -1,
         }
     }

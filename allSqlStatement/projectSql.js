@@ -25,6 +25,7 @@ let projectSql = {
         let _sql3 = ` limit ${(page - 1) * size} , ${size};`;
         let _sql2 = '';
         let count = 0;
+        console.log(queryFiled)
         for (let key in queryFiled) {
             if (queryFiled[key]) {
                 count++;
@@ -37,6 +38,7 @@ let projectSql = {
             }
         }
         _sql += _sql3;
+        console.log(_sql);
         return allServices.query(_sql);
     },
     // 查询所有满足条件的项目的数量
