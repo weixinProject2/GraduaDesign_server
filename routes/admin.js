@@ -998,7 +998,7 @@ router.post('/addProject', async ctx => {
     }
     currentProjectId ? currentProjectId += `,${projectId}` : currentProjectId += `${projectId}`;
     projectInfo.projectId = projectId;
-    projectInfo.schedule = '0%';
+    projectInfo.schedule = 0;
     let createTime = moment(new Date()).format('YYYY-MM-DD');;
     projectInfo.createTime = createTime;
 
