@@ -13,6 +13,16 @@ let projectSql = {
         let _sql = `select projectName from project_info where projectId = ${projectId};`;
         return allServices.query(_sql);
     },
+    // 根据项目ID查询项目进度，项目管理员
+    queryProjectInfoByID: function(projectId) {
+        let _sql = `select bToDepartmentID, schedultion from project_info where projectId = ${projectId};`;
+        return allServices.query(_sql);
+    },
+    // 删除某一个项目
+    deleteProject: function(projectId) {
+        let _sql = `delete from project_info where projectId = ${projectId};`;
+        return allServices.query(_sql);
+    },
     // 查询当前最大的项目于ID
     queryMaxProjectId: function () {
         let _sql = 'select max(projectId) from project_info';

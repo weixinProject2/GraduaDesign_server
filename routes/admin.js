@@ -1018,6 +1018,61 @@ router.post('/addProject', async ctx => {
         }
     }
 })
+// 删除项目
+router.delete('/deleteProject', async ctx => {
+    let token = ctx.request.header.authorization;
+    let res_token = getToken(token);
+    if (res_token.permission != 0) {
+        ctx.status = 403;
+        return ctx.body = {
+            message: '权限不足',
+            error: -1
+        }
+    }
+    const parmas = ctx.query;
+    const projectId = parmas.projectId;
+    if(!projectId) {
+        return ctx.body = {
+            message: '项目ID不能为空',
+            error: -1
+        }
+    }
+    const res_isProjectId = await projectSql.queryProjectInfoByID(projectId);
+    if(res_isProjectId.length === 0) {
+        return ctx.body = {
+            message: '没有当前项目对应的项目ID',
+            error: -2
+        }
+    }
+    const projectInfo = res_isProjectId[0];
+    if(Number(projectInfo.schedultion) !== 100) {
+        return ctx.body = {
+            message: '项目尚未完成，无法删除该项目',
+            error: 0,
+        }
+    }
+    if(projectInfo.bToDepartmentID) {
+        return ctx.body = {
+            message: '项目还有所属部门，无法删除',
+            error: 0,
+        }
+    }
+    try {
+
+    const res_deleteStatus = await projectSql.deleteProject(projectId);
+    if(res_deleteStatus.protocol41) {
+        return ctx.body = {
+            message : '项目删除成功',
+            error: 0,
+        }
+    }
+    }catch (e) {
+        return ctx.body = { 
+          message: e.toString,
+          error: -3
+        }
+    }
+})
 
 // 随机创建一名员工
 router.post('/randomCreateStuff', async (ctx, next) => {
