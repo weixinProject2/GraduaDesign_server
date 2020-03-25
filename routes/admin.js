@@ -1017,7 +1017,7 @@ router.post('/addProject', async ctx => {
             error: -1
         }
     }
-})
+});
 // 删除项目
 router.delete('/deleteProject', async ctx => {
     let token = ctx.request.header.authorization;
@@ -1072,7 +1072,103 @@ router.delete('/deleteProject', async ctx => {
           error: -3
         }
     }
-})
+});
+
+// 分配项目到部门
+router.post('/distribeProject', async ctx => {
+    let token = ctx.request.header.authorization;
+    let res_token = getToken(token);
+    if (res_token.permission != 0) {
+        ctx.status = 403;
+        return ctx.body = {
+            message: '权限不足',
+            error: -1
+        }
+    }
+    const postInfo = ctx.request.body;
+    const projectId = postInfo.projectId;
+    const bToDepartmentID = postInfo.bToDepartmentID;
+    if(!projectId && !bToDepartmentID) {
+        return ctx.body = {
+            message: '项目ID或部门ID不能为空',
+            error: -1,
+        }
+    }
+    try {
+        const res_haveAdminId = await projectSql.queryProjectInfoByID(projectId);
+        if(res_haveAdminId.length === 0) {
+            return ctx.body = {
+                message: '不存在此部门ID',
+                error: -1,
+            }
+        }
+        const adminId = res_haveAdminId[0].bToDepartmentID;
+        if(adminId) {
+            return ctx.body = {
+                message: '当前项目已被分配到部门，不可重新分配',
+                error: -1,
+            }
+        }
+    }catch (e) {
+        return ctx.body = {
+            message: e.toString(),
+            error: -3,
+        }
+    }
+
+    let departmentInfo;
+
+    try {
+        const res_DepartmentInfo = await departmentSql.queryDepartmentByDepartmentId(bToDepartmentID);
+        if(res_DepartmentInfo.length === 0) {
+            return ctx.body = {
+                message: '系统中没有当前部门ID',
+                error: -1,
+            }
+        }
+        departmentInfo = res_DepartmentInfo[0];
+        if(!departmentInfo.departmentMangerId) {
+            return ctx.body = {
+                message: '当前部门没有管理员不可分配项目',
+                error: -1,
+            }
+        }
+    }catch (e) {
+        return ctx.body = {
+            message: e.toString(),
+            error: -3,
+        }
+    }
+
+    try {
+        const info = {
+            projectId,
+            bToDepartmentID,
+            bToDepartmentAdmin: departmentInfo.departmentMangerName,
+            bToDepartmentAdminID: departmentInfo.departmentMangerId,
+            bToDepartment: departmentInfo.departmentName,
+        }
+        const res_setInfo = await projectSql.describeProject(info);
+        let currentProjectId = '';
+        const res_currentProjectId = await allUserSql.queryMyProject(info.bToDepartmentAdminID);
+        currentProjectId = res_currentProjectId[0].currentProjectID || '';
+        currentProjectId ? currentProjectId += `,${projectId}` : currentProjectId += `${projectId}`;
+        const res_changeCurrprojectId = await allUserSql.updateProject(info.bToDepartmentAdminID, currentProjectId);
+        
+        return ctx.body = {
+            message: '分配项目成功',
+            error: 0,
+        }
+
+    }catch (e) {
+        return ctx.body = {
+            message: e.toString(),
+            error: -3
+        }
+    }
+
+
+});
 
 // 随机创建一名员工
 router.post('/randomCreateStuff', async (ctx, next) => {

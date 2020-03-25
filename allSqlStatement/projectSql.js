@@ -18,6 +18,17 @@ let projectSql = {
         let _sql = `select bToDepartmentID, schedultion from project_info where projectId = ${projectId};`;
         return allServices.query(_sql);
     },
+    // 分配项目所属部门
+    describeProject: function(info) {
+        let _sql = `update project_info set 
+        bToDepartment = '${info.bToDepartment}',
+        bToDepartmentAdmin = '${info.bToDepartmentAdmin}',
+        bToDepartmentID = ${info.bToDepartmentID},
+        bToDepartmentAdminID = ${info.bToDepartmentAdminID}
+        where projectId = ${info.projectId};
+         `;
+         return allServices.query(_sql);
+    },
     // 删除某一个项目
     deleteProject: function(projectId) {
         let _sql = `delete from project_info where projectId = ${projectId};`;
