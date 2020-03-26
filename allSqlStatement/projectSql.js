@@ -13,7 +13,7 @@ let projectSql = {
         let _sql = `select projectName from project_info where projectId = ${projectId};`;
         return allServices.query(_sql);
     },
-    // 根据项目ID查询项目进度，项目管理员
+    // 根据项目ID查询项目进度，项目所属部门ID
     queryProjectInfoByID: function(projectId) {
         let _sql = `select bToDepartmentID, schedultion from project_info where projectId = ${projectId};`;
         return allServices.query(_sql);
@@ -21,10 +21,7 @@ let projectSql = {
     // 分配项目所属部门
     describeProject: function(info) {
         let _sql = `update project_info set 
-        bToDepartment = '${info.bToDepartment}',
-        bToDepartmentAdmin = '${info.bToDepartmentAdmin}',
         bToDepartmentID = ${info.bToDepartmentID},
-        bToDepartmentAdminID = ${info.bToDepartmentAdminID}
         where projectId = ${info.projectId};
          `;
          return allServices.query(_sql);
@@ -59,7 +56,6 @@ let projectSql = {
             }
         }
         _sql += _sql3;
-        console.log(_sql);
         return allServices.query(_sql);
     },
     // 查询所有满足条件的项目的数量
@@ -83,25 +79,19 @@ let projectSql = {
     // 增加一个新的项目
     addNewProject: function (projectInfo) {
         let _sql = '';
-        if(projectInfo.bToDepartmentAdminID) {
+        if(projectInfo.bToDepartmentID) {
             _sql = `insert into project_info (
                 projectName, 
                 projectId, 
-                bToDepartment,
-                bToDepartmentAdmin,
                 schedultion,
                 bToDepartmentID,
-                bToDepartmentAdminID,
                 describtion,
                 createTime
                   ) VALUES (
                     '${projectInfo.projectName}',
                      ${projectInfo.projectId},
-                     '${projectInfo.bToDepartment}',
-                     '${projectInfo.bToDepartmentAdmin}',
                      '${projectInfo.schedule}',
                      ${projectInfo.bToDepartmentID},
-                     ${projectInfo.bToDepartmentAdminID},
                      '${projectInfo.describe}',
                      '${projectInfo.createTime}'
                     );`;

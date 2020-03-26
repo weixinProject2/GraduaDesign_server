@@ -921,14 +921,15 @@ router.post('/addProject', async ctx => {
         }
     }
     const projectInfo = ctx.request.body;
-    const bToDepartmentAdminID = projectInfo.bToDepartmentAdminID;
+    const bToDepartmentID = projectInfo.bToDepartmentID;
+    let bToDepartmentAdminID = null; 
     let res_isDeparmentId = [];
-    if(bToDepartmentAdminID) {
+    if(bToDepartmentID) {
         try {
-             res_isDeparmentId = await departmentSql.queryDeparmentManagerId(bToDepartmentAdminID);
+             res_isDeparmentId = await departmentSql.queryDepartmentByDepartmentId(bToDepartmentID);
             if(!res_isDeparmentId.length) {
                 return ctx.body = {
-                    message: '该工号不是系统管理员，项目创建失败',
+                    message: '系统中不存在该项目ID，项目创建失败',
                     error: -2
                 }
             }
@@ -977,8 +978,16 @@ router.post('/addProject', async ctx => {
     } catch (e) {
         projectId = 750001;
     }
-    if(bToDepartmentAdminID) {
+    if(bToDepartmentID) {
         try {
+            const res_departmentAdmin = await departmentSql.queryManagerDepart(bToDepartmentID);
+            if(res_departmentAdmin.length === 0) {
+                return ctx.body = {
+                    message: '该部门不存在管理员不可分配项目',
+                    error: -1,
+                }
+            }
+             bToDepartmentAdminID = res_departmentAdmin[0].departmentMangerId;
             const res_currentProjectId = await allUserSql.queryMyProject(bToDepartmentAdminID);
             currentProjectId = res_currentProjectId[0].currentProjectID || '';
         }catch (e) {
@@ -987,11 +996,7 @@ router.post('/addProject', async ctx => {
                 error: -1,
             }
         }
-        const departmentInfo = res_isDeparmentId[0];
-        projectInfo.bToDepartment = departmentInfo.departmentName;
-        projectInfo.bToDepartmentAdmin = departmentInfo.departmentMangerName;
-        projectInfo.bToDepartmentID = departmentInfo.departmentId;
-        projectInfo.bToDepartmentAdminID = bToDepartmentAdminID;
+        projectInfo.bToDepartmentID = bToDepartmentID;
     }
     currentProjectId ? currentProjectId += `,${projectId}` : currentProjectId += `${projectId}`;
     projectInfo.projectId = projectId;
