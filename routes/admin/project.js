@@ -314,11 +314,40 @@ async function distribeProject (ctx) {
     }
 };
 
+async function getMyProject(ctx) {
+    let token = ctx.request.header.authorization;
+    let res_token = getToken(token);
+    const workNumber = res_token.workNumber; 
+    try {
+      const res_projectId = await allUserSql.queryMyProject(workNumber);
+      let projectIdArr = res_projectId[0].currentProjectID && res_projectId[0].currentProjectID.split(',');
+      const arr = []; 
+      for(let item of projectIdArr) {
+        const res_name = await projectSql.queryProjectNameById(item);
+        const name = res_name[0].projectName;
+        arr.push({
+          projectName: name,
+          projectId: item,
+        })
+      }
+      return ctx.body = {
+        data: arr,
+        error: 0,
+      }
+    }catch(e) {
+      return ctx.body = {
+        message: String(e),
+        error: -1,
+      }
+    }
+}
+
 const methods = {
     queryAllProject,
     addProject,
     deleteProject,
-    distribeProject
+    distribeProject,
+    getMyProject
 }
 
 

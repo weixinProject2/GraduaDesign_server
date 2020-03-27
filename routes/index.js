@@ -9,6 +9,13 @@ const projectSql = require('../allSqlStatement/projectSql');
 const addtoken = require('../token/index'); 
 const getToken = require('../token/getToken');
 
+const methods_project = require('./admin/project');
+const methods_department = require('./admin/department');
+const methods_stuff = require('./admin/stuff');
+const methods_professional = require('./admin/professional');
+const methods_position = require('./admin/position');
+
+const methods_announce = require('./public/announcement');
 
 // 获取登录用户信息
 router.get('/login',async (ctx,next) => {
@@ -45,35 +52,11 @@ router.get('/login',async (ctx,next) => {
 
 // 查询职位信息
 router.get('/getPosition', async(ctx,next) => {
-  const info = ctx.query;
-  const positionName = info.positionName;
-  let list;
-  if (!positionName) {
-    list = await positionSql.queryPositionInfo();
-  } else {
-    list = await positionSql.queryPositionByName(positionName);
-  }
-  ctx.body = {
-    data: list,
-    code: 0,
-    total: list.length
-}
+  await methods_position.getPosition(ctx);
 });
 // 查询职业信息
 router.get('/getProfessional', async(ctx,next) => {
-  const info = ctx.query;
-  const professionalName = info.professionalName;
-  let list;
-  if (professionalName) {
-     list = await professionalSql.queryPrefossinalByNmae(professionalName);
-  } else {
-     list = await professionalSql.queryAllPrefossinal();
-  }
-  ctx.body = {
-    data: list,
-    code: 0,
-    total: list.length
-}
+  await methods_professional.getProfessional(ctx);
 });
 
 // 查询部门信息
@@ -101,31 +84,7 @@ router.get('/getDepartment',async(ctx,next) => {
 
 // 查询所属于项目
  router.get('/getMyProject', async ctx => {
-    let token = ctx.request.header.authorization;
-    let res_token = getToken(token);
-    const workNumber = res_token.workNumber; 
-    try {
-      const res_projectId = await allUserSql.queryMyProject(workNumber);
-      let projectIdArr = res_projectId[0].currentProjectID && res_projectId[0].currentProjectID.split(',');
-      const arr = []; 
-      for(let item of projectIdArr) {
-        const res_name = await projectSql.queryProjectNameById(item);
-        const name = res_name[0].projectName;
-        arr.push({
-          projectName: name,
-          projectId: item,
-        })
-      }
-      return ctx.body = {
-        data: arr,
-        error: 0,
-      }
-    }catch(e) {
-      return ctx.body = {
-        message: String(e),
-        error: -1,
-      }
-    }
+    await methods_project.getMyProject(ctx);
  })
 
 
@@ -244,6 +203,10 @@ router.get('/getAllPositionInfo', async ctx => {
           error:-1,
       }
   }
+});
+
+router.put('/releaseAnnoun', async ctx => {
+    await methods_announce.releaseAnnouncement(ctx);
 });
 
 module.exports = router;

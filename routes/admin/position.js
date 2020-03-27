@@ -100,9 +100,26 @@ async function deletePosition(ctx) {
     }
 }
 
+async function getPosition(ctx) {
+    const info = ctx.query;
+    const positionName = info.positionName;
+    let list;
+    if (!positionName) {
+      list = await positionSql.queryPositionInfo();
+    } else {
+      list = await positionSql.queryPositionByName(positionName);
+    }
+    ctx.body = {
+      data: list,
+      code: 0,
+      total: list.length
+  }
+}
+
 const methods = {
     addPosition,
     deletePosition,
+    getPosition,
 }
 
 module.exports = methods;
