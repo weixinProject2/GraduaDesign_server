@@ -196,12 +196,6 @@ async function deleteProject(ctx) {
         }
     }
     const projectInfo = res_isProjectId[0];
-    if(Number(projectInfo.schedultion) !== 100) {
-        return ctx.body = {
-            message: '项目尚未完成，无法删除该项目',
-            error: 0,
-        }
-    }
     if(projectInfo.bToDepartmentID) {
         return ctx.body = {
             message: '项目还有所属部门，无法删除',

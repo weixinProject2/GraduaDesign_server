@@ -21,7 +21,7 @@ let projectSql = {
     // 分配项目所属部门
     describeProject: function(info) {
         let _sql = `update project_info set 
-        bToDepartmentID = ${info.bToDepartmentID},
+        bToDepartmentID = ${info.bToDepartmentID}
         where projectId = ${info.projectId};
          `;
          return allServices.query(_sql);

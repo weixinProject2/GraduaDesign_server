@@ -106,7 +106,7 @@ router.post('/addProject', async ctx => {
    await methods_project.addProject(ctx);
 });
 // 删除一个项目
-router.delete('/deletePosition', async ctx => {
+router.delete('/deleteProject', async ctx => {
     await methods_project.deleteProject(ctx);
 });
 // 分配项目到部门
