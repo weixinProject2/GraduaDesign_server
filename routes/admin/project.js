@@ -101,7 +101,7 @@ async function addProject(ctx){
     }
    
     try {
-        const res_result = await projectSql.queryProjectByName(projectInfo.projectName);
+        const res_result = await projectSql.queryProjectName(projectInfo.projectName);
         if (res_result.length) {
             return ctx.body = {
                 message: '不可重复添加已经存在的项目',

@@ -8,6 +8,11 @@ let projectSql = {
         let _sql = `select projectId,projectName from project_info where projectName like '%${projectName}%';`;
         return allServices.query(_sql);
     },
+    // 查询项目名称
+    queryProjectName: function(projectName) {
+        let _sql = `select projectId,projectName from project_info where projectName = '${projectName}';`;
+        return allServices.query(_sql);
+    },
     // 根据项目ID查询项目名
     queryProjectNameById: function(projectId) {
         let _sql = `select projectName from project_info where projectId = ${projectId};`;
