@@ -239,7 +239,7 @@ router.post('/postImg', async (ctx) => {
      reader.pipe(upStream);
      return ctx.body = {
        message: '图片添加成功',
-       url: `http://106.54.206.102:8080/imgUrl/${fileName}`,
+       url: `http://106.54.206.102:8080/imgUrl/${fileName}.${format[format.length - 1]}`,
      };
   }catch(e) {
     return ctx.body = {
