@@ -209,4 +209,9 @@ router.put('/releaseAnnoun', async ctx => {
     await methods_announce.releaseAnnouncement(ctx);
 });
 
+// 获取所有公告
+router.get('/getAllAnnouncement', async ctx => {
+  await methods_announce.getAllAnnouncement(ctx);
+})
+
 module.exports = router;

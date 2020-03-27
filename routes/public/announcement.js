@@ -67,12 +67,32 @@ async function getAllAnnouncement(ctx) {
             error: -1
         }
     }
+
+    let page = ctx.query.page || 1;
+    let size = ctx.query.size || 10;
+    const queryFiled = ctx.query;
+    delete queryFiled.page;
+    delete queryFiled.size;
+    queryFiled.workNumber = workNumber;
+    try {
+      const res_announce = await announcementSql.queryAnouncementInfo(page, size, queryFiled);
+      return ctx.body = {
+          list: res_announce,
+          error: 0,
+      }
+    }catch (e) {
+        return ctx.body = {
+            message: e.toString(),
+            error: -1,
+        }
+    }
     
 }
 
 
 const methods = {
     releaseAnnouncement,
+    getAllAnnouncement,
 };
 
 module.exports = methods;
