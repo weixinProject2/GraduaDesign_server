@@ -16,7 +16,7 @@ let announcementSql = {
     return allServices.query(_sql);
     },
 
-// 查询公告列表
+    // 查询公告列表
   queryAnouncementInfo:function(page, size, queryFiled) {
     const workNumber = queryFiled.workNumber;
     let _sql = `select anmountId, title, createTime from annount_info where personId = ${workNumber}`;
@@ -35,6 +35,13 @@ let announcementSql = {
      _sql += ` limit ${(page -1) * size} , ${size};`;
     return allServices.query(_sql);
   },
+  
+  // 根据公告ID查询公告详情
+  queryAnouncementDetail: function(anmountId) {
+    let _sql = `select content from annount_info where anmountId = ${anmountId};`;
+    return allServices.query(_sql);
+  }
+
 };
 
 module.exports = announcementSql;

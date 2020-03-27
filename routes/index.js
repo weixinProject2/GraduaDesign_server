@@ -1,4 +1,7 @@
 const router = require('koa-router')();
+const crypto = require('crypto');
+const fs = require('fs');
+const path = require('path');
 
 const allUserSql = require('../allSqlStatement/userSql');
 const positionSql = require('../allSqlStatement/positionSql');
@@ -213,5 +216,38 @@ router.put('/releaseAnnoun', async ctx => {
 router.get('/getAllAnnouncement', async ctx => {
   await methods_announce.getAllAnnouncement(ctx);
 })
+
+// 获取公告详情
+router.get('/getAnnounceDetail', async ctx => {
+  await methods_announce.getAllAnnounceDetail(ctx);
+})
+
+// 富文本上传图片
+router.post('/postImg', async (ctx) => {
+  const file = ctx.request.files.file; // 获取上传文件
+  // 创建可读流
+  const reader = fs.createReadStream(file.path);
+  const format = file.name.split('.');
+  var current_date = (new Date()).valueOf().toString();
+  var random = Math.random().toString();
+  var fileName = crypto.createHash('sha1', file.name).update(current_date + random).digest('hex');
+  let filePath = path.join('../../file/imgUrl/') + `${fileName}.${format[format.length - 1]}`;
+  try {  
+      // 创建可写流
+    const upStream = fs.createWriteStream(filePath);
+     // 可读流通过管道写入可写流
+     reader.pipe(upStream);
+     return ctx.body = {
+       message: '图片添加成功',
+       url: `http://106.54.206.102:8080/imgUrl/${fileName}`,
+     };
+  }catch(e) {
+    return ctx.body = {
+      error: -1,
+      message: '图片添加失败失败'
+    }
+  }
+})
+
 
 module.exports = router;

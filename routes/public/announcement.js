@@ -86,13 +86,44 @@ async function getAllAnnouncement(ctx) {
             error: -1,
         }
     }
-    
+}
+
+async function getAllAnnounceDetail(ctx) {
+    let token = ctx.request.header.authorization;
+    let res_token = getToken(token);
+    if (res_token.permission != 0 && res_token.permission != 1) {
+        ctx.status = 403;
+        return ctx.body = {
+            message: '权限不足',
+            error: -1
+        }
+    }
+    const anmountId = ctx.query.anmountId;
+    if(!anmountId) {
+        return ctx.body = {
+            message: '公告Id不能为空',
+            error: -1,
+        }
+    }
+    try {
+        const res_detail = await announcementSql.queryAnouncementDetail(anmountId);
+        return ctx.body = {
+            content: res_detail[0].content,
+            error: 0,
+        }
+    }catch (e) {
+        return ctx.body = {
+            message: e.toString(),
+            error: -1,
+        }
+    }
 }
 
 
 const methods = {
     releaseAnnouncement,
     getAllAnnouncement,
+    getAllAnnounceDetail
 };
 
 module.exports = methods;
