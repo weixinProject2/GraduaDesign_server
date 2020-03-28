@@ -74,10 +74,15 @@ async function getAllAnnouncement(ctx) {
     delete queryFiled.page;
     delete queryFiled.size;
     queryFiled.workNumber = workNumber;
+    let queryParams = {...queryFiled};
     try {
       const res_announce = await announcementSql.queryAnouncementInfo(page, size, queryFiled);
+      const res_total = await announcementSql.queryAnouncementTotal(queryParams);
       return ctx.body = {
           list: res_announce,
+          page: Number(page),
+          size: Number(size),
+          total: res_total.length,
           error: 0,
       }
     }catch (e) {
