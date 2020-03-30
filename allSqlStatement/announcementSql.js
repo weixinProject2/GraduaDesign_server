@@ -59,7 +59,7 @@ let announcementSql = {
   
   // 根据公告ID查询公告详情
   queryAnouncementDetail: function(anmountId) {
-    let _sql = `select content from annount_info where anmountId = ${anmountId};`;
+    let _sql = `select content, title, createTime from annount_info where anmountId = ${anmountId};`;
     return allServices.query(_sql);
   }
 

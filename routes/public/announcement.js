@@ -113,8 +113,10 @@ async function getAllAnnounceDetail(ctx) {
     }
     try {
         const res_detail = await announcementSql.queryAnouncementDetail(anmountId);
+        const data = res_detail[0];
+        data.createTime = moment(data.createTime).format("YYYY-MM-DD hh-mm-ss");
         return ctx.body = {
-            content: res_detail[0].content,
+            data,
             error: 0,
         }
     }catch (e) {
