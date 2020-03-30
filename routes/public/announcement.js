@@ -58,8 +58,6 @@ async function getAllAnnouncement(ctx) {
     let token = ctx.request.header.authorization;
     let res_token = getToken(token);
     const workNumber = res_token.workNumber;
-    const res_name = await allUserSql.queryNameByWorkNumber(workNumber);
-    const username = res_name[0].userName; // 获取发布人姓名
     if (res_token.permission != 0 && res_token.permission != 1) {
         ctx.status = 403;
         return ctx.body = {
@@ -77,6 +75,9 @@ async function getAllAnnouncement(ctx) {
     let queryParams = {...queryFiled};
     try {
       const res_announce = await announcementSql.queryAnouncementInfo(page, size, queryFiled);
+      res_announce.map(item => {
+          item.createTime = moment(item.createTime).format("YYYY-MM-DD hh-mm-ss");
+      })
       const res_total = await announcementSql.queryAnouncementTotal(queryParams);
       return ctx.body = {
           list: res_announce,

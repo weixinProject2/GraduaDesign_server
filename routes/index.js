@@ -9,8 +9,6 @@ const professionalSql = require('../allSqlStatement/professionaSql');
 const departmentSql = require('../allSqlStatement/departmentSql');
 const userSql = require('../allSqlStatement/userSql');
 const projectSql = require('../allSqlStatement/projectSql');
-const addtoken = require('../token/index'); 
-const getToken = require('../token/getToken');
 
 const methods_project = require('./admin/project');
 const methods_department = require('./admin/department');
@@ -19,6 +17,11 @@ const methods_professional = require('./admin/professional');
 const methods_position = require('./admin/position');
 
 const methods_announce = require('./public/announcement');
+
+const addtoken = require('../token/index'); 
+const getToken = require('../token/getToken');
+
+
 
 // 获取登录用户信息
 router.get('/login',async (ctx,next) => {
