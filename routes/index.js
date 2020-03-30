@@ -252,5 +252,8 @@ router.post('/postImg', async (ctx) => {
   }
 })
 
+router.delete('/deleteAnouncement', async ctx => {
+  await methods_announce.deleteAnouncement(ctx);
+})
 
 module.exports = router;

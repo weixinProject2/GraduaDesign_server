@@ -61,6 +61,12 @@ let announcementSql = {
   queryAnouncementDetail: function(anmountId) {
     let _sql = `select content, title, createTime from annount_info where anmountId = ${anmountId};`;
     return allServices.query(_sql);
+  },
+
+  // 删除或者批量删除公告
+  deleteAnouncement: function(ids) {
+      let _sql = ` delete from annount_info where anmountId in ${ids};`;
+      return allServices.query(_sql);
   }
 
 };

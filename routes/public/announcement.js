@@ -127,11 +127,33 @@ async function getAllAnnounceDetail(ctx) {
     }
 }
 
+async function deleteAnouncement(ctx) {
+    if(!ctx.query.ids) {
+        return ctx.body = {
+            message: '公告ID不能为空',
+            error: -2,
+        }
+    }
+    const ids = `(${ctx.query.ids})`;
+    try {
+    const result = await announcementSql.deleteAnouncement(ids);
+        return ctx.body = {
+            message: "删除公告成功",
+            error: 0,
+        }
+    }catch (e) {
+        return ctx.body = {
+            message: e.toString(),
+            error: -1
+        }
+    }
+}
 
 const methods = {
     releaseAnnouncement,
     getAllAnnouncement,
-    getAllAnnounceDetail
+    getAllAnnounceDetail,
+    deleteAnouncement
 };
 
 module.exports = methods;
