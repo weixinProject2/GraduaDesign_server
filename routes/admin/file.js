@@ -37,7 +37,7 @@ async function postFile (ctx) {
   const filename = file.name; // 获取文件名
   const kinds = format[format.length - 1]; // 获取文件类型
   var fileHashName = crypto.createHash('sha1', file.name).update(current_date + random).digest('hex'); //  获取文件加密后的名字
-  let filePath = path.join('../file/files/') + `${fileHashName}.${format[format.length - 1]}`;
+  let filePath = path.join('../../file/files/') + `${fileHashName}.${format[format.length - 1]}`;
   const userInfo = {
       workNumber,
       filename,
