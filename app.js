@@ -13,6 +13,13 @@ const users = require('./routes/users');
 const department = require('./routes/department');
 const admin = require('./routes/admin');
 
+// 饿了么接口
+
+const eleme = require('./routes/eleme/index');
+const elemeLogin = require('./routes/eleme/login');
+
+
+
 const getToken = require('./token/getToken');
 // error handler sdsss
 onerror(app);
@@ -89,6 +96,13 @@ app.use(index.routes(), index.allowedMethods());
 app.use(users.routes(), users.allowedMethods());
 app.use(department.routes(), department.allowedMethods());
 app.use(admin.routes(), admin.allowedMethods());
+
+
+// 饿了么接口
+app.use(eleme.routes(), eleme.allowedMethods());
+app.use(elemeLogin.routes(), elemeLogin.allowedMethods());
+
+
 // error-handling
 app.on('error', (err, ctx) => {
   console.error('server error', err, ctx)

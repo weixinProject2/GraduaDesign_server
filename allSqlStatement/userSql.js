@@ -9,7 +9,6 @@ let userSql = {
         let _sql = `select userName,permissions,workNumber,position,professional,departmentId from user_info where workNumber = ${user.workNumber} and password = '${user.password}'`;
         return allServices.query(_sql);
     },
-
     // 查询所有用户信息
     queryAllUserInfo(page, size, queryFiled) {
         let _sql = `select 

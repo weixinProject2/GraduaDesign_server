@@ -256,4 +256,18 @@ router.delete('/deleteAnouncement', async ctx => {
   await methods_announce.deleteAnouncement(ctx);
 })
 
+router.get('/test', async ctx => {
+  try {
+  const result = await allUserSql.test();
+  return ctx.body = {
+      list: result,
+  }
+  }catch(e) {
+    return ctx.body = {
+      message: e.toString(),
+
+    }
+  }
+})
+
 module.exports = router;

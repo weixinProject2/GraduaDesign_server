@@ -7,6 +7,7 @@ const methods_department = require('./admin/department');
 const methods_stuff = require('./admin/stuff');
 const methods_professional = require('./admin/professional');
 const methods_position = require('./admin/position');
+const methods_files = require('./admin/file');
 
 router.prefix('/admin');
 
@@ -114,6 +115,10 @@ router.post('/distribeProject', async ctx => {
     await methods_project.distribeProject(ctx);
 });
 
+// 管理员上传文件
+router.post('/postFile', async ctx => {
+    await methods_files.postFile(ctx);
+})
 
 
 module.exports = router;
