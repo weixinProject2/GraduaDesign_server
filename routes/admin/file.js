@@ -143,11 +143,57 @@ async function queryFileList(ctx) {
     }
   }
 }
+async function changeFilePublic(ctx) {
+  let token = ctx.request.header.authorization
+  let res_token = getToken(token)
+  if (res_token.permission != 0) {
+    ctx.status = 403;
+    return ctx.body = {
+        message: '权限不足',
+        error: -1
+    }
+  }
+  const params = ctx.request.body;
+  const isPublic = params.isPublic;
+  const fileId = params.fileId;
+  if(!fileId) {
+    return ctx.body = {
+      message: '文件ID不能为空',
+      error: -1
+    }
+  }
+  if(isPublic !== 0 && isPublic !== 1) {
+    return ctx.body = {
+      message: '无效的isPublic字段',
+      error: -2
+    }
+  }
+  try {
+    const res_fileName = await fileSql.queryFileName(fileId);
+    if(res_fileName.length === 0) {
+      return ctx.body = {
+        message: '不存在此文件',
+        error: -2,
+      }
+    }
+    const res_result = await fileSql.changeFilePublic(isPublic, fileId);
+    return ctx.body = {
+      message: '修改成功',
+      error: 0
+    }
+  }catch (e) {
+    return ctx.body = {
+      message: e.toString(),
+      error: -1,
+    }
+  }
+}
 
 const methods = {
     postFile,
     deleteFile,
     queryFileList,
+    changeFilePublic,
 }
 
 module.exports = methods

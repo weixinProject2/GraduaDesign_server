@@ -40,6 +40,10 @@ let fileSql  = {
       _sql = 'select filename, fileId, kinds,fileDesc, public, createTime from companyFile_info';
     }
     return allServices.query(_sql);
+  },
+  changeFilePublic: function(isPublic, fileId) {
+    let _sql = `update companyFile_info set public = ${isPublic} where fileId = ${fileId};`;
+    return allServices.query(_sql);
   }
 }
 module.exports = fileSql;

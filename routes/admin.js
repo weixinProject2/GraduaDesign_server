@@ -126,4 +126,7 @@ router.delete('/deleteFile', async ctx => {
 router.get('/queryfileList', async ctx => {
     await methods_files.queryFileList(ctx);
 })
+router.put('/changeFilePublic', async ctx => {
+    await methods_files.changeFilePublic(ctx);
+})
 module.exports = router;
