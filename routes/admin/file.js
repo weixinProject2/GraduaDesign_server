@@ -21,7 +21,7 @@ async function postFile (ctx) {
         message: '权限不足',
         error: -1
     }
-}
+  }
   const workNumber = res_token.workNumber; // 获取工号
 
   const file = ctx.request.files.file; // 获取上传文件
@@ -51,6 +51,7 @@ async function postFile (ctx) {
 
     const res_result = await fileSql.postCompanyFile(userInfo);
       // 创建可写流
+     
     const upStream = fs.createWriteStream(filePath);
      // 可读流通过管道写入可写流
      reader.pipe(upStream);
@@ -66,12 +67,56 @@ async function postFile (ctx) {
   }
 }
 
-
-
-
+async function deleteFile(ctx) {
+  let token = ctx.request.header.authorization
+  let res_token = getToken(token)
+  if (res_token.permission != 0) {
+    ctx.status = 403;
+    return ctx.body = {
+        message: '权限不足',
+        error: -1
+    }
+  }
+  const fileInfo = ctx.query;
+  const fileId = fileInfo.fileId;
+  if(!fileId) {
+    return ctx.body = {
+      message: '文件ID不能为空',
+      error: -2,
+    }
+  }
+  try {
+      const res_fileName = await fileSql.queryFileName(fileId);
+      if(res_fileName.length === 0) {
+        return ctx.body = {
+          message: '不存在此文件',
+          error: -2,
+        }
+      }
+      const fileTem = res_fileName[0];
+      const filename = `${fileTem.filehashname}.${fileTem.kinds}`;
+      const result = await fileSql.deleteCompanyFile(fileId);
+      //  同步删除需要删除的文件 
+      fs.unlinkSync(`../../file/files/${filename}`, err => {
+        if(err) {
+          throw  new Error(err);
+        }
+      })
+      return ctx.body = {
+        message: '文件删除成功',
+        error: 0,
+      }
+  }catch (e) {
+    return ctx.body = {
+         message: e.toString(),
+         error: -1,
+    }
+  }
+}
 
 const methods = {
     postFile,
+    deleteFile,
 }
 
 module.exports = methods

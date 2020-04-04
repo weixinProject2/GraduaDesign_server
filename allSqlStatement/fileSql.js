@@ -23,6 +23,17 @@ let fileSql  = {
           ${fileInfo.isPublic}
         );`;
       return allServices.query(_sql);
+  },
+  deleteCompanyFile: function(fileId) {
+    let _sql = `delete from companyFile_info where fileId = ${fileId};`;
+    return allServices.query(_sql);
+  },
+  queryFileName: function(fileId) {
+    let _sql = `select filehashname,kinds from companyFile_info where fileId = ${fileId};`;
+    return allServices.query(_sql);
+  },
+  queryFileInfo: function() {
+    let _sql = 'select fileName, fileId, kinds, creatTime from companyFile_info';
   }
 }
 module.exports = fileSql;

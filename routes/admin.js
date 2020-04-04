@@ -120,5 +120,7 @@ router.post('/postFile', async ctx => {
     await methods_files.postFile(ctx);
 })
 
-
+router.delete('/deleteFile', async ctx => {
+    await methods_files.deleteFile(ctx);
+})
 module.exports = router;
