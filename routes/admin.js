@@ -123,4 +123,7 @@ router.post('/postFile', async ctx => {
 router.delete('/deleteFile', async ctx => {
     await methods_files.deleteFile(ctx);
 })
+router.get('/queryfileList', async ctx => {
+    await methods_files.queryFileList(ctx);
+})
 module.exports = router;

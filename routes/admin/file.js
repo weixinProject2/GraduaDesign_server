@@ -114,9 +114,40 @@ async function deleteFile(ctx) {
   }
 }
 
+async function queryFileList(ctx) {
+  let token = ctx.request.header.authorization
+  let res_token = getToken(token)
+  if (res_token.permission != 0) {
+    ctx.status = 403;
+    return ctx.body = {
+        message: '权限不足',
+        error: -1
+    }
+  }
+  const isPublic = ctx.query.isPublic || null;
+  try {
+    const res_list = await fileSql.queryFileList(isPublic);
+    res_list.map(item => {
+      item.createTime = moment(item.createTime).format('YYYY-MM-DD');
+      item.filepath = `http://106.54.206.102:8080/files/${item.filehashname}.${item.kinds}`
+      delete item.filehashname;
+    })
+    return ctx.body = {
+      list: res_list,
+      error: 0,
+    }
+  }catch (e) {
+    return ctx.body = {
+      message: e.toString(),
+      error: -1,
+    }
+  }
+}
+
 const methods = {
     postFile,
     deleteFile,
+    queryFileList,
 }
 
 module.exports = methods

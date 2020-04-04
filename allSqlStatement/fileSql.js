@@ -32,8 +32,14 @@ let fileSql  = {
     let _sql = `select filehashname,kinds from companyFile_info where fileId = ${fileId};`;
     return allServices.query(_sql);
   },
-  queryFileInfo: function() {
-    let _sql = 'select fileName, fileId, kinds, creatTime from companyFile_info';
+  queryFileList: function(isPublic) {
+    let _sql;
+    if(isPublic == 0 || isPublic == 1) {
+      _sql = `select filename,filehashname ,fileId, kinds,fileDesc, public, createTime from companyFile_info where public = ${isPublic}`;
+    }else {
+      _sql = 'select filename, fileId, kinds,fileDesc, public, createTime from companyFile_info';
+    }
+    return allServices.query(_sql);
   }
 }
 module.exports = fileSql;
