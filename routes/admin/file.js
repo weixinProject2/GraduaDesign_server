@@ -130,6 +130,8 @@ async function queryFileList(ctx) {
     res_list.map(item => {
       item.createTime = moment(item.createTime).format('YYYY-MM-DD');
       item.filepath = `http://106.54.206.102:8080/files/${item.filehashname}.${item.kinds}`
+      item.isPublic = item.public;
+      delete item.public;
       delete item.filehashname;
     })
     return ctx.body = {
@@ -143,6 +145,7 @@ async function queryFileList(ctx) {
     }
   }
 }
+
 async function changeFilePublic(ctx) {
   let token = ctx.request.header.authorization
   let res_token = getToken(token)

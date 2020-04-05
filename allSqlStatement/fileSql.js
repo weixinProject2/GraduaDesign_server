@@ -37,7 +37,7 @@ let fileSql  = {
     if(isPublic == 0 || isPublic == 1) {
       _sql = `select filename,filehashname ,fileId, kinds,fileDesc, public, createTime from companyFile_info where public = ${isPublic}`;
     }else {
-      _sql = 'select filename, fileId, kinds,fileDesc, public, createTime from companyFile_info';
+      _sql = 'select filename,filehashname, fileId, kinds,fileDesc, public, createTime from companyFile_info';
     }
     return allServices.query(_sql);
   },
