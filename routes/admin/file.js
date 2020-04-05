@@ -125,13 +125,30 @@ async function queryFileList(ctx) {
     }
   }
   const isPublic = ctx.query.isPublic || null;
+  const page = ctx.query.page || 1;
+  const size = ctx.query.size || 10;
+  const startTime = ctx.query.startTime || null;
+  const endTime = ctx.query.endTime || null;
+  const kinds = ctx.query.kinds || null;
+  const filename = ctx.query.filename || null;
+  const queryFiled = {
+    isPublic,
+    startTime,
+    endTime,
+    kinds,
+    filename,
+  }
+  for(let key in queryFiled) {
+    if(queryFiled[key] === null) {
+      delete queryFiled[key];
+    }
+  }
+  console.log(queryFiled);
   try {
-    const res_list = await fileSql.queryFileList(isPublic);
+    const res_list = await fileSql.queryFileList(page, size, queryFiled);
     res_list.map(item => {
       item.createTime = moment(item.createTime).format('YYYY-MM-DD');
       item.filepath = `http://106.54.206.102:8080/files/${item.filehashname}.${item.kinds}`
-      item.isPublic = item.public;
-      delete item.public;
       delete item.filehashname;
     })
     return ctx.body = {

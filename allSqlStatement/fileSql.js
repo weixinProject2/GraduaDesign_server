@@ -12,7 +12,7 @@ let fileSql  = {
         fileDesc, 
         createTime,
         workNumber,  
-        public
+        isPublic
         ) values (
           '${fileInfo.filename}',
           '${fileInfo.fileHashName}',
@@ -32,17 +32,50 @@ let fileSql  = {
     let _sql = `select filehashname,kinds from companyFile_info where fileId = ${fileId};`;
     return allServices.query(_sql);
   },
-  queryFileList: function(isPublic) {
-    let _sql;
-    if(isPublic == 0 || isPublic == 1) {
-      _sql = `select filename,filehashname ,fileId, kinds,fileDesc, public, createTime from companyFile_info where public = ${isPublic}`;
-    }else {
-      _sql = 'select filename,filehashname, fileId, kinds,fileDesc, public, createTime from companyFile_info';
-    }
+  queryFileList: function(page, size, queryFiled) {
+    let _sql = 'select filename,filehashname ,fileId, kinds,fileDesc, isPublic, createTime from companyFile_info';
+    let count = 0;
+    for(let key in queryFiled) {
+      if(key === 'startTime') {
+         if(count > 0) {
+           _sql += ' and';
+         }else {
+           count++;
+           _sql += ' where';
+         }
+          _sql += ` createTime >= '${queryFiled[key]}'`
+      }else if(key === 'endTime') {
+        if(count > 0) {
+          _sql += ' and';
+        }else {
+          count++;
+          _sql += ' where';
+        }
+          _sql += ` createTime <= '${queryFiled[key]}'`;
+      }else if(key === 'filename') {
+        if(count > 0) {
+          _sql += ' and';
+        }else {
+           count++;
+          _sql += ' where';
+        }
+          _sql += ` filename like '%${queryFiled[key]}%'`;
+      }else {
+        if(count > 0) {
+          _sql += ' and';
+        }else {
+           count++;
+          _sql += ' where';
+        }
+          _sql += ` ${key} = '${queryFiled[key]}'`;
+      }
+  }
+  console.log(_sql);
+    _sql += ` limit ${(page - 1) * size} , ${size};`;
     return allServices.query(_sql);
   },
   changeFilePublic: function(isPublic, fileId) {
-    let _sql = `update companyFile_info set public = ${isPublic} where fileId = ${fileId};`;
+    let _sql = `update companyFile_info set isPublic = ${isPublic} where fileId = ${fileId};`;
     return allServices.query(_sql);
   }
 }
