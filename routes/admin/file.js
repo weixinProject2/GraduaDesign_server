@@ -143,9 +143,9 @@ async function queryFileList(ctx) {
       delete queryFiled[key];
     }
   }
-  console.log(queryFiled);
   try {
     const res_list = await fileSql.queryFileList(page, size, queryFiled);
+    const res_total = await fileSql.queryFiletotal(queryFiled);
     res_list.map(item => {
       item.createTime = moment(item.createTime).format('YYYY-MM-DD');
       item.filepath = `http://106.54.206.102:8080/files/${item.filehashname}.${item.kinds}`
@@ -153,6 +153,9 @@ async function queryFileList(ctx) {
     })
     return ctx.body = {
       list: res_list,
+      page,
+      size,
+      total: res_total.length,
       error: 0,
     }
   }catch (e) {

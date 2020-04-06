@@ -194,4 +194,9 @@ router.post('/deleteStuff', async ctx=>{
     }
 })
 
+// 管理员上传文件
+router.post('/postFile', async ctx => {
+    
+})
+
 module.exports = router;

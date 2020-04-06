@@ -70,8 +70,48 @@ let fileSql  = {
           _sql += ` ${key} = '${queryFiled[key]}'`;
       }
   }
-  console.log(_sql);
     _sql += ` limit ${(page - 1) * size} , ${size};`;
+    return allServices.query(_sql);
+  },
+  // 查询满足条件的条数
+  queryFiletotal: function(queryFiled) {
+    let _sql = 'select filename from companyFile_info';
+    let count = 0;
+    for(let key in queryFiled) {
+      if(key === 'startTime') {
+         if(count > 0) {
+           _sql += ' and';
+         }else {
+           count++;
+           _sql += ' where';
+         }
+          _sql += ` createTime >= '${queryFiled[key]}'`
+      }else if(key === 'endTime') {
+        if(count > 0) {
+          _sql += ' and';
+        }else {
+          count++;
+          _sql += ' where';
+        }
+          _sql += ` createTime <= '${queryFiled[key]}'`;
+      }else if(key === 'filename') {
+        if(count > 0) {
+          _sql += ' and';
+        }else {
+           count++;
+          _sql += ' where';
+        }
+          _sql += ` filename like '%${queryFiled[key]}%'`;
+      }else {
+        if(count > 0) {
+          _sql += ' and';
+        }else {
+           count++;
+          _sql += ' where';
+        }
+          _sql += ` ${key} = '${queryFiled[key]}'`;
+      }
+  }
     return allServices.query(_sql);
   },
   changeFilePublic: function(isPublic, fileId) {
