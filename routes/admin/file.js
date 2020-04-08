@@ -12,10 +12,10 @@ const fileSql = require('../../allSqlStatement/fileSql');
 const addtoken = require('../../token/index')
 const getToken = require('../../token/getToken')
 
-async function postFile (ctx) {
+async function postFile (ctx, caller = "admin") {
   let token = ctx.request.header.authorization
   let res_token = getToken(token)
-  if (res_token.permission != 0) {
+  if ((res_token.permission != 0 && caller === "admin") || (caller === "department" && res_token.permission != 1)) {
     ctx.status = 403;
     return ctx.body = {
         message: '权限不足',
@@ -27,7 +27,7 @@ async function postFile (ctx) {
   const file = ctx.request.files.file; // 获取上传文件
   const fileInfo = ctx.request.body; 
   const desc = fileInfo.desc; // 获取文件描述信息
-  const isPublic = fileInfo.isPublic || 0; // 文件是否公开，
+  isPublic = fileInfo.isPublic || 0; // 文件是否公开
   const createTime = moment(new Date).format('YYYY-MM-DD hh-ss-mm'); // 获取最新时间
   // 创建可读流
   const reader = fs.createReadStream(file.path);
@@ -47,9 +47,15 @@ async function postFile (ctx) {
       isPublic,
       desc,
   }
+  if(caller !== "admin") {
+    delete userInfo.isPublic;
+  }
+  if(caller === "department") {
+    let res_departmentId = await departmentSql.queryDeparmentIdByWorkNumber(workNumber);
+  }
   try {  
 
-    const res_result = await fileSql.postCompanyFile(userInfo);
+    const res_result = await fileSql.postFile(userInfo, caller);
       // 创建可写流
      
     const upStream = fs.createWriteStream(filePath);

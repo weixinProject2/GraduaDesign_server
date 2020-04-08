@@ -58,13 +58,13 @@ async function queryAllProject (ctx) {
 async function addProject(ctx){
     let token = ctx.request.header.authorization;
     let res_token = getToken(token);
-    if (res_token.permission != 0) {
-        ctx.status = 403;
-        return ctx.body = {
-            message: '权限不足',
-            error: -1
-        }
-    }
+    // if (res_token.permission != 0) {
+    //     ctx.status = 403;
+    //     return ctx.body = {
+    //         message: '权限不足',
+    //         error: -1
+    //     }
+    // }
     const projectInfo = ctx.request.body;
     const bToDepartmentID = projectInfo.bToDepartmentID;
     let bToDepartmentAdminID = null; 
@@ -74,7 +74,7 @@ async function addProject(ctx){
              res_isDeparmentId = await departmentSql.queryDepartmentByDepartmentId(bToDepartmentID);
             if(!res_isDeparmentId.length) {
                 return ctx.body = {
-                    message: '系统中不存在该项目ID，项目创建失败',
+                    message: '系统中不存在该部门ID，项目创建失败',
                     error: -2
                 }
             }

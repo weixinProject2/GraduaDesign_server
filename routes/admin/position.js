@@ -12,13 +12,13 @@ const getToken = require('../../token/getToken');
 async function addPosition(ctx) {
     let token = ctx.request.header.authorization;
     let res_token = getToken(token);
-    if (res_token.permission != 0) {
-        ctx.status = 403;
-        return ctx.body = {
-            message: '权限不足',
-            error: -1
-        }
-    }
+    // if (res_token.permission != 0) {
+    //     ctx.status = 403;
+    //     return ctx.body = {
+    //         message: '权限不足',
+    //         error: -1
+    //     }
+    // }
     const positionInfo = ctx.request.body;
     if (!positionInfo.positionName || !positionInfo.description) {
         ctx.status = 400;

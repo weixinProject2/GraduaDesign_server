@@ -150,6 +150,11 @@ let departmentSql  = {
  }
     return allServices.query(_sql);
   },
+  // 查询部门ID通过工号
+  queryDeparmentIdByWorkNumber: function() {
+    let _sql = `select departmentId from deparment_info where departmentMangerId = ${workNumber};`;
+    return allServices.query(_sql);
+  },
   // 添加一个部门
   addDepartment:function(departmentInfo){
     let _sql = '';

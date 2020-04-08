@@ -6,6 +6,7 @@ const departmentSql = require('../allSqlStatement/departmentSql');
 const userSql = require('../allSqlStatement/userSql');
 const positionSql = require('../allSqlStatement/positionSql');
 const professionalSql = require('../allSqlStatement/professionaSql');
+const methods_files = require('./admin/file');
 const getToken = require('../token/getToken');
 
 router.prefix('/department');
@@ -194,9 +195,9 @@ router.post('/deleteStuff', async ctx=>{
     }
 })
 
-// 管理员上传文件
+// 部门管理员上传部门文件
 router.post('/postFile', async ctx => {
-    
+    await methods_files.postFile(ctx, "department");
 })
 
 module.exports = router;
