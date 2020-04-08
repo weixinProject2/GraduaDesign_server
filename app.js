@@ -12,6 +12,7 @@ const index = require('./routes/index');
 const users = require('./routes/users');
 const department = require('./routes/department');
 const admin = require('./routes/admin');
+const tree = require('./routes/tree');
 
 // 饿了么接口
 
@@ -96,7 +97,7 @@ app.use(index.routes(), index.allowedMethods());
 app.use(users.routes(), users.allowedMethods());
 app.use(department.routes(), department.allowedMethods());
 app.use(admin.routes(), admin.allowedMethods());
-
+app.use(tree.routes(), tree.allowedMethods());
 
 // 饿了么接口
 app.use(eleme.routes(), eleme.allowedMethods());
