@@ -10,6 +10,7 @@ const departmentSql = require('../allSqlStatement/departmentSql');
 const userSql = require('../allSqlStatement/userSql');
 const projectSql = require('../allSqlStatement/projectSql');
 const folderTreeSql = require('../allSqlStatement/folderSql');
+const fileSql = require('../allSqlStatement/fileSql');
 
 const methods_project = require('./admin/project');
 const methods_department = require('./admin/department');
@@ -137,9 +138,53 @@ router.post('/changeFolderName', async ctx => {
 
     }
 })
+
+// 删除文件夹
+router.delete('/deleteFolder', async ctx => {
+    let token = ctx.request.header.authorization;
+    let res_token = getToken(token);
+    if (res_token.permission != 0) {
+        ctx.status = 403;
+        return ctx.body = {
+            message: '权限不足',
+            error: -1
+        }
+    }
+    const params = ctx.query;
+    const folderId = params.folderId;
+    if(!folderId) {
+        return ctx.body  = {
+            message: '文件夹ID不能为空',
+            error: -1,
+        }
+    }
+    try {
+        const isFolderId = await folderTreeSql.queryFolderisExit(folderId);
+        if(isFolderId.length === 0) {
+            return ctx.body = {
+                message: '无效的文件夹ID',
+                error: -1
+            }
+        }
+        await deepDeleteTree(folderId);
+        return ctx.body = {
+            message: '文件夹删除成功',
+            error: 0,
+        }
+    }catch(e) {
+        return ctx.body = {
+            message: e.toString(),
+            error: -2
+        }
+    }
+})
 // 递归查询文件树
 async function deepQueryTree(obj, folderId) {
-    const result = await folderTreeSql.queryFolder(folderId); 
+    const result = await folderTreeSql.queryFolder(folderId);
+    const res_fileResult = await fileSql.queryFileInfo(folderId);
+    if(res_fileResult.length) {
+        obj.fileList = [...res_fileResult];
+    }
     if(result.length) {
         obj.children = [...result];
         for(let i = 0; i < obj.children.length; i++) {
@@ -148,7 +193,20 @@ async function deepQueryTree(obj, folderId) {
     }else {
         return ;
     }
+}
 
+// 递归删除文件树和相应的文件
+async function deepDeleteTree(folderId) {
+    await fileSql.deleteCompanyFileByFolderId(folderId);
+    await folderTreeSql.deleteFileByFolderId(folderId);
+    const res_Folder = await folderTreeSql.queryFolder(folderId);
+    if(res_Folder.length) {
+        for(let i = 0; i < res_Folder.length; i++) {
+            await deepDeleteTree(res_Folder[i].folderId);
+        }
+    }else {
+        return;
+    }
 }
 
 module.exports = router;

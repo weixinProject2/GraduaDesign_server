@@ -8,6 +8,7 @@ const professionalSql = require('../../allSqlStatement/professionaSql')
 const departmentSql = require('../../allSqlStatement/departmentSql')
 const userSql = require('../../allSqlStatement/userSql')
 const projectSql = require('../../allSqlStatement/projectSql')
+const folderTreeSql = require('../../allSqlStatement/folderSql');
 const fileSql = require('../../allSqlStatement/fileSql');
 const addtoken = require('../../token/index')
 const getToken = require('../../token/getToken')
@@ -23,9 +24,16 @@ async function postFile (ctx, caller = "admin") {
     }
   }
   const workNumber = res_token.workNumber; // 获取工号
-
   const file = ctx.request.files.file; // 获取上传文件
   const fileInfo = ctx.request.body; 
+  const folderId = fileInfo.folderId; // 获取文件夹ID
+  if(!folderId) {
+    return ctx.body = {
+      message: '文件夹ID不能为空',
+      error: -1,
+    }
+  }
+
   const desc = fileInfo.desc; // 获取文件描述信息
   isPublic = fileInfo.isPublic || 0; // 文件是否公开
   const createTime = moment(new Date).format('YYYY-MM-DD hh-ss-mm'); // 获取最新时间
@@ -46,6 +54,7 @@ async function postFile (ctx, caller = "admin") {
       fileHashName,
       isPublic,
       desc,
+      folderId
   }
   if(caller !== "admin") {
     delete userInfo.isPublic;
@@ -54,6 +63,20 @@ async function postFile (ctx, caller = "admin") {
     let res_departmentId = await departmentSql.queryDeparmentIdByWorkNumber(workNumber);
   }
   try {  
+    const res_idFolderId = await folderTreeSql.queryFolderisExit(folderId);
+    if(!res_idFolderId.length) {
+      return ctx.body = {
+        message: '无效的文件ID',
+        error: -1
+      }
+    }
+    const res_sameFile = await fileSql.querySameFile(filename, kinds, folderId);
+    if(res_sameFile.length) {
+      return ctx.body = {
+        message: '同一个文件夹下，不可上传同名同类型文件',
+        error: -1
+      }
+    }
 
     const res_result = await fileSql.postFile(userInfo, caller);
       // 创建可写流

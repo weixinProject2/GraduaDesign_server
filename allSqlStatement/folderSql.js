@@ -3,7 +3,7 @@
 const allServices = require('./index');
 
 let folderSql  = {
-  // 根据登录用户信息返回侧边栏菜单
+  // 查询文件夹
   queryFolder:function (parentFolderId) {
     let _sql = `select folderId,folderName from companyFolder_info where parentFolderId = ${parentFolderId};`;
     return allServices.query(_sql);
@@ -13,6 +13,7 @@ let folderSql  = {
      let _sql = `select folderId from companyFolder_info where parentFolderId = ${parentId} and folderName = '${folderName}';`;
      return allServices.query(_sql);
   },
+  // 根据文件夹ID查询父级ID
   queryParentID: function(folderId) {
     let _sql = `select parentFolderId from companyFolder_info where folderId = ${folderId};`;
     return allServices.query(_sql);
@@ -20,6 +21,16 @@ let folderSql  = {
   // 重命名文件夹
   renameFolder: function(folderId, folderName) {
     let _sql = `update companyFolder_info set folderName = '${folderName}' where folderId = ${folderId};`;
+    return allServices.query(_sql);
+  },
+    // 根据文件夹ID删除文件文件夹
+  deleteFileByFolderId: function(folderId) {
+      let _sql = `delete from companyFolder_info where folderId = ${folderId};`;
+      return allServices.query(_sql);
+  },
+  // 查询某个文件夹ID是否存在
+  queryFolderisExit: function(folderId) {
+    let _sql = `select folderName from companyFolder_info where folderId = ${folderId};`;
     return allServices.query(_sql);
   },
   // 新建文件夹
@@ -32,6 +43,7 @@ let folderSql  = {
       ${parentId}
     );
     `;
+    
     return allServices.query(_sql);
   }
 }

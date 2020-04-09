@@ -14,7 +14,8 @@ let fileSql  = {
         fileDesc, 
         createTime,
         workNumber,  
-        isPublic
+        isPublic,
+        folderId
         ) values (
           '${fileInfo.filename}',
           '${fileInfo.fileHashName}',
@@ -22,7 +23,8 @@ let fileSql  = {
           '${fileInfo.desc}',
           '${fileInfo.createTime}',
           ${fileInfo.workNumber},
-          ${fileInfo.isPublic}
+          ${fileInfo.isPublic},
+          ${fileInfo.folderId}
         );`;
     }else if(caller === "department") {
       _sql = `insert into departmentFile_info (
@@ -47,8 +49,18 @@ let fileSql  = {
     let _sql = `delete from companyFile_info where fileId = ${fileId};`;
     return allServices.query(_sql);
   },
+  // 根据文件夹ID删除文件
+  deleteCompanyFileByFolderId: function(folderId) {
+    let _sql = `delete from companyFile_info where folderId = ${folderId};`;
+    return allServices.query(_sql);
+  },
   queryFileName: function(fileId) {
     let _sql = `select filehashname,kinds from companyFile_info where fileId = ${fileId};`;
+    return allServices.query(_sql);
+  },
+  // 根据文件夹ID查询文件
+  queryFileInfo: function(folderId) {
+    let _sql = `select fileId, folderId, filename ,filehashname,kinds from companyFile_info where folderId = ${folderId};`;
     return allServices.query(_sql);
   },
   queryFileList: function(page, size, queryFiled) {
@@ -135,6 +147,11 @@ let fileSql  = {
   },
   changeFilePublic: function(isPublic, fileId) {
     let _sql = `update companyFile_info set isPublic = ${isPublic} where fileId = ${fileId};`;
+    return allServices.query(_sql);
+  },
+  // 根据文件名称和文件类型以及文件夹ID查询是否出现同名文件
+  querySameFile: function(filename, kinds, folderId) {
+    let _sql = `select filename from companyFile_info where filename = '${filename}' and kinds = '${kinds}' and folderId = ${folderId};`;
     return allServices.query(_sql);
   }
 }
