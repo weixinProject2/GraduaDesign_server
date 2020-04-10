@@ -27,7 +27,7 @@ const getToken = require('../token/getToken');
 router.prefix('/folderTree');
 
 let treeObj = {
-    title: '公司文件夹',
+    folderName: '公司文件夹',
     folderId: 10047,
 }
 
