@@ -45,6 +45,7 @@ router.get('/getFolderTree', async(ctx,next) => {
     await deepQueryTree(treeObj, 10047);
     return ctx.body = {
         tree: treeObj,
+        error: 0
     }
 });
 
