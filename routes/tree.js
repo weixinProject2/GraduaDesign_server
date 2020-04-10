@@ -181,10 +181,6 @@ router.delete('/deleteFolder', async ctx => {
 // 递归查询文件树
 async function deepQueryTree(obj, folderId) {
     const result = await folderTreeSql.queryFolder(folderId);
-    const res_fileResult = await fileSql.queryFileInfo(folderId);
-    if(res_fileResult.length) {
-        obj.fileList = [...res_fileResult];
-    }
     if(result.length) {
         obj.children = [...result];
         for(let i = 0; i < obj.children.length; i++) {

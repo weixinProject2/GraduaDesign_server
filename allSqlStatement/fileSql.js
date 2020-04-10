@@ -63,84 +63,34 @@ let fileSql  = {
     let _sql = `select fileId, folderId, filename ,filehashname,kinds from companyFile_info where folderId = ${folderId};`;
     return allServices.query(_sql);
   },
-  queryFileList: function(page, size, queryFiled) {
-    let _sql = 'select filename,filehashname ,fileId, kinds,fileDesc, isPublic, createTime from companyFile_info';
-    let count = 0;
+  queryFileList: function(page, size, queryFiled, folderId) {
+    let _sql = `select folderId, filename,filehashname ,fileId, kinds,fileDesc, isPublic, createTime from companyFile_info where folderId = ${folderId}`;
     for(let key in queryFiled) {
       if(key === 'startTime') {
-         if(count > 0) {
-           _sql += ' and';
-         }else {
-           count++;
-           _sql += ' where';
-         }
-          _sql += ` createTime >= '${queryFiled[key]}'`
+          _sql += ` and createTime >= '${queryFiled[key]}'`
       }else if(key === 'endTime') {
-        if(count > 0) {
-          _sql += ' and';
-        }else {
-          count++;
-          _sql += ' where';
-        }
-          _sql += ` createTime <= '${queryFiled[key]}'`;
+          _sql += ` and createTime <= '${queryFiled[key]}'`;
       }else if(key === 'filename') {
-        if(count > 0) {
-          _sql += ' and';
-        }else {
-           count++;
-          _sql += ' where';
-        }
-          _sql += ` filename like '%${queryFiled[key]}%'`;
+          _sql += ` and filename like '%${queryFiled[key]}%'`;
       }else {
-        if(count > 0) {
-          _sql += ' and';
-        }else {
-           count++;
-          _sql += ' where';
-        }
-          _sql += ` ${key} = '${queryFiled[key]}'`;
+          _sql += ` and ${key} = '${queryFiled[key]}'`;
       }
   }
     _sql += ` limit ${(page - 1) * size} , ${size};`;
     return allServices.query(_sql);
   },
   // 查询满足条件的条数
-  queryFiletotal: function(queryFiled) {
-    let _sql = 'select filename from companyFile_info';
-    let count = 0;
+  queryFiletotal: function(queryFiled, folderId) {
+    let _sql = `select filename from companyFile_info where folderId = ${folderId}`;
     for(let key in queryFiled) {
       if(key === 'startTime') {
-         if(count > 0) {
-           _sql += ' and';
-         }else {
-           count++;
-           _sql += ' where';
-         }
-          _sql += ` createTime >= '${queryFiled[key]}'`
+          _sql += ` and createTime >= '${queryFiled[key]}'`
       }else if(key === 'endTime') {
-        if(count > 0) {
-          _sql += ' and';
-        }else {
-          count++;
-          _sql += ' where';
-        }
-          _sql += ` createTime <= '${queryFiled[key]}'`;
+          _sql += ` and createTime <= '${queryFiled[key]}'`;
       }else if(key === 'filename') {
-        if(count > 0) {
-          _sql += ' and';
-        }else {
-           count++;
-          _sql += ' where';
-        }
-          _sql += ` filename like '%${queryFiled[key]}%'`;
+          _sql += ` and filename like '%${queryFiled[key]}%'`;
       }else {
-        if(count > 0) {
-          _sql += ' and';
-        }else {
-           count++;
-          _sql += ' where';
-        }
-          _sql += ` ${key} = '${queryFiled[key]}'`;
+          _sql += ` and ${key} = '${queryFiled[key]}'`;
       }
   }
     return allServices.query(_sql);

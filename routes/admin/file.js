@@ -153,6 +153,13 @@ async function queryFileList(ctx) {
         error: -1
     }
   }
+  const folderId = ctx.query.folderId
+  if(!folderId) {
+    return ctx.body = {
+      message: "文件夹ID不能为空",
+      error: -1
+    }
+  }
   const isPublic = ctx.query.isPublic || null;
   const page = ctx.query.page || 1;
   const size = ctx.query.size || 10;
@@ -173,8 +180,8 @@ async function queryFileList(ctx) {
     }
   }
   try {
-    const res_list = await fileSql.queryFileList(page, size, queryFiled);
-    const res_total = await fileSql.queryFiletotal(queryFiled);
+    const res_list = await fileSql.queryFileList(page, size, queryFiled, folderId);
+    const res_total = await fileSql.queryFiletotal(queryFiled, folderId);
     res_list.map(item => {
       item.createTime = moment(item.createTime).format('YYYY-MM-DD');
       item.filepath = `http://106.54.206.102:8080/files/${item.filehashname}.${item.kinds}`
