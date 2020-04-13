@@ -89,12 +89,13 @@ router.get('/getFolderTree', async(ctx,next) => {
 router.post('/createFolder', async ctx => {
     let token = ctx.request.header.authorization;
     let res_token = getToken(token);
-    if (res_token.permission != 0) {
-        ctx.status = 403;
-        return ctx.body = {
-            message: '权限不足',
-            error: -1
-        }
+    const permission = Number(res_token.permission);
+    let departmentId = null;
+    let workNumber = null;
+    workNumber = res_token.workNumber;
+    if(permission === 1) {
+        const res_DepartmentId   = await departmentSql.queryDeparmentIdByWorkNumber(workNumber);
+        departmentId = res_DepartmentId[0].departmentId;
     }
     const params = ctx.request.body;
     if(!params.parentId) {
@@ -110,7 +111,14 @@ router.post('/createFolder', async ctx => {
         }
     }
     try {
+        // 查询公司文件夹下是否存在同名文件
         const isExit = await folderTreeSql.queryisExitFolder(params.parentId, params.folderName);
+        if(departmentId) {
+
+        }
+        if() {
+            
+        }
         if(isExit.length > 0) {
             return ctx.body = {
                 message: '不可创建同名文件夹',
