@@ -154,12 +154,13 @@ router.post('/createFolder', async ctx => {
 router.post('/changeFolderName', async ctx => {
     let token = ctx.request.header.authorization;
     let res_token = getToken(token);
-    if (res_token.permission != 0) {
-        ctx.status = 403;
-        return ctx.body = {
-            message: '权限不足',
-            error: -1
-        }
+    const permission = Number(res_token.permission);
+    let departmentId = null;
+    let workNumber = null;
+    workNumber = res_token.workNumber;
+    if(permission === 1) {
+        const res_DepartmentId   = await departmentSql.queryDeparmentIdByWorkNumber(workNumber);
+        departmentId = res_DepartmentId[0].departmentId;
     }
     const folderInfo = ctx.request.body;
     const folderId = folderInfo.folderId;
@@ -177,22 +178,46 @@ router.post('/changeFolderName', async ctx => {
         }
     }
     try {
-        const res_parent = await folderTreeSql.queryParentID(folderId);
-        const parentId = res_parent[0].parentFolderId;
-        const result  = await folderTreeSql.queryisExitFolder(parentId, folderName);
+        let tableName = '';
+        let result = [];
+        if(permission === 0) {
+            tableName = "companyFolder_info";
+            const res_parent = await folderTreeSql.queryParentID(folderId, "companyFolder_info");
+            const parentId = res_parent[0].parentFolderId;
+            result  = await folderTreeSql.queryisExitFolder(parentId, folderName, "company");
+        }
+        if(departmentId) {
+            tableName = "departmentFolder_info";
+            const res_parent = await folderTreeSql.queryParentID(folderId, "departmentFolder_info");
+            if(res_parent.length) {
+                const parentId = res_parent[0].parentFolderId;
+                result  = await folderTreeSql.queryisExitFolder(parentId, folderName, "department", departmentId);
+            }
+        }
+        if(permission !== 0 && workNumber && `${folderId}`.length > 7) {
+            tableName = "personFolder_info";
+            const res_parent = await folderTreeSql.queryParentID(folderId, "personFolder_info");
+            if(res_parent.length) {
+                const parentId = res_parent[0].parentFolderId;
+                result  = await folderTreeSql.queryisExitFolder(parentId, folderName, "person", null, workNumber);
+            }
+        }
         if(result.length) {
             return ctx.body = {
                 message: '文件命不可重复',
                 error: -1,
             }
         }
-        const res_result = await folderTreeSql.renameFolder(folderId, folderName);
+        await folderTreeSql.renameFolder(folderId, folderName, tableName);
         return ctx.body = {
             message: '重命名成功',
             error: 0,
         }
     }catch (e) {
-
+        return ctx.body = {
+            message: e.toString(),
+            error: -2
+        }
     }
 })
 

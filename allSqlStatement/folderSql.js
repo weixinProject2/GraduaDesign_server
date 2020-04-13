@@ -29,13 +29,14 @@ let folderSql  = {
      return allServices.query(_sql);
   },
   // 根据文件夹ID查询父级ID
-  queryParentID: function(folderId) {
-    let _sql = `select parentFolderId from companyFolder_info where folderId = ${folderId};`;
+  queryParentID: function(folderId, table) {
+    let _sql = `select parentFolderId from ${table} where folderId = ${folderId};`;
     return allServices.query(_sql);
   },
   // 重命名文件夹
-  renameFolder: function(folderId, folderName) {
-    let _sql = `update companyFolder_info set folderName = '${folderName}' where folderId = ${folderId};`;
+  renameFolder: function(folderId, folderName, tableName) {
+    let _sql = `update ${tableName} set folderName = '${folderName}' where folderId = ${folderId};`;
+    console.log(_sql)
     return allServices.query(_sql);
   },
     // 根据文件夹ID删除文件文件夹
