@@ -116,9 +116,9 @@ router.post('/createFolder', async ctx => {
         if(departmentId) {
 
         }
-        if() {
-            
-        }
+        // if() {
+
+        // }
         if(isExit.length > 0) {
             return ctx.body = {
                 message: '不可创建同名文件夹',
