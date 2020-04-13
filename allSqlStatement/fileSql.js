@@ -63,6 +63,7 @@ let fileSql  = {
     let _sql = `select fileId, folderId, filename ,filehashname,kinds from companyFile_info where folderId = ${folderId};`;
     return allServices.query(_sql);
   },
+  // 查询文件夹
   queryFileList: function(page, size, queryFiled, folderId) {
     let _sql = `select folderId, filename,filehashname ,fileId, kinds,fileDesc, isPublic, createTime from companyFile_info where folderId = ${folderId}`;
     for(let key in queryFiled) {
@@ -79,6 +80,11 @@ let fileSql  = {
     _sql += ` limit ${(page - 1) * size} , ${size};`;
     return allServices.query(_sql);
   },
+  // 查询所有公司公开文件
+    queryPublicFileInfo:function(){
+      let _sql = 'select folderId, filename,filehashname ,fileId, kinds,fileDesc, createTime from companyFile_info where isPublic = 1;';
+      return allServices.query(_sql);
+    },
   // 查询满足条件的条数
   queryFiletotal: function(queryFiled, folderId) {
     let _sql = `select filename from companyFile_info where folderId = ${folderId}`;

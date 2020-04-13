@@ -26,26 +26,62 @@ const getToken = require('../token/getToken');
 
 router.prefix('/folderTree');
 
-let treeObj = {
-    folderName: '公司文件夹',
-    folderId: 10047,
+function getRootTree(index) {
+    const choise = ["公司文件夹", "部门文件夹", "个人文件夹"];
+    const folderIdArr = [10047, 100021, 10036221]
+    let obj = {
+        folderName: choise[index],
+        folderId: folderIdArr[index],
+    }
+    return obj
 }
+
 
 // 获取文件树接口
 router.get('/getFolderTree', async(ctx,next) => {
     let token = ctx.request.header.authorization;
     let res_token = getToken(token);
-    if (res_token.permission != 0) {
-        ctx.status = 403;
-        return ctx.body = {
-            message: '权限不足',
-            error: -1
-        }
+    const permission = Number(res_token.permission);
+    let departmentId = null;
+    let workNumber = null;
+    workNumber = res_token.workNumber;
+    if(permission === 1) {
+        const res_DepartmentId   = await departmentSql.queryDeparmentIdByWorkNumber(workNumber);
+        departmentId = res_DepartmentId[0].departmentId;
     }
-    await deepQueryTree(treeObj, 10047);
-    return ctx.body = {
-        tree: [treeObj],
-        error: 0
+    let treeObj = getRootTree(permission);
+    await deepQueryTree(treeObj, treeObj.folderId, permission, departmentId);
+    if(permission === 0) {
+        return ctx.body = {
+            tree: [treeObj],
+            error: 0
+        }
+    }else if(permission === 1){
+        const companyTree = {
+            folderName: '公司公开文件夹',
+            folderId:100000,
+        }
+        const personTree = getRootTree(2)
+        await deepQueryTree(personTree, personTree.folderId, 2, null, workNumber);
+        return ctx.body = {
+            tree: [companyTree, treeObj, personTree],
+            error: 0
+        }
+    }else {
+        const companyTree = {
+            folderName: '公司公开文件夹',
+            folderId:100000,
+        }
+        const departmentTree = {
+            folderName: '部门相关文件夹',
+            folderId: 200000,
+        }
+        const personTree = getRootTree(2);
+        await deepQueryTree(personTree, personTree.folderId, 2, null ,workNumber);
+        return ctx.body = {
+            tree: [companyTree, departmentTree, personTree],
+            error: 0
+        }
     }
 });
 
@@ -180,12 +216,12 @@ router.delete('/deleteFolder', async ctx => {
     }
 })
 // 递归查询文件树
-async function deepQueryTree(obj, folderId) {
-    const result = await folderTreeSql.queryFolder(folderId);
+async function deepQueryTree(obj, folderId, permission, departmentId = null, workNumber) {
+    const result = await folderTreeSql.queryFolder(folderId, permission, departmentId, workNumber);
     if(result.length) {
         obj.children = [...result];
         for(let i = 0; i < obj.children.length; i++) {
-            await deepQueryTree(obj.children[i], obj.children[i].folderId);
+            await deepQueryTree(obj.children[i], obj.children[i].folderId, permission, departmentId, workNumber);
         }
     }else {
         return ;

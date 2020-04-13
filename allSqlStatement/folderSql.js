@@ -4,8 +4,16 @@ const allServices = require('./index');
 
 let folderSql  = {
   // 查询文件夹
-  queryFolder:function (parentFolderId) {
-    let _sql = `select folderId,folderName from companyFolder_info where parentFolderId = ${parentFolderId};`;
+  queryFolder:function (parentFolderId, permission, departmentId, workNumber = null) {
+    let _sql = '';
+    if(permission === 0) {
+      _sql = `select folderId,folderName from companyFolder_info where parentFolderId = ${parentFolderId};`;
+    }else if(permission === 1) {
+      _sql = `select folderId,folderName from departmentFolder_info where parentFolderId = ${parentFolderId} and departmentId = ${departmentId};`;
+    } else {
+      _sql = `select folderId,folderName from personFolder_info where parentFolderId = ${parentFolderId} and workNumber = ${workNumber};`;
+    }
+     
     return allServices.query(_sql);
   },
   // 查询是否存在同名文件夹
@@ -43,8 +51,7 @@ let folderSql  = {
       ${parentId}
     );
     `;
-    
     return allServices.query(_sql);
-  }
+  },
 }
 module.exports = folderSql;
