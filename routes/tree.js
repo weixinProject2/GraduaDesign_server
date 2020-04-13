@@ -182,13 +182,13 @@ router.post('/changeFolderName', async ctx => {
         let result = [];
         if(permission === 0) {
             tableName = "companyFolder_info";
-            const res_parent = await folderTreeSql.queryParentID(folderId, "companyFolder_info");
+            const res_parent = await folderTreeSql.queryParentID(folderId, tableName);
             const parentId = res_parent[0].parentFolderId;
             result  = await folderTreeSql.queryisExitFolder(parentId, folderName, "company");
         }
         if(departmentId) {
             tableName = "departmentFolder_info";
-            const res_parent = await folderTreeSql.queryParentID(folderId, "departmentFolder_info");
+            const res_parent = await folderTreeSql.queryParentID(folderId, tableName);
             if(res_parent.length) {
                 const parentId = res_parent[0].parentFolderId;
                 result  = await folderTreeSql.queryisExitFolder(parentId, folderName, "department", departmentId);
@@ -196,7 +196,7 @@ router.post('/changeFolderName', async ctx => {
         }
         if(permission !== 0 && workNumber && `${folderId}`.length > 7) {
             tableName = "personFolder_info";
-            const res_parent = await folderTreeSql.queryParentID(folderId, "personFolder_info");
+            const res_parent = await folderTreeSql.queryParentID(folderId, tableName);
             if(res_parent.length) {
                 const parentId = res_parent[0].parentFolderId;
                 result  = await folderTreeSql.queryisExitFolder(parentId, folderName, "person", null, workNumber);
@@ -225,12 +225,13 @@ router.post('/changeFolderName', async ctx => {
 router.delete('/deleteFolder', async ctx => {
     let token = ctx.request.header.authorization;
     let res_token = getToken(token);
-    if (res_token.permission != 0) {
-        ctx.status = 403;
-        return ctx.body = {
-            message: '权限不足',
-            error: -1
-        }
+    let permission = Number(res_token.permission);
+    let departmentId = null;
+    let workNumber = null;
+    workNumber = res_token.workNumber;
+    if(permission === 1) {
+        const res_DepartmentId   = await departmentSql.queryDeparmentIdByWorkNumber(workNumber);
+        departmentId = res_DepartmentId[0].departmentId;
     }
     const params = ctx.query;
     const folderId = params.folderId;
@@ -241,14 +242,26 @@ router.delete('/deleteFolder', async ctx => {
         }
     }
     try {
-        const isFolderId = await folderTreeSql.queryFolderisExit(folderId);
+        let tableName = '';
+        let isFolderId = [];
+        if(permission === 0) {
+            tableName = "companyFolder_info";
+        }
+        if(departmentId) {
+            tableName = "departmentFolder_info";
+        }
+        if(permission !== 0 && workNumber && `${folderId}`.length > 7) {
+            tableName = "personFolder_info";
+            permission = 2;
+        }
+        isFolderId = await folderTreeSql.queryFolderisExit(folderId, tableName);
         if(isFolderId.length === 0) {
             return ctx.body = {
                 message: '无效的文件夹ID',
                 error: -1
             }
         }
-        await deepDeleteTree(folderId);
+        await deepDeleteTree(folderId, tableName, permission, departmentId, workNumber);
         return ctx.body = {
             message: '文件夹删除成功',
             error: 0,
@@ -274,13 +287,13 @@ async function deepQueryTree(obj, folderId, permission, departmentId = null, wor
 }
 
 // 递归删除文件树和相应的文件
-async function deepDeleteTree(folderId) {
-    await fileSql.deleteCompanyFileByFolderId(folderId);
-    await folderTreeSql.deleteFileByFolderId(folderId);
-    const res_Folder = await folderTreeSql.queryFolder(folderId);
+async function deepDeleteTree(folderId, tableName, permission, departmentId, workNumber) {
+    await fileSql.deleteCompanyFileByFolderId(folderId, tableName);
+    await folderTreeSql.deleteFileByFolderId(folderId, tableName);
+    const res_Folder = await folderTreeSql.queryFolder(folderId, permission, departmentId, workNumber);
     if(res_Folder.length) {
         for(let i = 0; i < res_Folder.length; i++) {
-            await deepDeleteTree(res_Folder[i].folderId);
+            await deepDeleteTree(res_Folder[i].folderId, tableName, permission, departmentId, workNumber);
         }
     }else {
         return;

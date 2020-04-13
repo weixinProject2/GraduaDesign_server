@@ -50,8 +50,8 @@ let fileSql  = {
     return allServices.query(_sql);
   },
   // 根据文件夹ID删除文件
-  deleteCompanyFileByFolderId: function(folderId) {
-    let _sql = `delete from companyFile_info where folderId = ${folderId};`;
+  deleteCompanyFileByFolderId: function(folderId, tableName) {
+    let _sql = `delete from ${tableName} where folderId = ${folderId};`;
     return allServices.query(_sql);
   },
   queryFileName: function(fileId) {

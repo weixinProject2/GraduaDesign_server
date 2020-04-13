@@ -40,13 +40,13 @@ let folderSql  = {
     return allServices.query(_sql);
   },
     // 根据文件夹ID删除文件文件夹
-  deleteFileByFolderId: function(folderId) {
-      let _sql = `delete from companyFolder_info where folderId = ${folderId};`;
+  deleteFileByFolderId: function(folderId, tableName) {
+      let _sql = `delete from ${tableName} where folderId = ${folderId};`;
       return allServices.query(_sql);
   },
   // 查询某个文件夹ID是否存在
-  queryFolderisExit: function(folderId) {
-    let _sql = `select folderName from companyFolder_info where folderId = ${folderId};`;
+  queryFolderisExit: function(folderId, tableName) {
+    let _sql = `select folderName from ${tableName} where folderId = ${folderId};`;
     return allServices.query(_sql);
   },
   // 新建文件夹
