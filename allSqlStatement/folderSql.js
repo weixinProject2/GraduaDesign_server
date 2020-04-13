@@ -17,8 +17,15 @@ let folderSql  = {
     return allServices.query(_sql);
   },
   // 查询是否存在同名文件夹
-  queryisExitFolder: function(parentId, folderName) {
-     let _sql = `select folderId from companyFolder_info where parentFolderId = ${parentId} and folderName = '${folderName}';`;
+  queryisExitFolder: function(parentId, folderName, kind, departmentId, workNumber) {
+    let _sql = '';
+    if(kind === "company") {
+      _sql = `select folderId from companyFolder_info where parentFolderId = ${parentId} and folderName = '${folderName}';`;
+    }else if(kind === 'department') {
+      _sql = `select folderId from departmentFolder_info where parentFolderId = ${parentId} and folderName = '${folderName}' and departmentId = ${departmentId};`;
+    }else {
+      _sql = `select folderId from personFolder_info where parentFolderId = ${parentId} and folderName = '${folderName}' and workNumber = ${workNumber};`;
+    }
      return allServices.query(_sql);
   },
   // 根据文件夹ID查询父级ID
@@ -42,15 +49,40 @@ let folderSql  = {
     return allServices.query(_sql);
   },
   // 新建文件夹
-  createNewFolder: function(parentId, folderName) {
-    let _sql = `insert into companyFolder_info(
-      folderName,
-      parentFolderId
-    ) VALUES (
-      '${folderName}',
-      ${parentId}
-    );
-    `;
+  createNewFolder: function(parentId, folderName, kind, departmentId, workNumber) {
+    let _sql = '';
+    if(kind === 'company') {
+      _sql = `insert into companyFolder_info(
+        folderName,
+        parentFolderId
+      ) VALUES (
+        '${folderName}',
+        ${parentId}
+      );
+      `;
+    }else if(kind === "department") {
+      _sql = `insert into departmentFolder_info(
+        folderName,
+        parentFolderId,
+        departmentId
+      ) VALUES (
+        '${folderName}',
+        ${parentId},
+        ${departmentId}
+      );
+      `;
+    }else {
+      _sql = `insert into personFolder_info(
+        folderName,
+        parentFolderId,
+        workNumber
+      ) VALUES (
+        '${folderName}',
+        ${parentId},
+        ${workNumber}
+      );
+      `;
+    }
     return allServices.query(_sql);
   },
 }

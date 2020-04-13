@@ -112,20 +112,32 @@ router.post('/createFolder', async ctx => {
     }
     try {
         // 查询公司文件夹下是否存在同名文件
-        const isExit = await folderTreeSql.queryisExitFolder(params.parentId, params.folderName);
-        if(departmentId) {
-
+        let isExit = []
+        if(permission === 0) {
+           isExit = await folderTreeSql.queryisExitFolder(params.parentId, params.folderName, "company");
         }
-        // if() {
-
-        // }
-        if(isExit.length > 0) {
+        if(departmentId) {
+             // 查询部门文件夹下是否存在同名文件
+             isExit = await folderTreeSql.queryisExitFolder(params.parentId, params.folderName, "department", departmentId);
+        }
+        if(permission !== 0 && workNumber) {
+             isExit = await folderTreeSql.queryisExitFolder(params.parentId, params.folderName, "person", null, workNumber);
+        }
+        if(isExit.length) {
             return ctx.body = {
                 message: '不可创建同名文件夹',
                 error: -1,
             }
         }
-        const res_result = await folderTreeSql.createNewFolder(params.parentId, params.folderName);
+        if(permission === 0) {
+            await folderTreeSql.createNewFolder(params.parentId, params.folderName, "company");
+        }
+        if(departmentId) {
+            await folderTreeSql.createNewFolder(params.parentId, params.folderName, "department", departmentId);
+        }
+        if(permission !== 0 && workNumber) {
+            await folderTreeSql.createNewFolder(params.parentId, params.folderName, "person", null, workNumber);
+        }
         return ctx.body = {
             message: '文件夹创建成功',
             error: 0,
