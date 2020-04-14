@@ -72,8 +72,8 @@ let fileSql  = {
     let _sql = `delete from ${tableName} where folderId = ${folderId};`;
     return allServices.query(_sql);
   },
-  queryFileName: function(fileId) {
-    let _sql = `select filehashname,kinds from companyFile_info where fileId = ${fileId};`;
+  queryFileName: function(fileId, tableFileName) {
+    let _sql = `select filehashname,kinds from ${tableFileName} where fileId = ${fileId};`;
     return allServices.query(_sql);
   },
   // 根据文件夹ID查询文件

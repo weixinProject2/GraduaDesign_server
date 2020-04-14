@@ -130,13 +130,6 @@ async function deleteFile(ctx) {
     }
   }
   try {
-      const res_fileName = await fileSql.queryFileName(fileId);
-      if(res_fileName.length === 0) {
-        return ctx.body = {
-          message: '不存在此文件',
-          error: -2,
-        }
-      }
 
       let tableFileName = ''
       if(permission === 0) {
@@ -145,9 +138,17 @@ async function deleteFile(ctx) {
       if(departmentId) {
           tableFileName = "departmentFile_info";
       }
-      if(permission !== 0 && workNumber && `${folderId}`.length > 7) {
+      if(permission !== 0 && workNumber && `${fileId}`.length > 7) {
           tableFileName = "personFile_info";
       }  
+
+      const res_fileName = await fileSql.queryFileName(fileId, tableFileName);
+      if(res_fileName.length === 0) {
+        return ctx.body = {
+          message: '不存在此文件',
+          error: -2,
+        }
+      }
 
       const fileTem = res_fileName[0];
       const filename = `${fileTem.filehashname}.${fileTem.kinds}`;
