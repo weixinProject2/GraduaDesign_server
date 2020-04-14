@@ -158,12 +158,14 @@ async function deleteFile(ctx) {
 async function queryFileList(ctx) {
   let token = ctx.request.header.authorization
   let res_token = getToken(token)
-  if (res_token.permission != 0) {
-    ctx.status = 403;
-    return ctx.body = {
-        message: '权限不足',
-        error: -1
-    }
+
+  let permission = Number(res_token.permission);
+  let departmentId = null;
+  let workNumber = null;
+  workNumber = res_token.workNumber;
+  if(permission === 1) {
+    const res_DepartmentId   = await departmentSql.queryDeparmentIdByWorkNumber(workNumber);
+    departmentId = res_DepartmentId[0].departmentId;
   }
   const folderId = ctx.query.folderId
   if(!folderId) {
@@ -192,8 +194,23 @@ async function queryFileList(ctx) {
     }
   }
   try {
-    const res_list = await fileSql.queryFileList(page, size, queryFiled, folderId);
-    const res_total = await fileSql.queryFiletotal(queryFiled, folderId);
+
+    let tableFileName = ''
+    if(permission === 0) {
+      tableFileName = "companyFile_info";
+    }
+    if(departmentId) {
+        tableFileName = "departmentFile_info";
+        queryFiled.departmentId = departmentId;
+    }
+    if(permission !== 0 && workNumber && `${folderId}`.length > 7) {
+        tableFileName = "personFile_info";
+        queryFiled.workNumber = workNumber;
+        delete queryFiled.departmentId
+    }  
+
+    const res_list = await fileSql.queryFileList(page, size, queryFiled, folderId, tableFileName);
+    const res_total = await fileSql.queryFiletotal(queryFiled, folderId, tableFileName);
     res_list.map(item => {
       item.createTime = moment(item.createTime).format('YYYY-MM-DD');
       item.filepath = `http://106.54.206.102:8080/files/${item.filehashname}.${item.kinds}`
