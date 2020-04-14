@@ -98,8 +98,11 @@ let fileSql  = {
           _sql += ` and createTime <= '${queryFiled[key]}'`;
       }else if(key === 'filename') {
           _sql += ` and filename like '%${queryFiled[key]}%'`;
-      }else {
-          _sql += ` and ${key} = ${queryFiled[key]}`;
+      }else if(key === 'workNumber') {
+        _sql += ` and ${key} = ${queryFiled[key]}`;
+      }
+      else {
+          _sql += ` and ${key} = '${queryFiled[key]}'`;
       }
   }
     _sql += ` limit ${(page - 1) * size} , ${size};`;
