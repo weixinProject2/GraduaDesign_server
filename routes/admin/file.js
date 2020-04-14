@@ -221,7 +221,9 @@ async function queryFileList(ctx) {
     if(permission !== 0 && workNumber && `${folderId}`.length > 7) {
         tableFileName = "personFile_info";
         queryFiled.workNumber = workNumber;
-        delete queryFiled.departmentId
+        if(folderId != 200000) {
+            delete queryFiled.departmentId
+        }
     }  
 
     const res_list = await fileSql.queryFileList(page, size, queryFiled, folderId, tableFileName);
