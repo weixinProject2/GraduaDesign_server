@@ -84,13 +84,22 @@ let fileSql  = {
   // 查询文件
   queryFileList: function(page, size, queryFiled, folderId, tableFileName) {
     let _sql = '';
-    if(tableFileName === 'companyFile_info') {
-        _sql = `select folderId, filename,filehashname ,fileId, kinds,fileDesc, isPublic, createTime from companyFile_info where folderId = ${folderId}`;
-    }else if(tableFileName === "departmentFile_info"){
-       _sql = `select folderId, filename,filehashname ,fileId, kinds,fileDesc, createTime from departmentFile_info where folderId = ${folderId}`;
+    if(folderId == 100000) {
+      _sql = `select folderId, filename,filehashname ,fileId, kinds,fileDesc, isPublic, createTime from companyFile_info where isPublic = 1`;
+      delete queryFiled.departmentId;
+    }else if(folderId == 200000) {
+      _sql = `select folderId, filename,filehashname ,fileId, kinds,fileDesc, createTime from departmentFile_info where departmentId = ${queryFiled.departmentId}`;
+      delete queryFiled.departmentId;
     }else {
-      _sql = `select folderId, filename,filehashname ,fileId, kinds,fileDesc, createTime from personFile_info where folderId = ${folderId}`;
+      if(tableFileName === 'companyFile_info') {
+        _sql = `select folderId, filename,filehashname ,fileId, kinds,fileDesc, isPublic, createTime from companyFile_info where folderId = ${folderId}`;
+      }else if(tableFileName === "departmentFile_info"){
+        _sql = `select folderId, filename,filehashname ,fileId, kinds,fileDesc, createTime from departmentFile_info where folderId = ${folderId}`;
+      }else {
+        _sql = `select folderId, filename,filehashname ,fileId, kinds,fileDesc, createTime from personFile_info where folderId = ${folderId}`;
+      }
     }
+
     for(let key in queryFiled) {
       if(key === 'startTime') {
           _sql += ` and createTime >= '${queryFiled[key]}'`
