@@ -88,6 +88,7 @@ let fileSql  = {
       _sql = `select folderId, filename,filehashname ,fileId, kinds,fileDesc, isPublic, createTime from companyFile_info where isPublic = 1`;
       delete queryFiled.departmentId;
     }else if(folderId == 200000) {
+      console.log(queryFiled.departmentId)
       _sql = `select folderId, filename,filehashname ,fileId, kinds,fileDesc, createTime from departmentFile_info where departmentId = ${queryFiled.departmentId}`;
       delete queryFiled.departmentId;
     }else {

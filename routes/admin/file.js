@@ -179,7 +179,7 @@ async function queryFileList(ctx) {
   let workNumber = null;
   workNumber = res_token.workNumber;
   if(permission === 1 || permission === 2) {
-    const res_DepartmentId = await departmentSql.queryDeparmentIdByWorkNumber(workNumber);
+    const res_DepartmentId = await allUserSql.queryUserInfo(workNumber);
     departmentId = res_DepartmentId[0].departmentId;
   }
   const folderId = ctx.query.folderId
