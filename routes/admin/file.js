@@ -275,7 +275,7 @@ async function changeFilePublic(ctx) {
     }
   }
   try {
-    const res_fileName = await fileSql.queryFileName(fileId, "compantFile_info");
+    const res_fileName = await fileSql.queryFileName(fileId, "companyFile_info");
     if(res_fileName.length === 0) {
       return ctx.body = {
         message: '不存在此文件',
