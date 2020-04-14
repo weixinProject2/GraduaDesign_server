@@ -111,13 +111,16 @@ async function postFile (ctx, caller = "admin") {
 async function deleteFile(ctx) {
   let token = ctx.request.header.authorization
   let res_token = getToken(token)
-  if (res_token.permission != 0) {
-    ctx.status = 403;
-    return ctx.body = {
-        message: '权限不足',
-        error: -1
-    }
+
+  let permission = Number(res_token.permission);
+  let departmentId = null;
+  let workNumber = null;
+  workNumber = res_token.workNumber;
+  if(permission === 1) {
+    const res_DepartmentId   = await departmentSql.queryDeparmentIdByWorkNumber(workNumber);
+    departmentId = res_DepartmentId[0].departmentId;
   }
+  
   const fileInfo = ctx.query;
   const fileId = fileInfo.fileId;
   if(!fileId) {
@@ -134,9 +137,21 @@ async function deleteFile(ctx) {
           error: -2,
         }
       }
+
+      let tableFileName = ''
+      if(permission === 0) {
+        tableFileName = "companyFile_info";
+      }
+      if(departmentId) {
+          tableFileName = "departmentFile_info";
+      }
+      if(permission !== 0 && workNumber && `${folderId}`.length > 7) {
+          tableFileName = "personFile_info";
+      }  
+
       const fileTem = res_fileName[0];
       const filename = `${fileTem.filehashname}.${fileTem.kinds}`;
-      const result = await fileSql.deleteCompanyFile(fileId);
+      await fileSql.deleteFile(fileId, tableFileName);
       //  同步删除需要删除的文件 
       fs.unlinkSync(`../../file/files/${filename}`, err => {
         if(err) {

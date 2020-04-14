@@ -63,8 +63,8 @@ let fileSql  = {
     }
       return allServices.query(_sql);
   },
-  deleteCompanyFile: function(fileId) {
-    let _sql = `delete from companyFile_info where fileId = ${fileId};`;
+  deleteFile: function(fileId, tableFileName) {
+    let _sql = `delete from ${tableFileName} where fileId = ${fileId};`;
     return allServices.query(_sql);
   },
   // 根据文件夹ID删除文件
