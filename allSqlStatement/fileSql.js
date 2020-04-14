@@ -65,6 +65,7 @@ let fileSql  = {
   },
   deleteFile: function(fileId, tableFileName) {
     let _sql = `delete from ${tableFileName} where fileId = ${fileId};`;
+
     return allServices.query(_sql);
   },
   // 根据文件夹ID删除文件
