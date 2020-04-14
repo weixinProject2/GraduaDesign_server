@@ -42,6 +42,7 @@ let folderSql  = {
     // 根据文件夹ID删除文件文件夹
   deleteFileByFolderId: function(folderId, tableName) {
       let _sql = `delete from ${tableName} where folderId = ${folderId};`;
+      console.log(_sql)
       return allServices.query(_sql);
   },
   // 查询某个文件夹ID是否存在

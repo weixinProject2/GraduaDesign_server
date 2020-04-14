@@ -243,15 +243,19 @@ router.delete('/deleteFolder', async ctx => {
     }
     try {
         let tableName = '';
+        let tableFileName = '';
         let isFolderId = [];
         if(permission === 0) {
             tableName = "companyFolder_info";
+            tableFileName = "companyFile_info";
         }
         if(departmentId) {
             tableName = "departmentFolder_info";
+            tableFileName = "departmentFile_info";
         }
         if(permission !== 0 && workNumber && `${folderId}`.length > 7) {
             tableName = "personFolder_info";
+            tableFileName = "personFile_info";
             permission = 2;
         }
         isFolderId = await folderTreeSql.queryFolderisExit(folderId, tableName);
@@ -261,7 +265,7 @@ router.delete('/deleteFolder', async ctx => {
                 error: -1
             }
         }
-        await deepDeleteTree(folderId, tableName, permission, departmentId, workNumber);
+        await deepDeleteTree(folderId, tableName, permission, departmentId, workNumber, tableFileName);
         return ctx.body = {
             message: '文件夹删除成功',
             error: 0,
@@ -287,13 +291,13 @@ async function deepQueryTree(obj, folderId, permission, departmentId = null, wor
 }
 
 // 递归删除文件树和相应的文件
-async function deepDeleteTree(folderId, tableName, permission, departmentId, workNumber) {
+async function deepDeleteTree(folderId, tableName, permission, departmentId, workNumber, tableFileName) {
     await fileSql.deleteCompanyFileByFolderId(folderId, tableName);
-    await folderTreeSql.deleteFileByFolderId(folderId, tableName);
+    await folderTreeSql.deleteFileByFolderId(folderId, tableFileName);
     const res_Folder = await folderTreeSql.queryFolder(folderId, permission, departmentId, workNumber);
     if(res_Folder.length) {
         for(let i = 0; i < res_Folder.length; i++) {
-            await deepDeleteTree(res_Folder[i].folderId, tableName, permission, departmentId, workNumber);
+            await deepDeleteTree(res_Folder[i].folderId, tableName, permission, departmentId, workNumber, tableFileName);
         }
     }else {
         return;
