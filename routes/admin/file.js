@@ -16,14 +16,16 @@ const getToken = require('../../token/getToken')
 async function postFile (ctx, caller = "admin") {
   let token = ctx.request.header.authorization
   let res_token = getToken(token)
-  if ((res_token.permission != 0 && caller === "admin") || (caller === "department" && res_token.permission != 1)) {
-    ctx.status = 403;
-    return ctx.body = {
-        message: '权限不足',
-        error: -1
-    }
+ 
+  let permission = Number(res_token.permission);
+  let departmentId = null;
+  let workNumber = null;
+  workNumber = res_token.workNumber;
+  if(permission === 1) {
+    const res_DepartmentId   = await departmentSql.queryDeparmentIdByWorkNumber(workNumber);
+    departmentId = res_DepartmentId[0].departmentId;
   }
-  const workNumber = res_token.workNumber; // 获取工号
+
   const file = ctx.request.files.file; // 获取上传文件
   const fileInfo = ctx.request.body; 
   const folderId = fileInfo.folderId; // 获取文件夹ID
@@ -47,30 +49,40 @@ async function postFile (ctx, caller = "admin") {
   var fileHashName = crypto.createHash('sha1', file.name).update(current_date + random).digest('hex'); //  获取文件加密后的名字
   let filePath = path.join('../../file/files/') + `${fileHashName}.${format[format.length - 1]}`;
   const userInfo = {
-      workNumber,
       filename,
       kinds,
       createTime,
       fileHashName,
-      isPublic,
       desc,
-      folderId
+      folderId,
   }
-  if(caller !== "admin") {
-    delete userInfo.isPublic;
-  }
-  if(caller === "department") {
-    let res_departmentId = await departmentSql.queryDeparmentIdByWorkNumber(workNumber);
-  }
-  try {  
-    const res_idFolderId = await folderTreeSql.queryFolderisExit(folderId);
+  try {
+    let tableFileName = ''
+    let tableFolderName = ''
+    if(permission === 0) {
+      tableFolderName = "companyFolder_info"
+      tableFileName = "companyFile_info";
+      userInfo.isPublic = isPublic;
+    }
+    if(departmentId) {
+        tableFolderName = "departmentFolder_info"
+        tableFileName = "departmentFile_info";
+        userInfo.departmentId = departmentId;
+    }
+    if(permission !== 0 && workNumber && `${folderId}`.length > 7) {
+        tableFolderName = "personFolder_info"
+        tableFileName = "personFile_info";
+        userInfo.workNumber = workNumber;
+    }  
+
+    const res_idFolderId = await folderTreeSql.queryFolderisExit(folderId, tableFolderName);
     if(!res_idFolderId.length) {
       return ctx.body = {
         message: '无效的文件ID',
         error: -1
       }
     }
-    const res_sameFile = await fileSql.querySameFile(filename, kinds, folderId);
+    const res_sameFile = await fileSql.querySameFile(filename, kinds, folderId, tableFileName);
     if(res_sameFile.length) {
       return ctx.body = {
         message: '同一个文件夹下，不可上传同名同类型文件',
@@ -78,7 +90,7 @@ async function postFile (ctx, caller = "admin") {
       }
     }
 
-    const res_result = await fileSql.postFile(userInfo, caller);
+    const res_result = await fileSql.postFile(userInfo, tableFileName);
       // 创建可写流
      
     const upStream = fs.createWriteStream(filePath);

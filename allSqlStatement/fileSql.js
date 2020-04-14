@@ -4,16 +4,15 @@ const allServices = require('./index');
 
 let fileSql  = {
   // 根据登录用户信息返回侧边栏菜单
-  postFile:function (fileInfo, caller) {
+  postFile:function (fileInfo, tableName) {
     let _sql;
-    if(caller === "admin") {
+    if(tableName === "companyFile_info") {
       _sql = `insert into companyFile_info (
         filename,
         filehashname, 
         kinds,
         fileDesc, 
         createTime,
-        workNumber,  
         isPublic,
         folderId
         ) values (
@@ -22,18 +21,36 @@ let fileSql  = {
           '${fileInfo.kinds}',
           '${fileInfo.desc}',
           '${fileInfo.createTime}',
-          ${fileInfo.workNumber},
           ${fileInfo.isPublic},
           ${fileInfo.folderId}
         );`;
-    }else if(caller === "department") {
+    }else if(tableName === "departmentFile_info") {
       _sql = `insert into departmentFile_info (
         filename,
         filehashname, 
         kinds,
         fileDesc, 
         createTime,
+        departmentId,  
+        folderId
+        ) values (
+          '${fileInfo.filename}',
+          '${fileInfo.fileHashName}',
+          '${fileInfo.kinds}',
+          '${fileInfo.desc}',
+          '${fileInfo.createTime}',
+          ${fileInfo.departmentId},
+          ${fileInfo.folderId}
+        );`;
+    }else {
+      _sql = `insert into personFile_info (
+        filename,
+        filehashname, 
+        kinds,
+        fileDesc, 
+        createTime,
         workNumber,  
+        folderId
         ) values (
           '${fileInfo.filename}',
           '${fileInfo.fileHashName}',
@@ -41,6 +58,7 @@ let fileSql  = {
           '${fileInfo.desc}',
           '${fileInfo.createTime}',
           ${fileInfo.workNumber},
+          ${fileInfo.folderId}
         );`;
     }
       return allServices.query(_sql);
@@ -106,8 +124,8 @@ let fileSql  = {
     return allServices.query(_sql);
   },
   // 根据文件名称和文件类型以及文件夹ID查询是否出现同名文件
-  querySameFile: function(filename, kinds, folderId) {
-    let _sql = `select filename from companyFile_info where filename = '${filename}' and kinds = '${kinds}' and folderId = ${folderId};`;
+  querySameFile: function(filename, kinds, folderId, tableName) {
+    let _sql = `select filename from ${tableName} where filename = '${filename}' and kinds = '${kinds}' and folderId = ${folderId};`;
     return allServices.query(_sql);
   }
 }
