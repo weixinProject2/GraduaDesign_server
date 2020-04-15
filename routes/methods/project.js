@@ -152,6 +152,10 @@ async function queryListInfo(ctx) {
        })
        return ctx.body = {
             list: responseList.slice((page - 1) * size, page * size),
+            page: Number(page),
+            size: Number(size),
+            totalPage: Math.ceil(responseList.length / size),
+            total: responseList.length,
             error: 0,
        }
     }catch(e) {
@@ -327,3 +331,7 @@ const methods = {
 }
 
 module.exports = methods;
+
+
+
+

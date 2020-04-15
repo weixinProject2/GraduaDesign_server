@@ -257,7 +257,7 @@ let userSql = {
     },
     // 根据部门ID获取该部门下员工所参与的项目、员工工号、员工姓名、员工头像等信息
     getProjectConnectInfo: function(departmentId) {
-        let _sql = `select currentProjectID, workNumber, userName, headerImg from user_info where departmentId = ${departmentId} and permissions = 2 and currentProjectID!='';`;
+        let _sql = `select email, telNumber, professional, currentProjectID, workNumber, userName, headerImg from user_info where departmentId = ${departmentId} and permissions = 2 and currentProjectID!='';`;
         return allServices.query(_sql);
     }
 }
