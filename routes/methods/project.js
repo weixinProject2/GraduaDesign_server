@@ -309,6 +309,7 @@ async function getProjectDetailInfo(ctx) {
        const result = await projectSql.queryProjectInfoByID(projectId);
        const Info = result[0];
        Info.createTime = moment(Info.createTime).format('YYYY-MM-DD')
+       Info.isOpen = Number(Info.isOpen);
        return ctx.body = {
            data: Info,
            error: 0,
