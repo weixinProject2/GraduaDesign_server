@@ -316,7 +316,7 @@ async function getProjectDetailInfo(ctx) {
        }
     }catch(e) {
         return ctx.body = {
-            message: e.toString(),
+            message: e.toString(), 
             error: -1
         }
     }
