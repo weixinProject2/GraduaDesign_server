@@ -254,6 +254,11 @@ let userSql = {
     updateProject: function(workNumber, currentProjectID) {
         let _sql = `update user_info set currentProjectID = '${currentProjectID}' where workNumber = ${workNumber};`;
         return allServices.query(_sql);
+    },
+    // 根据部门ID获取该部门下员工所参与的项目、员工工号、员工姓名、员工头像等信息
+    getProjectConnectInfo: function(departmentId) {
+        let _sql = `select currentProjectID, workNumber, userName, headerImg from user_info where departmentId = ${departmentId} and permissions = 2 and currentProjectID!='';`;
+        return allServices.query(_sql);
     }
 }
 module.exports = userSql;

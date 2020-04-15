@@ -18,9 +18,9 @@ let projectSql = {
         let _sql = `select projectName from project_info where projectId = ${projectId};`;
         return allServices.query(_sql);
     },
-    // 根据项目ID查询项目进度，项目所属部门ID
+    // 根据项目ID查询项目进度，项目所属部门ID, 项目是否已经开启
     queryProjectInfoByID: function(projectId) {
-        let _sql = `select bToDepartmentID, schedultion from project_info where projectId = ${projectId};`;
+        let _sql = `select projectName, describtion, projectId,createTime, bToDepartmentID, schedultion, isOpen from project_info where projectId = ${projectId};`;
         return allServices.query(_sql);
     },
     // 分配项目所属部门
@@ -91,14 +91,16 @@ let projectSql = {
                 schedultion,
                 bToDepartmentID,
                 describtion,
-                createTime
+                createTime,
+                isOpen
                   ) VALUES (
                     '${projectInfo.projectName}',
                      ${projectInfo.projectId},
                      '${projectInfo.schedule}',
                      ${projectInfo.bToDepartmentID},
                      '${projectInfo.describe}',
-                     '${projectInfo.createTime}'
+                     '${projectInfo.createTime}',
+                     0
                     );`;
         }else {
             _sql = `insert into project_info (
@@ -106,15 +108,27 @@ let projectSql = {
                 projectId, 
                 schedultion,
                 describtion,
-                createTime
+                createTime,
+                isOpen
                   ) VALUES (
                     '${projectInfo.projectName}',
                      ${projectInfo.projectId},
                      '${projectInfo.schedule}',
                      '${projectInfo.describe}',
-                     '${projectInfo.createTime}'
+                     '${projectInfo.createTime}',
+                     0
                     );`;
         }
+        return allServices.query(_sql);
+    },
+    // 开启项目
+    openProject: function(projectId) {
+        let _sql = `update project_info set isOpen = 1 where projectId = ${projectId};`;
+        return allServices.query(_sql);
+    },
+    // 设置项目进度
+    setProjectSchedultion: function(projectId, schedultion) {
+        let _sql = `update project_info set schedultion = ${schedultion} where projectId = ${projectId};`;
         return allServices.query(_sql);
     },
 }

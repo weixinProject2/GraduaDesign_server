@@ -314,6 +314,7 @@ async function distribeProject (ctx) {
     }
 };
 
+// 获取我参与的项目
 async function getMyProject(ctx) {
     let token = ctx.request.header.authorization;
     let res_token = getToken(token);
