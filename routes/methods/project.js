@@ -197,9 +197,12 @@ async function queryUndistributedList(ctx) {
         }
        const res_department = await departmentSql.queryDeparmentIdByWorkNumber(workNumber);
        const departmentId = res_department[0].departmentId;
-       const user_list = await allUserSql.getProjectConnectInfo(departmentId);
+       const user_list = await allUserSql.getProjectConnectInfo(departmentId, true);
        const responseList = user_list.filter((item) => {
            let flag = false;
+           if(!item.currentProjectID) {
+               return item;
+           }
            const arr = item.currentProjectID.split(',');
            arr.map(key => {
                if(key == projectId) {
@@ -207,9 +210,6 @@ async function queryUndistributedList(ctx) {
                }
            })
            if(!flag) {
-               delete item.currentProjectID;
-               delete item.currentProjectID;
-               delete item.currentProjectID;
                delete item.currentProjectID;
                if(item.headerImg) {
                    item.headerImg = `http://106.54.206.102:8080/header/${item.headerImg}`;

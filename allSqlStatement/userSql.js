@@ -261,8 +261,12 @@ let userSql = {
         return allServices.query(_sql);
     },
     // 根据部门ID获取该部门下员工所参与的项目、员工工号、员工姓名、员工头像等信息
-    getProjectConnectInfo: function(departmentId) {
-        let _sql = `select email, telNumber, professional, currentProjectID, workNumber, userName, headerImg from user_info where departmentId = ${departmentId} and permissions = 2 and currentProjectID!='';`;
+    getProjectConnectInfo: function(departmentId, undistribute = false) {
+        let _sql = `select email, telNumber, professional, currentProjectID, workNumber, userName, headerImg from user_info where departmentId = ${departmentId} and permissions = 2`;
+        if(!undistribute) {
+            _sql += " and currentProjectID!=''";
+        }
+        _sql +=';';
         return allServices.query(_sql);
     }
 }
