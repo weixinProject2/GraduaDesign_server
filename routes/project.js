@@ -14,8 +14,13 @@ router.put('/openProject', async ctx => {
 router.post('/distribeProject', async ctx => {
    await methods_project.distribeProject(ctx);
 })
+// 获取所有被分配到项目员工的信息
 router.get('/queryListInfo', async ctx => {
     await methods_project.queryListInfo(ctx);
+})
+// 获取所有未被分配到项目员工的信息
+router.get('/queryUndistributedList', async ctx => {
+    await methods_project.queryUndistributedList(ctx);
 })
 // 删除项目成员
 router.post('/deleteProjectStuff', async ctx => {

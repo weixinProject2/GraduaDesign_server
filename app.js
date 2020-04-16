@@ -15,6 +15,8 @@ const admin = require('./routes/admin');
 const tree = require('./routes/tree');
 const file = require('./routes/file');
 const project = require('./routes/project');
+const sprint = require('./routes/sprint');
+const problem = require('./routes/problem');
 
 // 饿了么接口
 
@@ -102,7 +104,8 @@ app.use(admin.routes(), admin.allowedMethods());
 app.use(tree.routes(), tree.allowedMethods());
 app.use(file.routes(), file.allowedMethods());
 app.use(project.routes(), project.allowedMethods());
-
+app.use(sprint.routes(), sprint.allowedMethods());
+app.use(problem.routes(), problem.allowedMethods());
 // 饿了么接口
 app.use(eleme.routes(), eleme.allowedMethods());
 app.use(elemeLogin.routes(), elemeLogin.allowedMethods());

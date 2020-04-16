@@ -165,6 +165,74 @@ async function queryListInfo(ctx) {
         }
     }
 }
+
+async function queryUndistributedList(ctx) {
+    let token = ctx.request.header.authorization
+    let res_token = getToken(token)
+    if (res_token.permission != 1) {
+      ctx.status = 403
+      return (ctx.body = {
+        message: '权限不足',
+        error: -1
+      })
+    }
+    const workNumber = res_token.workNumber;
+    const params = ctx.query;
+    const page = params.page || 1;
+    const size = params.size || 10;
+    const projectId = params.projectId;
+    if(!projectId) {
+        return ctx.body = {
+            message: '项目ID不能为空',
+            error: -1,
+        }
+    }
+    try {
+        const res_result = await  projectSql.queryProjectNameById(projectId);
+        if(!res_result.length) {
+            return ctx.body = {
+                message: '无效的项目ID',
+                error: -1
+            }
+        }
+       const res_department = await departmentSql.queryDeparmentIdByWorkNumber(workNumber);
+       const departmentId = res_department[0].departmentId;
+       const user_list = await allUserSql.getProjectConnectInfo(departmentId);
+       const responseList = user_list.filter((item) => {
+           let flag = false;
+           const arr = item.currentProjectID.split(',');
+           arr.map(key => {
+               if(key == projectId) {
+                   flag = true;
+               }
+           })
+           if(!flag) {
+               delete item.currentProjectID;
+               delete item.currentProjectID;
+               delete item.currentProjectID;
+               delete item.currentProjectID;
+               if(item.headerImg) {
+                   item.headerImg = `http://106.54.206.102:8080/header/${item.headerImg}`;
+               }
+                return item;
+           }
+       })
+       return ctx.body = {
+            list: responseList.slice((page - 1) * size, page * size),
+            page: Number(page),
+            size: Number(size),
+            totalPage: Math.ceil(responseList.length / size),
+            total: responseList.length,
+            error: 0,
+       }
+    }catch(e) {
+        return ctx.body = {
+            message: e.toString(),
+            error: -1
+        }
+    }
+}
+
 async function deleteProjectStuff(ctx) {
     let token = ctx.request.header.authorization
     let res_token = getToken(token)
@@ -328,7 +396,8 @@ const methods = {
     queryListInfo,
     deleteProjectStuff,
     setProjectSchedultion,
-    getProjectDetailInfo
+    getProjectDetailInfo,
+    queryUndistributedList
 }
 
 module.exports = methods;

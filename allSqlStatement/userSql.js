@@ -48,6 +48,11 @@ let userSql = {
         let _sql = `select userName, workNumber,position,professional,departmentId,email,telNumber,sex,address,Id_Card, headerImg from user_info where workNumber = ${workNumber};`
         return allServices.query(_sql);
     },
+    // 查询员工名称, 头像信息
+    queryUserNameAndHeadeImg: function(workNumber) {
+        let _sql = `select userName, headerImg from user_info where workNumber = ${workNumber};`;
+        return allServices.query(_sql);
+    },
     // 根据工号查询部门管理员名称
     queryNameByWorkNumber: function (workNumber) {
         if (!workNumber) {
