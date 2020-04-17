@@ -116,7 +116,6 @@ async function getAllProblem(ctx) {
                 const res_reporterRole = await allUserSql.queryUserNameAndHeadeImg(item.reporterRoleId);
                 item.reporterRoleName = res_reporterRole[0].userName;
                 headerImg = res_reporterRole[0].headerImg;
-                console.log(headerImg)
                 if(headerImg) {
                     item.reporterRoleHeaderImg =  `http://106.54.206.102:8080/header/${headerImg}`;
                 } else {

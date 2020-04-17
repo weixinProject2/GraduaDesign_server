@@ -134,6 +134,37 @@ async function queryAllSprint(ctx) {
     try{
         const res_sprint = await sprintSql.getSprintDetailInfo(parmas.projectId, page, size);
         for(let j = 0; j < res_sprint.length; j++) {
+            const res_reporterRoleId = await problemSql.queryReporterRoleId(res_sprint[j].sprintId);
+            let res_arr = res_reporterRoleId.reduce((tem, item)=> {
+                let flag = true;
+                tem.map(key => {
+                    if(key.reporterRoleId === item.reporterRoleId) {
+                        flag = false;
+                    }
+                })
+                flag && tem.push(item);
+                return tem;
+            }, []);
+            for(let i = 0; i < res_arr.length; i++) {
+                const item = res_arr[i];
+                const res_reporterRole = await allUserSql.queryUserNameAndHeadeImg(item.reporterRoleId);
+                const res_count = await problemSql.queryProblemBySprintIDAndReporterRoleId(res_sprint[j].sprintId, item.reporterRoleId);
+                item.problemTotal = res_count.length;
+                item.problemComplateCount = res_count.reduce((count, item) => {
+                    if(item.status === 5) {
+                        count++;
+                    }
+                    return count;
+                }, 0);
+                item.remainingEstimatedTime = res_count.reduce((hours, item) => {
+                    return hours+item.remainTime;
+                }, 0);
+                item.problemPendingCount = item.problemTotal - item.problemComplateCount;
+                item.userName = res_reporterRole[0].userName;
+                item.workNumber = item.reporterRoleId;
+                delete item.reporterRoleId;
+            }
+            res_sprint[j].workList = res_arr;
             const result = await problemSql.getAllProblem(parmas.projectId, res_sprint[j].sprintId, 0, 0, false);
             for(let i = 0; i < result.length; i++) {
                 const item = result[i];
@@ -161,7 +192,6 @@ async function queryAllSprint(ctx) {
                     const res_reporterRole = await allUserSql.queryUserNameAndHeadeImg(item.reporterRoleId);
                     item.reporterRoleName = res_reporterRole[0].userName;
                     headerImg = res_reporterRole[0].headerImg;
-                    console.log(headerImg)
                     if(headerImg) {
                         item.reporterRoleHeaderImg =  `http://106.54.206.102:8080/header/${headerImg}`;
                     } else {

@@ -48,7 +48,6 @@ let projectSql = {
         let _sql3 = ` limit ${(page - 1) * size} , ${size};`;
         let _sql2 = '';
         let count = 0;
-        console.log(queryFiled)
         for (let key in queryFiled) {
             if (queryFiled[key]) {
                 count++;

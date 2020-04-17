@@ -67,7 +67,6 @@ let problemSql  = {
     // 统计某个冲刺下问题的所处状态数量
     getStatusBySprintId: function(sprintId, status){
         let _sql = `select count(*) from problem_info where sprintId = ${sprintId} and status = ${status};`
-        console.log(_sql)
         return allServices.query(_sql);
     },
     // 获取经办人工号
@@ -80,6 +79,7 @@ let problemSql  = {
         let _sql = `delete from problem_info where problemId = ${problemId};`;
         return allServices.query(_sql);
     },
+    // 更新问题
     updateProblem: function(problemId, filed) {
         let arr = ['problemName', 'problemDesc', 'updateTime'];
         let _sql = `update problem_info set`;
@@ -92,7 +92,16 @@ let problemSql  = {
         }
         _sql = _sql.replace(/\,$/, '');
         _sql += ` where problemId = ${problemId};`;
-        console.log(_sql);
+        return allServices.query(_sql);
+    },
+    // 根据冲刺ID获取被分配到问题的员工工号
+    queryReporterRoleId: function(sprintId) {
+        let _sql = `select reporterRoleId from problem_info where sprintId = ${sprintId} and reporterRoleId!='';`;
+        return allServices.query(_sql);
+    },
+    // 查询成员某个冲刺下的问题数量
+    queryProblemBySprintIDAndReporterRoleId: function(sprintId, reporterRoleId) {
+        let _sql = `select status, remainTime from problem_info where sprintId = ${sprintId} and reporterRoleId = ${reporterRoleId};`;
         return allServices.query(_sql);
     }
 }
