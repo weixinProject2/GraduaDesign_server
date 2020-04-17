@@ -79,6 +79,21 @@ let problemSql  = {
     deleteProblem: function(problemId) {
         let _sql = `delete from problem_info where problemId = ${problemId};`;
         return allServices.query(_sql);
+    },
+    updateProblem: function(problemId, filed) {
+        let arr = ['problemName', 'problemDesc', 'updateTime'];
+        let _sql = `update problem_info set`;
+        for(let key in filed) {
+            if(!arr.includes(key)) {
+               _sql += ` ${key} = ${filed[key]},`;
+            }else {
+                _sql += ` ${key} = '${filed[key]}',`;
+            }
+        }
+        _sql = _sql.replace(/\,$/, '');
+        _sql += ` where problemId = ${problemId};`;
+        console.log(_sql);
+        return allServices.query(_sql);
     }
 }
 module.exports = problemSql;

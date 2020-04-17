@@ -157,8 +157,11 @@ async function changeProblem(ctx) {
             parmas[key] = Number(parmas[key]);
         }
     }   
+    const problemId = parmas.problemId;
+    delete parmas.problemId;
     parmas.updateTime = moment(new Date()).format('YYYY-MM-DD hh:mm:ss');
     try {
+        await problemSql.updateProblem(problemId, parmas);
         return ctx.body = {
             message: '修改问题成功',
             error: 0,
