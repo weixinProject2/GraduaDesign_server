@@ -90,8 +90,8 @@ async function getAllProblem(ctx) {
         
         for(let i = 0; i < result.length; i++) {
             const item = result[i];
-            item.createTime = moment(item.createTime).format('YYYY-MM-DD hh-mm-ss');
-            item.updateTime = moment(item.updateTime).format('YYYY-MM-DD hh-mm-ss');
+            item.createTime = moment(item.createTime).format('YYYY-MM-DD hh:mm:ss');
+            item.updateTime = moment(item.updateTime).format('YYYY-MM-DD hh:mm:ss');
             item.status = Number(item.status);
             if(item.remainTime === 0) {
                 item.remainTime = null;
@@ -104,7 +104,7 @@ async function getAllProblem(ctx) {
             }
             const res_agentRole = await allUserSql.queryUserNameAndHeadeImg(item.agentRoleId);
             item.agentRoleName = res_agentRole[0].userName;
-            headerImg = res_agentRole[0].headerImg0;
+            headerImg = res_agentRole[0].headerImg;
             if(headerImg) {
                 item.agentRoleHeaderImg =  `http://106.54.206.102:8080/header/${headerImg}`;
             } else {
@@ -114,6 +114,7 @@ async function getAllProblem(ctx) {
                 const res_reporterRole = await allUserSql.queryUserNameAndHeadeImg(item.reporterRoleId);
                 item.reporterRoleName = res_reporterRole[0].userName;
                 headerImg = res_reporterRole[0].headerImg;
+                console.log(headerImg)
                 if(headerImg) {
                     item.reporterRoleHeaderImg =  `http://106.54.206.102:8080/header/${headerImg}`;
                 } else {
@@ -154,7 +155,7 @@ async function changeProblem(ctx) {
             parmas[key] = Number(parmas[key]);
         }
     }   
-    parmas.updateTime = moment(new Date()).format('YYYY-MM-DD hh-mm-ss');
+    parmas.updateTime = moment(new Date()).format('YYYY-MM-DD hh:mm:ss');
     try {
         return ctx.body = {
             message: '修改问题成功',
