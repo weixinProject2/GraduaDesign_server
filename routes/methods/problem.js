@@ -172,10 +172,49 @@ async function changeProblem(ctx) {
     }
 }
 
+async function deleteProblem(ctx) {
+    let token = ctx.request.header.authorization;
+    let res_token = getToken(token);
+    const workNumber =res_token.workNumber; // 经办人工号
+    const problemId = ctx.query.problemId;
+    if(!problemId) {
+        return ctx.body = {
+            message: "问题ID不能为空",
+            error: -1
+        }
+    }
+    try {
+        const result = await problemSql.getAgentRoleId(problemId);
+        if(result.length === 0) {
+            return ctx.body = {
+                message: '无效的问题ID',
+                error: -1
+            }
+        }
+        if(result[0].agentRoleId != workNumber) {
+            return ctx.body = {
+                message: '只有任务报告人才能删除此问题',
+                error: -1
+            }
+        }
+        await problemSql.deleteProblem(problemId);
+        return ctx.body = {
+            message: '问题删除成功',
+            error: -1
+        }
+    }catch(e) {
+        return ctx.body = {
+            message: e.toString(),
+            error: -2
+        }
+    }
+}
+
 const methods = {
     createProblem,
     getAllProblem,
     changeProblem,
+    deleteProblem
 }
 
 module.exports = methods;

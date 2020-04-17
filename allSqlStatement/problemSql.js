@@ -69,7 +69,16 @@ let problemSql  = {
         let _sql = `select count(*) from problem_info where sprintId = ${sprintId} and status = ${status};`
         console.log(_sql)
         return allServices.query(_sql);
+    },
+    // 获取经办人工号
+    getAgentRoleId: function(problemId) {
+        let _sql = `select agentRoleId from problem_info where problemId = ${problemId};`;
+        return allServices.query(_sql);
+    },
+    // 删除问题
+    deleteProblem: function(problemId) {
+        let _sql = `delete from problem_info where problemId = ${problemId};`;
+        return allServices.query(_sql);
     }
-
 }
 module.exports = problemSql;

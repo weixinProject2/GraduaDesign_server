@@ -10,9 +10,9 @@ router.prefix('/project/sprint/problem');
 router.post('/createProblem', async ctx => {
     await methods_problem.createProblem(ctx);
 })
-// 删除冲刺
-router.delete('/deleteSprint', async ctx => {
-    await methods_sprint.deleteProblem(ctx);
+// 删除问题
+router.delete('/deleteProblem', async ctx => {
+    await methods_problem.deleteProblem(ctx);
 })
 // 获取所有问题列表
 router.get('/getAllProblem', async ctx => {
