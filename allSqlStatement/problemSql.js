@@ -42,13 +42,19 @@ let problemSql  = {
         let _sql = `select status from sprint_info where sprintId = ${sprintId};`;
         return allServices.query(_sql);
     },
-    getAllProblem: function(projectId, page, size) {
+    getAllProblem: function(projectId, sprintId, page, size, isPaging = true) {
         let _sql = `select 
         problemId, problemName, problemDesc, 
         kinds, remainTime, sprintId, agentRoleId,
          reporterRoleId, createTime, status, 
          updateTime, projectId from problem_info
-         where projectId = ${projectId} limit ${(page - 1) * size} , ${size}`;
+         where projectId = ${projectId}`;
+         if(sprintId) {
+             _sql += ` and sprintId = ${sprintId}`;
+         }
+         if(isPaging) {
+           _sql += ` limit ${(page - 1) * size} , ${size};`;
+         }
          return allServices.query(_sql);
     },
     // 统计所有数量
@@ -57,6 +63,13 @@ let problemSql  = {
         count(*) from problem_info
          where projectId = ${projectId}`;
          return allServices.query(_sql);
+    },
+    // 统计某个冲刺下问题的所处状态数量
+    getStatusBySprintId: function(sprintId, status){
+        let _sql = `select count(*) from problem_info where sprintId = ${sprintId} and status = ${status};`
+        console.log(_sql)
+        return allServices.query(_sql);
     }
+
 }
 module.exports = problemSql;

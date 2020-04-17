@@ -10,6 +10,7 @@ const sprintSql = require('../../allSqlStatement/sprintSql');
 const addtoken = require('../../token/index'); 
 const getToken = require('../../token/getToken');
 
+
 async function createProblem(ctx) {
     let token = ctx.request.header.authorization;
     let res_token = getToken(token);
@@ -77,6 +78,7 @@ async function getAllProblem(ctx) {
     const parmas = ctx.query;
     const page = parmas.page || 1;
     const size = parmas.size || 10;
+    const sprintId = parmas.sprintId || null;
     if(!parmas.projectId) {
         return ctx.body = {
             message: '项目ID不能为空',
@@ -84,7 +86,7 @@ async function getAllProblem(ctx) {
         }
     }
     try {
-        const result = await problemSql.getAllProblem(parmas.projectId, page, size); 
+        const result = await problemSql.getAllProblem(parmas.projectId, sprintId, page, size); 
         const res_total = await problemSql.getAllProblemCount(parmas.projectId);
         const total = res_total[0]['count(*)'];
         

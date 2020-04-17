@@ -14,4 +14,8 @@ router.post('/createSprint', async ctx => {
 router.delete('/deleteSprint', async ctx => {
     await methods_sprint.deleteSprint(ctx);
 })
+// 获取冲刺列表
+router.get('/queryAllSprint', async ctx => {
+    await methods_sprint.queryAllSprint(ctx);
+})
 module.exports = router;

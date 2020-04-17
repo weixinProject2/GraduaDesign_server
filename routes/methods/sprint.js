@@ -6,6 +6,7 @@ const departmentSql = require('../../allSqlStatement/departmentSql');
 const userSql = require('../../allSqlStatement/userSql');
 const projectSql = require('../../allSqlStatement/projectSql');
 const sprintSql = require('../../allSqlStatement/sprintSql');
+const problemSql = require('../../allSqlStatement/problemSql');
 const addtoken = require('../../token/index'); 
 const getToken = require('../../token/getToken');
 
@@ -120,9 +121,91 @@ async function deleteSprint(ctx) {
         }
     }
 }
+async function queryAllSprint(ctx) {
+    const parmas = ctx.query;
+    if(!parmas.projectId) {
+        return ctx.body = {
+            message: '项目ID不能为空',
+            error: -1
+        }
+    }
+    const page = parmas.page || 1;
+    const size = parmas.size || 10;
+    try{
+        const res_sprint = await sprintSql.getSprintDetailInfo(parmas.projectId, page, size);
+        for(let j = 0; j < res_sprint.length; j++) {
+            const result = await problemSql.getAllProblem(parmas.projectId, res_sprint[j].sprintId, 0, 0, false);
+            for(let i = 0; i < result.length; i++) {
+                const item = result[i];
+                item.createTime = moment(item.createTime).format('YYYY-MM-DD hh:mm:ss');
+                item.updateTime = moment(item.updateTime).format('YYYY-MM-DD hh:mm:ss');
+                item.status = Number(item.status);
+                if(item.remainTime === 0) {
+                    item.remainTime = null;
+                }
+                if(item.sprintId) {
+                    const res_sprint = await sprintSql.getSprintName(item.sprintId);
+                    item.sprintName = res_sprint[0].sprintName;
+                }else {
+                    item.sprintName = null;
+                }
+                const res_agentRole = await allUserSql.queryUserNameAndHeadeImg(item.agentRoleId);
+                item.agentRoleName = res_agentRole[0].userName;
+                headerImg = res_agentRole[0].headerImg;
+                if(headerImg) {
+                    item.agentRoleHeaderImg =  `http://106.54.206.102:8080/header/${headerImg}`;
+                } else {
+                    item.agentRoleHeaderImg = null;
+                }
+                if(item.reporterRoleId) {
+                    const res_reporterRole = await allUserSql.queryUserNameAndHeadeImg(item.reporterRoleId);
+                    item.reporterRoleName = res_reporterRole[0].userName;
+                    headerImg = res_reporterRole[0].headerImg;
+                    console.log(headerImg)
+                    if(headerImg) {
+                        item.reporterRoleHeaderImg =  `http://106.54.206.102:8080/header/${headerImg}`;
+                    } else {
+                        item.reporterRoleHeaderImg = null;
+                    }
+                }else {
+                    item.reporterRoleName = null;
+                    item.reporterRoleHeaderImg = null;
+                }
+            }
+            const map = new Map();
+            map.set("dealtWith", 1);
+            map.set("development", 2);
+            map.set("InTest", 3);
+            map.set("needCheck", 4);
+            map.set("complate", 5);
+            for(let [key, value] of map) {
+                const res_total = await problemSql.getStatusBySprintId(res_sprint[j].sprintId, value); 
+                let total = 0;
+                if(res_total.length) {
+                    total = res_total[0]['count(*)'];
+                }
+                res_sprint[j][key] = total;
+            }
+            res_sprint[j].createTime = moment(res_sprint[j].createTime).format('YYYY-MM-DD hh:mm:ss');
+            res_sprint[j].endTime = moment(res_sprint[j].endTime).format('YYYY-MM-DD hh:mm:ss');
+            res_sprint[j].problemList = result;
+        }
 
+        return ctx.body = {
+            list: res_sprint,
+            error: 0,
+        }
+    }
+    catch(e) {
+        return ctx.body = {
+            message: e.toString(),
+            error: -2
+        }
+    }
+}
 const methods = {
     createSprint,
+    queryAllSprint,
     deleteSprint,
 }
 

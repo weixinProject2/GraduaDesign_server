@@ -36,6 +36,12 @@ let sprintSql  = {
     getSprintName: function(sprintId) {
         let _sql = `select sprintName from sprint_info where sprintId = ${sprintId};`;
         return allServices.query(_sql);
+    },
+    // 获取冲刺的详细信息
+    getSprintDetailInfo: function(projectId, page, size) {
+        let _sql = `select sprintId, sprintName, createTime, endTime, status, sprintDesc from sprint_info
+        where projectId = ${projectId} limit ${(page - 1) * size} , ${size};`;
+        return allServices.query(_sql)
     }
 }
 module.exports = sprintSql;
