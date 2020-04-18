@@ -233,10 +233,34 @@ async function queryAllSprint(ctx) {
         }
     }
 }
+
+async function getAllSprintByProjectID(ctx) {
+    const projectId = ctx.query.projectId;
+    if(!projectId) {
+        return ctx.body = {
+            message: '项目ID不能为空',
+            error: -1
+        }
+    }
+    try{
+        const res_result = await sprintSql.getAllSprintByProjectID(projectId);
+        return ctx.body = {
+            list: res_result,
+            error: 0
+        }
+    }catch(e) {
+        return ctx.body = {
+            message: e.toString(),
+            error: -2
+        }
+    }
+}
 const methods = {
     createSprint,
     queryAllSprint,
     deleteSprint,
+    getAllSprintByProjectID
+
 }
 
 module.exports = methods;

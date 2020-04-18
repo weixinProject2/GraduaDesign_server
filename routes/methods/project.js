@@ -390,6 +390,8 @@ async function getProjectDetailInfo(ctx) {
     }
 }
 
+
+
 const methods = {
     openProject,
     distribeProject,
@@ -397,7 +399,7 @@ const methods = {
     deleteProjectStuff,
     setProjectSchedultion,
     getProjectDetailInfo,
-    queryUndistributedList
+    queryUndistributedList,
 }
 
 module.exports = methods;

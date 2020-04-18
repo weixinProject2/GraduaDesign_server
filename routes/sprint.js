@@ -18,4 +18,8 @@ router.delete('/deleteSprint', async ctx => {
 router.get('/queryAllSprint', async ctx => {
     await methods_sprint.queryAllSprint(ctx);
 })
+// 获取冲刺信息下拉框
+router.get('/selectSprintInfo', async ctx => {
+    await methods_sprint.getAllSprintByProjectID(ctx);
+})
 module.exports = router;
