@@ -51,6 +51,14 @@ async function createSprint(ctx) {
             error: -1
         }
     }
+    const startTime = new Date(parmas.createTime);
+    const endTime = new Date(parmas.endTime);
+    if(endTime <= startTime) {
+        return ctx.body = {
+            message: "请注意时间范围",
+            error: -1
+        }
+    }
     try {
         const res_projectId = await projectSql.queryProjectInfoByID(parmas.projectId);
         if(res_projectId.length === 0) {
@@ -63,6 +71,16 @@ async function createSprint(ctx) {
             return ctx.body = {
                 message: '项目未开启,无法创建冲刺',
                 error: -1
+            }
+        }
+        const result_MaxTime = await sprintSql.getMaxTimeSpintTime(parmas.projectId);
+        if(result_MaxTime.length) {
+            let maxTime = result_MaxTime[0]['max(endTime)'];
+            if(startTime <= maxTime) {
+                return ctx.body = {
+                    message: '当前冲刺开始日期不能小于上一个冲刺的结束日期',
+                    error: -1
+                }
             }
         }
         await sprintSql.createSprint(parmas);
@@ -151,7 +169,7 @@ async function queryAllSprint(ctx) {
                 const res_count = await problemSql.queryProblemBySprintIDAndReporterRoleId(res_sprint[j].sprintId, item.reporterRoleId);
                 item.problemTotal = res_count.length;
                 item.problemComplateCount = res_count.reduce((count, item) => {
-                    if(item.status === 5) {
+                    if(item.status == 5) {
                         count++;
                     }
                     return count;
@@ -161,6 +179,11 @@ async function queryAllSprint(ctx) {
                 }, 0);
                 item.problemPendingCount = item.problemTotal - item.problemComplateCount;
                 item.userName = res_reporterRole[0].userName;
+                if(res_reporterRole[0].headerImg) {
+                    item.headerImg = `http://106.54.206.102:8080/header/${res_reporterRole[0].headerImg}`;
+                }else {
+                    item.headerImg = null;
+                }
                 item.workNumber = item.reporterRoleId;
                 delete item.reporterRoleId;
             }

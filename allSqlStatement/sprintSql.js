@@ -47,6 +47,11 @@ let sprintSql  = {
     getAllSprintByProjectID: function(projetcId) {
         let _sql = `select sprintId, sprintName from sprint_info where projectID = ${projetcId};`;
         return allServices.query(_sql);
+    },
+    // 获取某个项目下的冲刺的最后完成时间
+    getMaxTimeSpintTime: function(projectId) {
+        let _sql = `select max(endTime) from sprint_info where projectId = ${projectId};`;
+        return allServices.query(_sql);
     }
 }
 module.exports = sprintSql;

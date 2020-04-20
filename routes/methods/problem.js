@@ -99,8 +99,9 @@ async function getAllProblem(ctx) {
                 item.remainTime = null;
             }
             if(item.sprintId) {
+                console.log(item.sprintId);
                 const res_sprint = await sprintSql.getSprintName(item.sprintId);
-                item.sprintName = res_sprint[0].sprintName;
+                item.sprintName = res_sprint[0].sprintName || null;
             }else {
                 item.sprintName = null;
             }
@@ -202,7 +203,7 @@ async function deleteProblem(ctx) {
         await problemSql.deleteProblem(problemId);
         return ctx.body = {
             message: '问题删除成功',
-            error: -1
+            error: 0
         }
     }catch(e) {
         return ctx.body = {
