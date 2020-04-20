@@ -48,7 +48,7 @@ let sprintSql  = {
     },
     // 根据项目ID获取该项目下所有冲刺信息
     getAllSprintByProjectID: function(projetcId) {
-        let _sql = `select sprintId, sprintName from sprint_info where projectID = ${projetcId};`;
+        let _sql = `select sprintId, sprintName, status from sprint_info where projectID = ${projetcId};`;
         return allServices.query(_sql);
     },
     // 获取某个项目下的冲刺的最后完成时间
