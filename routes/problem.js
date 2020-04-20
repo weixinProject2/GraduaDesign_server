@@ -22,4 +22,8 @@ router.get('/getAllProblem', async ctx => {
 router.post('/changeProblem', async ctx => {
     await methods_problem.changeProblem(ctx);
 })
+// 获取自己的问题列表
+router.get('/getMyProblem', async ctx=> {
+    await methods_problem.getMyProblem(ctx);
+})
 module.exports = router;

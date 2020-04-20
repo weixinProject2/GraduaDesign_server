@@ -104,5 +104,18 @@ let problemSql  = {
         let _sql = `select status, remainTime from problem_info where sprintId = ${sprintId} and reporterRoleId = ${reporterRoleId};`;
         return allServices.query(_sql);
     },
+    // 查询我的问题
+    queryMyProblem: function(projectId, sprintId, workNumber) {
+        let _sql = `select 
+        problemName,problemDesc,kinds,
+        remainTime,sprintId,agentRoleId,
+        reporterRoleId, createTime, status,
+        updateTime
+        from problem_info where reporterRoleId = ${workNumber} and projectId = ${projectId}`;
+        if(sprintId) {
+            _sql += ` and sprintId = ${sprintId};`;
+        }
+        return allServices.query(_sql);
+    }
 }
 module.exports = problemSql;

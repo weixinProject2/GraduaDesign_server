@@ -213,12 +213,43 @@ async function deleteProblem(ctx) {
     }
 }
 
-
+async function getMyProblem(ctx) {
+    let token = ctx.request.header.authorization;
+    let res_token = getToken(token);
+    const workNumber =res_token.workNumber; // 经办人工号
+    const parmas = ctx.query;
+    const projectId = parmas.projectId;
+    const sprintId = parmas.sprintId;
+    if(!projectId) {
+        return ctx.body = {
+            message: '项目ID不能为空',
+            error: -1
+        }
+    }
+    try{
+        const list_result = await problemSql.queryMyProblem(projectId, sprintId, workNumber);
+        list_result.map(item => {
+            item.createTime = moment(item.createTime).format('YYYY-MM-DD hh:mm:ss');
+            item.status = Number(item.status)
+            item.updateTime = moment(item.updateTime).format('YYYY-MM-DD hh:mm:ss');
+        })
+        return ctx.body = {
+            list: list_result,
+            error: 0
+        }
+    }catch(e) {
+        return ctx.body = {
+            message: e.toString(),
+            error: -2
+        }
+    }
+}
 const methods = {
     createProblem,
     getAllProblem,
     changeProblem,
-    deleteProblem
+    deleteProblem,
+    getMyProblem
 }
 
 module.exports = methods;
