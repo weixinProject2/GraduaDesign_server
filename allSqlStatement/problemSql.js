@@ -103,6 +103,6 @@ let problemSql  = {
     queryProblemBySprintIDAndReporterRoleId: function(sprintId, reporterRoleId) {
         let _sql = `select status, remainTime from problem_info where sprintId = ${sprintId} and reporterRoleId = ${reporterRoleId};`;
         return allServices.query(_sql);
-    }
+    },
 }
 module.exports = problemSql;

@@ -278,12 +278,43 @@ async function getAllSprintByProjectID(ctx) {
         }
     }
 }
+async function startOrEndSprint(ctx) {
+    console.log(ctx.request.body)
+    const params = ctx.request.body;
+    const sprintId = params.sprintId;
+    const status = Number(params.status);
+    if(!sprintId) {
+        return ctx.body = {
+            message: '冲刺ID不能为空',
+            error: -1
+        }
+    }
+    if(!status) {
+        return ctx.body = {
+            message: '冲刺状态不能为空',
+            error: -1
+        }
+    }
+    try{
+        await sprintSql.startOrEndSprint(sprintId, status);
+        return ctx.body = {
+            message: '冲刺开启成功',
+            error: 0
+        }
+    }
+    catch(e) {
+        return ctx.body = {
+            message: e.toString(),
+            error: -2
+        }
+    }
+}
 const methods = {
     createSprint,
     queryAllSprint,
     deleteSprint,
-    getAllSprintByProjectID
-
+    getAllSprintByProjectID,
+    startOrEndSprint
 }
 
 module.exports = methods;

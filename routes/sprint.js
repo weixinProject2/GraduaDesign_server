@@ -22,4 +22,9 @@ router.get('/queryAllSprint', async ctx => {
 router.get('/selectSprintInfo', async ctx => {
     await methods_sprint.getAllSprintByProjectID(ctx);
 })
+// 开启冲刺或者关闭冲刺
+
+router.post('/startOrEndSprint', async ctx => {
+    await methods_sprint.startOrEndSprint(ctx);
+})
 module.exports = router;

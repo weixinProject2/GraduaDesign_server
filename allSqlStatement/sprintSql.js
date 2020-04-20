@@ -24,8 +24,11 @@ let sprintSql  = {
     },
     // 删除冲刺
     deleteSprint: function(sprintId) {
-        let _sql = `delete from sprint_info where sprintId = ${sprintId};`;
-        return allServices.query(_sql);
+        // 根据冲刺ID，将问题冲刺ID设为空
+        let _sql1 = `update problem_info set sprintId = null where sprintId = ${sprintId};`;
+        // 删除冲刺
+        let _sql2 = `delete from sprint_info where sprintId = ${sprintId};`;
+        return allServices.transaction([_sql1, _sql2]);
     },
     // 获取冲刺状态
     getSprintStatus: function(sprintId) {
@@ -51,6 +54,11 @@ let sprintSql  = {
     // 获取某个项目下的冲刺的最后完成时间
     getMaxTimeSpintTime: function(projectId) {
         let _sql = `select max(endTime) from sprint_info where projectId = ${projectId};`;
+        return allServices.query(_sql);
+    },
+    // 开启或者关闭冲刺
+    startOrEndSprint: function(sprintId, status) {
+        let _sql = `update sprint_info set status = ${status} where sprintId = ${sprintId};`;
         return allServices.query(_sql);
     }
 }
