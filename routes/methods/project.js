@@ -105,13 +105,7 @@ async function distribeProject(ctx) {
 async function queryListInfo(ctx) {
     let token = ctx.request.header.authorization
     let res_token = getToken(token)
-    if (res_token.permission != 1) {
-      ctx.status = 403
-      return (ctx.body = {
-        message: '权限不足',
-        error: -1
-      })
-    }
+
     const workNumber = res_token.workNumber;
     const params = ctx.query;
     const page = params.page || 1;
