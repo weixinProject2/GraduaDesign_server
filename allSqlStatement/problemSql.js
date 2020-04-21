@@ -110,7 +110,7 @@ let problemSql  = {
         problemName,problemDesc,kinds,
         remainTime,sprintId,agentRoleId,
         reporterRoleId, createTime, status,
-        updateTime
+        updateTime, problemId
         from problem_info where reporterRoleId = ${workNumber} and projectId = ${projectId}`;
         if(sprintId) {
             _sql += ` and sprintId = ${sprintId};`;
