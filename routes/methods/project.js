@@ -125,7 +125,7 @@ async function queryListInfo(ctx) {
                 error: -1
             }
         }
-       const res_department = await departmentSql.queryDeparmentIdByWorkNumber(workNumber);
+       const res_department = await userSql.queryDeparmentIdByWorkNumber(workNumber);
        const departmentId = res_department[0].departmentId;
        const user_list = await allUserSql.getProjectConnectInfo(departmentId);
        const responseList = user_list.filter((item) => {

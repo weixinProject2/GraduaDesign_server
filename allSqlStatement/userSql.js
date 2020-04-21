@@ -268,6 +268,11 @@ let userSql = {
         }
         _sql +=';'; 
         return allServices.query(_sql);
-    }
+    },
+      // 查询部门ID通过工号
+  queryDeparmentIdByWorkNumber: function(workNumber) {
+    let _sql = `select departmentId from user_info where workNumber = ${workNumber};`;
+    return allServices.query(_sql);
+  },
 }
 module.exports = userSql;
