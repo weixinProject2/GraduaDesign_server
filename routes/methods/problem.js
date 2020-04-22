@@ -79,6 +79,11 @@ async function getAllProblem(ctx) {
     const page = parmas.page || 1;
     const size = parmas.size || 10;
     const sprintId = parmas.sprintId || null;
+    const queryFiled = {
+        problemName: parmas.problemName,
+        status: Number(parmas.status),
+        kinds: Number(parmas.kinds),
+    }
     if(!parmas.projectId) {
         return ctx.body = {
             message: '项目ID不能为空',
@@ -86,7 +91,7 @@ async function getAllProblem(ctx) {
         }
     }
     try {
-        const result = await problemSql.getAllProblem(parmas.projectId, sprintId, page, size); 
+        const result = await problemSql.getAllProblem(parmas.projectId, sprintId, page, size, true, queryFiled); 
         const res_total = await problemSql.getAllProblemCount(parmas.projectId);
         const total = res_total[0]['count(*)'];
         
@@ -99,7 +104,6 @@ async function getAllProblem(ctx) {
                 item.remainTime = null;
             }
             if(item.sprintId) {
-                console.log(item.sprintId);
                 const res_sprint = await sprintSql.getSprintName(item.sprintId);
                 item.sprintName = res_sprint[0].sprintName || null;
             }else {

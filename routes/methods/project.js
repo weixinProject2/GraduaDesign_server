@@ -119,12 +119,6 @@ async function queryListInfo(ctx) {
     const size = params.size || 10;
     const projectId = params.projectId;
 
-    const queryFiled = {
-        userName: params.userName,
-        workNumber: params.workNumber,
-        professional: params.professional,
-    }
-
     if(!projectId) {
         return ctx.body = {
             message: '项目ID不能为空',
@@ -132,6 +126,18 @@ async function queryListInfo(ctx) {
         }
     }
     try {
+
+        const res_professionl = await professionalSql.queryPrefossinalById(params.professionalId);
+        console.log(res_professionl)
+        const professionlName = res_professionl[0].professionalName;
+        const queryFiled = {
+            userName: params.userName,
+            workNumber: params.workNumber,
+            professional: professionlName,
+        }
+        
+        
+
         const res_result = await  projectSql.queryProjectNameById(projectId);
         if(!res_result.length) {
             return ctx.body = {

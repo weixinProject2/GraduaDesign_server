@@ -42,7 +42,7 @@ let problemSql  = {
         let _sql = `select status from sprint_info where sprintId = ${sprintId};`;
         return allServices.query(_sql);
     },
-    getAllProblem: function(projectId, sprintId, page, size, isPaging = true) {
+    getAllProblem: function(projectId, sprintId, page, size, isPaging = true, queryFiled = false) {
         let _sql = `select 
         problemId, problemName, problemDesc, 
         kinds, remainTime, sprintId, agentRoleId,
@@ -51,6 +51,13 @@ let problemSql  = {
          where projectId = ${projectId}`;
          if(sprintId) {
              _sql += ` and sprintId = ${sprintId}`;
+         }
+         if(queryFiled) {
+            for(let key in queryFiled) {
+                if(queryFiled[key]) {
+                    _sql += key === 'problemName' ? ` and ${key} like '%${queryFiled[key]}%'` : `  and ${key} = ${queryFiled[key]}`;
+                }
+            }
          }
          if(isPaging) {
            _sql += ` limit ${(page - 1) * size} , ${size};`;
