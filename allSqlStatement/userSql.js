@@ -261,18 +261,28 @@ let userSql = {
         return allServices.query(_sql);
     },
     // 根据部门ID获取该部门下员工所参与的项目、员工工号、员工姓名、员工头像等信息
-    getProjectConnectInfo: function(departmentId, undistribute = false) {
+    getProjectConnectInfo: function(departmentId, undistribute = false, queryFiled = false) {
         let _sql = `select email, telNumber, professional, currentProjectID, workNumber, userName, headerImg from user_info where departmentId = ${departmentId} and permissions = 2`;
-        if(!undistribute) { //sd
+        if(queryFiled) {
+            for(let key in queryFiled) {
+                if(queryFiled[key]) {
+                    _sql += key === 'userName' ? 
+                    ` and ${key} like '%${queryFiled[key]}%' ` : 
+                    key === 'workNumber' ? ` and ${key} = ${queryFiled[key]}` :
+                    ` and ${key} = '${queryFiled[key]}'`
+                }
+            }
+        }
+        if(!undistribute) { 
             _sql += " and currentProjectID!=''";
         }
         _sql +=';'; 
         return allServices.query(_sql);
     },
       // 查询部门ID通过工号
-  queryDeparmentIdByWorkNumber: function(workNumber) {
-    let _sql = `select departmentId from user_info where workNumber = ${workNumber};`;
-    return allServices.query(_sql);
-  },
+    queryDeparmentIdByWorkNumber: function(workNumber) {
+        let _sql = `select departmentId from user_info where workNumber = ${workNumber};`;
+        return allServices.query(_sql);
+    },
 }
 module.exports = userSql;

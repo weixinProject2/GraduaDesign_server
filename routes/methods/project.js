@@ -118,6 +118,13 @@ async function queryListInfo(ctx) {
     const page = params.page || 1;
     const size = params.size || 10;
     const projectId = params.projectId;
+
+    const queryFiled = {
+        userName: params.userName,
+        workNumber: params.workNumber,
+        professional: params.professional,
+    }
+
     if(!projectId) {
         return ctx.body = {
             message: '项目ID不能为空',
@@ -134,7 +141,7 @@ async function queryListInfo(ctx) {
         }
        const res_department = await userSql.queryDeparmentIdByWorkNumber(workNumber);
        const departmentId = res_department[0].departmentId;
-       const user_list = await allUserSql.getProjectConnectInfo(departmentId);
+       const user_list = await allUserSql.getProjectConnectInfo(departmentId, false, queryFiled);
        const responseList = user_list.filter((item) => {
            let flag = false;
            const arr = item.currentProjectID.split(',');

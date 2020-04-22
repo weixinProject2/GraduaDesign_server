@@ -175,7 +175,7 @@ async function queryAllSprint(ctx) {
                     return count;
                 }, 0);
                 item.remainingEstimatedTime = res_count.reduce((hours, item) => {
-                    return hours+item.remainTime;
+                    return hours + item.remainTime;
                 }, 0);
                 item.problemPendingCount = item.problemTotal - item.problemComplateCount;
                 item.userName = res_reporterRole[0].userName;
