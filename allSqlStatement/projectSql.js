@@ -142,10 +142,12 @@ let projectSql = {
         let _sql = `update project_info set `;
         for(let key in params) {
             if(params[key]) {
-             _sql += key === 'bToDepartmentID' ? ` ${key} = ${params[key]} ` : ` ${key} = '${params[key]}'`;
+             _sql += key === 'bToDepartmentID' ? ` ${key} = ${params[key]} and` : ` ${key} = '${params[key]}' and`;
             }
         }
+        _sql = _sql.replace(/and$/g, '');
         _sql += ` where projectId = ${projectId};`;
+        console.log(_sql)
         return allServices.query(_sql);
     }
 }
