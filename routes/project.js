@@ -35,4 +35,8 @@ router.post('/setProjectSchedultion', async ctx => {
 router.get('/getProjectDetailInfo', async ctx => {
     await methods_project.getProjectDetailInfo(ctx);
 })
+// 关闭项目
+router.put('/closeProject', async ctx => {
+    await methods_project.closeProject(ctx);
+})
 module.exports = router;

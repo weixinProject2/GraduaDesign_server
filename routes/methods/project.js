@@ -5,6 +5,7 @@ const professionalSql = require('../../allSqlStatement/professionaSql');
 const departmentSql = require('../../allSqlStatement/departmentSql');
 const userSql = require('../../allSqlStatement/userSql');
 const projectSql = require('../../allSqlStatement/projectSql');
+const sprintSql = require('../../allSqlStatement/sprintSql');
 const addtoken = require('../../token/index'); 
 const getToken = require('../../token/getToken');
 
@@ -384,7 +385,58 @@ async function getProjectDetailInfo(ctx) {
     }
 }
 
-
+async function closeProject(ctx) {
+    let token = ctx.request.header.authorization
+    let res_token = getToken(token)
+    if (res_token.permission != 1) {
+      ctx.status = 403
+      return (ctx.body = {
+        message: '权限不足',
+        error: -1
+      })
+    }
+    const projectId = ctx.request.body.projectId;
+    if(!projectId) {
+        return ctx.body = {
+            message: '项目ID不能为空',
+            error: -1,
+        }
+    }
+    try {
+       const res_result = await sprintSql.getAllSprintByProjectID(projectId);
+       for(let item of res_result) {
+           if(item.status != 2) {
+               return ctx.body = {
+                   message: '项目下还有冲刺在进行中，无法关闭该项目',
+                   error: -1
+               }
+           }
+       }
+       const res_schedultion = await projectSql.queryProjectInfoByID(projectId);
+       if(!res_schedultion.length) {
+           return ctx.body = {
+               message: '无效的项目ID',
+               error: -1
+           }
+       }
+       if(res_schedultion[0].schedultion !== 100) {
+            return ctx.body = {
+                message: '项目尚未完成，无法关闭',
+                error: -1
+            }
+       }
+       await projectSql.closeProject(projectId);
+       return ctx.body = {
+           message: '项目关闭成功',
+           error: 0
+       }
+    }catch(e) {
+        return ctx.body = {
+            message: e.toString(), 
+            error: -1
+        }
+    }
+}
 
 const methods = {
     openProject,
@@ -394,6 +446,7 @@ const methods = {
     setProjectSchedultion,
     getProjectDetailInfo,
     queryUndistributedList,
+    closeProject,
 }
 
 module.exports = methods;

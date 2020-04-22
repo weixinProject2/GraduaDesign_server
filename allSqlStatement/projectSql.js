@@ -125,6 +125,13 @@ let projectSql = {
         let _sql = `update project_info set isOpen = 1 where projectId = ${projectId};`;
         return allServices.query(_sql);
     },
+    // 关闭项目
+    closeProject: function(projectId) {
+        let _sql = `update project_info set isOpen = 0 where projectId = ${projectId};`;
+        let _sql2 = `delete from sprint_info where projectId = ${projectId};`;
+        let _sql3 = `delete from problem_info where projectId = ${projectId};`;
+        return allServices.transaction([_sql, _sql2, _sql3]);
+    },
     // 设置项目进度
     setProjectSchedultion: function(projectId, schedultion) {
         let _sql = `update project_info set schedultion = ${schedultion} where projectId = ${projectId};`;
