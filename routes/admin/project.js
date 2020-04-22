@@ -205,7 +205,6 @@ async function deleteProject(ctx) {
         }
     }
     try {
-
     const res_deleteStatus = await projectSql.deleteProject(projectId);
     if(res_deleteStatus.protocol41) {
         return ctx.body = {
@@ -344,7 +343,7 @@ async function getMyProject(ctx) {
       }
     }
 }
-
+// 修改项目信息
 async function changeProjectInfo(ctx) {
     let token = ctx.request.header.authorization;
     let res_token = getToken(token);

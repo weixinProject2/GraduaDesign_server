@@ -68,10 +68,16 @@ async function distribeProject(ctx) {
         }
     }
     try {
-        const res_result = await  projectSql.queryProjectNameById(projectId);
+        const res_result = await  projectSql.queryProjectInfoByID(projectId);
         if(!res_result.length) {
             return ctx.body = {
                 message: '无效的项目ID',
+                error: -1
+            }
+        }
+        if(res_result[0].isOpen == 0) {
+            return ctx.body = {
+                message: "项目尚未开启，无法分配员工",
                 error: -1
             }
         }
@@ -232,16 +238,17 @@ async function deleteProjectStuff(ctx) {
     let token = ctx.request.header.authorization
     let res_token = getToken(token)
     if (res_token.permission != 1) {
-      ctx.status = 403
-      return (ctx.body = {
-        message: '权限不足',
-        error: -1
-      })
+        ctx.status = 403
+        return (ctx.body = {
+            message: '权限不足',
+            error: -1
+        })
     }
     const parmas = ctx.request.body;
     const projectId = parmas.projectId;
-    const workNumber = parmas.workNumber;
-    if(!projectId && !workNumber) {
+    const workNumberlist = parmas.workNumberlist;
+    const workNumberArr = workNumberlist.split(',');
+    if(!projectId && !workNumberlist.length) {
         return ctx.body = {
             message: '项目ID或员工工号不能为空',
             error: -1,
@@ -255,25 +262,28 @@ async function deleteProjectStuff(ctx) {
                 error: -1
             }
         }
-        let currentProjectId = '';
-        const res_currentProjectId = await allUserSql.queryMyProject(workNumber);
-        currentProjectId = res_currentProjectId[0].currentProjectID || '';
-        const  result =  currentProjectId.split(',');
-        let flag = false;
-        for(let key in result) {
-            if(result[key] == projectId) {
-                result.splice(key, 1);
-                flag = true;
+        for(let i = 0; i < workNumberArr.length; i++) {
+            const workNumber = workNumberArr[i];
+            let currentProjectId = '';
+            const res_currentProjectId = await allUserSql.queryMyProject(workNumber);
+            currentProjectId = res_currentProjectId[0].currentProjectID || '';
+            const result =  currentProjectId.split(',');
+            let flag = false;
+            for(let key in result) {
+                if(result[key] == projectId) {
+                    result.splice(key, 1);
+                    flag = true;
+                }
             }
-        }
-        if(!flag) {
-            return ctx.body = {
-                message: '该员工没有参与该项目',
-                error: -1
+            if(!flag) {
+                return ctx.body = {
+                    message: '该员工没有参与该项目',
+                    error: -1
+                }
             }
+            currentProjectId = result.join(',')
+            await allUserSql.updateProject(workNumber, currentProjectId);
         }
-        currentProjectId = result.join(',')
-        await allUserSql.updateProject(workNumber, currentProjectId);
         return ctx.body = {
             message: '移除项目成员成功',
             error: 0
