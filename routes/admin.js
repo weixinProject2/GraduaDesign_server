@@ -114,6 +114,9 @@ router.delete('/deleteProject', async ctx => {
 router.post('/distribeProject', async ctx => {
     await methods_project.distribeProject(ctx);
 });
-
+//修改项目接口
+router.post('/changeProjectInfo', async ctx => {
+    await methods_project.changeProjectInfo(ctx);
+})
 
 module.exports = router;

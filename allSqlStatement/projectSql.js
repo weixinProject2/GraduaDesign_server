@@ -137,5 +137,16 @@ let projectSql = {
         let _sql = `update project_info set schedultion = ${schedultion} where projectId = ${projectId};`;
         return allServices.query(_sql);
     },
+    // 修改项目名称和描述
+    changeProjectInfo: function(params, projectId) {
+        let _sql = `update project_info set `;
+        for(let key in params) {
+            if(params[key]) {
+             _sql += key === 'bToDepartmentID' ? ` ${key} = ${params[key]} ` : ` ${key} = '${params[key]}'`;
+            }
+        }
+        _sql += ` where projectId = ${projectId};`;
+        return allServices.query(_sql);
+    }
 }
 module.exports = projectSql;

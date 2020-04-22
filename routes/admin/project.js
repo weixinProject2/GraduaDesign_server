@@ -34,6 +34,8 @@ async function queryAllProject (ctx) {
         for(let item of res_result) {
             const departmentName = await departmentSql.queryDepartNameById(item.bToDepartmentID);
             item.departmentName = departmentName[0] ? departmentName[0].departmentName : null;
+            item.createTime = moment(item.createTime).format('YYYY-MM-DD');
+            item.isOpen = Number(item.isOpen)
         }
         const res_count = await projectSql.queryAllProjectNum(initValue);
         const total = res_count[0]['count(*)'];
@@ -343,12 +345,68 @@ async function getMyProject(ctx) {
     }
 }
 
+async function changeProjectInfo(ctx) {
+    let token = ctx.request.header.authorization;
+    let res_token = getToken(token);
+    if (res_token.permission != 0) {
+        ctx.status = 403;
+        return ctx.body = {
+            message: '权限不足',
+            error: -1
+        }
+    }
+    const parmas = ctx.request.body;
+    if(!parmas.projectId) {
+        return ctx.body = {
+            message: '项目ID不能为空',
+            error: -1
+        }
+    }
+    try{
+        const res_projectInfo = await projectSql.queryProjectInfoByID(parmas.projectId);
+        if(res_projectInfo.length === 0) {
+            return ctx.body = {
+                message: '无效的项目ID',
+                error: -1
+            }
+        }
+        if(res_projectInfo[0].schedultion === 100) {
+            return ctx.body = {
+                message: '项目已经完成，无法修改项目',
+                error: -1
+            }
+        }
+        if(res_projectInfo[0].isOpen != 0) {
+            return ctx.body = {
+                message: '项目已经开启无法修改',
+                error: -1
+            }
+        }
+        const info = {
+            projectName: parmas.projectName,
+            describtion: parmas.describtion,
+            bToDepartmentID: parmas.bToDepartmentID,
+        }
+        await projectSql.changeProjectInfo(info, parmas.projectId);
+        return ctx.body = {
+            message: '项目修改成功',
+            error: 0
+        }
+    }catch(e) {
+        return ctx.body = {
+            message: e.toString(),
+            error: -2
+        }
+    }
+}
+
 const methods = {
     queryAllProject,
     addProject,
     deleteProject,
     distribeProject,
-    getMyProject
+    getMyProject,
+    changeProjectInfo
 }
 
 

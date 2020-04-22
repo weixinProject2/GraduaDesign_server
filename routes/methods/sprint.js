@@ -289,16 +289,16 @@ async function startOrEndSprint(ctx) {
             error: -1
         }
     }
-    if(!status) {
+    if(status !== 0 && status !== 2 && status !== 1) {
         return ctx.body = {
-            message: '冲刺状态不能为空',
+            message: '冲刺状态不能为空, 或者冲刺状态有误',
             error: -1
         }
     }
     try{
         await sprintSql.startOrEndSprint(sprintId, status);
         return ctx.body = {
-            message: '冲刺开启成功',
+            message: status === 2 ? '冲刺结束成功' : status ? '冲刺开启成功' : '冲刺关闭成功',
             error: 0
         }
     }
