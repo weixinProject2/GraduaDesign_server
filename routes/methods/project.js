@@ -126,10 +126,11 @@ async function queryListInfo(ctx) {
         }
     }
     try {
-
-        const res_professionl = await professionalSql.queryPrefossinalById(params.professionalId);
-        console.log(res_professionl)
-        const professionlName = res_professionl[0].professionalName;
+        let professionlName = ''
+        if(params.professionalId) {
+            const res_professionl = await professionalSql.queryPrefossinalById(params.professionalId);
+            professionlName = res_professionl[0].professionalName;
+        }
         const queryFiled = {
             userName: params.userName,
             workNumber: params.workNumber,
@@ -165,7 +166,7 @@ async function queryListInfo(ctx) {
            }
        })
        return ctx.body = {
-            list: responseList.slice((page - 1) * size, page * size),
+            list: page && size ? responseList.slice((page - 1) * size, page * size) : responseList,
             page: Number(page),
             size: Number(size),
             totalPage: Math.ceil(responseList.length / size),
