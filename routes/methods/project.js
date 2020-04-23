@@ -133,7 +133,7 @@ async function queryListInfo(ctx) {
         }
         const queryFiled = {
             userName: params.userName,
-            workNumber: params.workNumber,
+            workNumber: workNumber,
             professional: professionlName,
         }
         
