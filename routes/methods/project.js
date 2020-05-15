@@ -394,6 +394,15 @@ async function getProjectDetailInfo(ctx) {
             }
         }
        const result = await projectSql.queryProjectInfoByID(projectId);
+       const sprintList = await sprintSql.getAllSprintByProjectID(projectId);
+       let sprintOngoingCount = 0
+       sprintList.map(item => {
+           if(item.status == 1) {
+               sprintOngoingCount++;
+           }
+       })
+       Info.sprintOngoingCount = sprintOngoingCount;
+       Info.sprintCount = sprintList.length;
        const Info = result[0];
        Info.createTime = moment(Info.createTime).format('YYYY-MM-DD')
        Info.isOpen = Number(Info.isOpen);
