@@ -58,14 +58,6 @@ async function getAllAnnouncement(ctx) {
     let token = ctx.request.header.authorization;
     let res_token = getToken(token);
     const workNumber = res_token.workNumber;
-    if (res_token.permission != 0 && res_token.permission != 1) {
-        ctx.status = 403;
-        return ctx.body = {
-            message: '权限不足',
-            error: -1
-        }
-    }
-
     let page = ctx.query.page || 1;
     let size = ctx.query.size || 10;
     const queryFiled = ctx.query;
@@ -97,13 +89,6 @@ async function getAllAnnouncement(ctx) {
 async function getAllAnnounceDetail(ctx) {
     let token = ctx.request.header.authorization;
     let res_token = getToken(token);
-    if (res_token.permission != 0 && res_token.permission != 1) {
-        ctx.status = 403;
-        return ctx.body = {
-            message: '权限不足',
-            error: -1
-        }
-    }
     const anmountId = ctx.query.anmountId;
     if(!anmountId) {
         return ctx.body = {

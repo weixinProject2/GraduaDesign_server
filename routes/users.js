@@ -104,7 +104,7 @@ router.post('/changePassword', async(ctx,next) => {
           error: 0,
         }
       } else {
-        ctx.bodu = {
+        ctx.body = {
           message: '未知错误,密码修改失败',
           error: -2,
         }
@@ -117,19 +117,19 @@ router.post('/postHeaderImg', async (ctx) => {
   let token = ctx.request.header.authorization;
   let res_token = getToken(token);
   const workNumber = res_token.workNumber;
-  const file = ctx.request.files.file; // 获取上传文件
+  const file = ctx.request.files.file; // 获取上传图片
   // 创建可读流
   const reader = fs.createReadStream(file.path);
   const format = file.name.split('.');
-  var current_date = (new Date()).valueOf().toString();
-  var random = Math.random().toString();
-  var fileName = crypto.createHash('sha1', file.name).update(current_date + random).digest('hex');
-  let filePath = path.join('../../file/header/') + `${fileName}.${format[format.length - 1]}`;
+  var current_date = (new Date()).valueOf().toString(); // 获取当前时间戳
+  var random = Math.random().toString();  // 生成随机码
+  var fileName = crypto.createHash('sha1', file.name).update(current_date + random).digest('hex'); // 对图片名进行加密
+  let filePath = path.join('../../file/header/') + `${fileName}.${format[format.length - 1]}`; // 生成图片存储路径
   try {
-    const res_header_isSave = await allUserSql.queryUserHeader(workNumber);
+    const res_header_isSave = await allUserSql.queryUserHeader(workNumber); // 查询是否已经存储头像
     const imgPath = res_header_isSave[0].headerImg || null;
     if(imgPath) {
-      //  同步删除已经存在的用户头像 // 
+      //  同步删除已经存在的用户头像 
       try {
         fs.unlinkSync(`../../file/header/${imgPath}`, err => {
           if(err) {
@@ -137,12 +137,12 @@ router.post('/postHeaderImg', async (ctx) => {
           }
         })
       }catch(e) {
-        console.log('文件删除失败');
+        throw  new Error('文件删除失败');
       }
     }
-    const res = await allUserSql.uploadHeaderImg(`${fileName}.${format[format.length - 1]}`, workNumber);
+    const res = await allUserSql.uploadHeaderImg(`${fileName}.${format[format.length - 1]}`, workNumber); // 更新用户的头像
       // 创建可写流
-    const upStream = fs.createWriteStream(filePath);
+    const upStream = fs.createWriteStream(filePath); 
      // 可读流通过管道写入可写流
      reader.pipe(upStream);
      return ctx.body = "头像上传成功！";
