@@ -92,7 +92,7 @@ async function deletePosition(ctx) {
             error: 0
         }
     } else {
-        const res_deleteIsTure = await positionSql.queryPositionNameById(positionId);
+        await positionSql.deletePosition(positionId);
         return ctx.body = {
             message: '删除职位成功',
             error: 0
