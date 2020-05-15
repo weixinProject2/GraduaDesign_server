@@ -401,9 +401,10 @@ async function getProjectDetailInfo(ctx) {
                sprintOngoingCount++;
            }
        })
+
+       const Info = result[0];
        Info.sprintOngoingCount = sprintOngoingCount;
        Info.sprintCount = sprintList.length;
-       const Info = result[0];
        Info.createTime = moment(Info.createTime).format('YYYY-MM-DD')
        Info.isOpen = Number(Info.isOpen);
        return ctx.body = {
