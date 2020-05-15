@@ -279,7 +279,7 @@ async function getAllSprintByProjectID(ctx) {
     }
 }
 async function startOrEndSprint(ctx) {
-    console.log(ctx.request.body)
+    
     const params = ctx.request.body;
     const sprintId = params.sprintId;
     const status = Number(params.status);

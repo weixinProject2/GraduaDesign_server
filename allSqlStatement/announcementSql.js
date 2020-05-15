@@ -19,7 +19,7 @@ let announcementSql = {
     // 查询公告列表
     queryAnouncementInfo:function(page, size, queryFiled) {
         const workNumber = queryFiled.workNumber;
-        let _sql = `select anmountId, title, createTime from annount_info where personId = ${workNumber}`;
+        let _sql = `select anmountId, title, createTime from annount_info `;
         delete queryFiled.workNumber;
         for(let key in queryFiled) {
             if(key === 'startTime') {
@@ -39,8 +39,7 @@ let announcementSql = {
     // 统计符合条件的公告数量
     queryAnouncementTotal:function(queryFiled) {
         const workNumber = queryFiled.workNumber;
-        console.log(queryFiled);
-        let _sql = `select anmountId from annount_info where personId = ${workNumber}`;
+        let _sql = `select anmountId from annount_info `;
         delete queryFiled.workNumber;
         for(let key in queryFiled) {
             if(key === 'startTime') {

@@ -163,7 +163,7 @@ async function addProject(ctx){
             }
         }
     } catch (e) {
-        console.log(e);
+        
         return ctx.body = {
             message: '新增项目失败',
             error: -1

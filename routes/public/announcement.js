@@ -89,6 +89,7 @@ async function getAllAnnouncement(ctx) {
 async function getAllAnnounceDetail(ctx) {
     let token = ctx.request.header.authorization;
     let res_token = getToken(token);
+
     const anmountId = ctx.query.anmountId;
     if(!anmountId) {
         return ctx.body = {

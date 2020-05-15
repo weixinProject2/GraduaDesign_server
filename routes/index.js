@@ -113,6 +113,7 @@ router.get('/getAllDepartmentInfo', async(ctx,next ) => {
   const size = params.size || 10;
   try {
       const res_result = await departmentSql.queryAllDepartmentInfo(page, size, queryFiled);
+      
       const res_count =await departmentSql.queryAllDepartmentNum(queryFiled);
       const total = res_count[0]['count(*)'];
       ctx.body = {

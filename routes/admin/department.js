@@ -117,6 +117,12 @@ async function changeDepartmentInfo (ctx) {
     }
     if (departmentMangerId) {
       const res_stuffInfo = await allUserSql.queryUserInfo(departmentMangerId)
+      if (res_stuffInfo.length === 0) {
+        return (ctx.body = {
+          mess: '系统中不存在该工号，请输入正确的工号',
+          error: -2
+        })
+      }
       const stuff_departmentId = res_stuffInfo[0].departmentId
       if (stuff_departmentId && stuff_departmentId != departmentId) {
         return (ctx.body = {
@@ -124,12 +130,7 @@ async function changeDepartmentInfo (ctx) {
           error: -1
         })
       }
-      if (!res_stuffInfo.length) {
-        return (ctx.body = {
-          mess: '系统中不存在该工号，请输入正确的工号',
-          error: -2
-        })
-      }
+
     }
   } catch (e) {
     ctx.body = {
@@ -217,10 +218,11 @@ async function changeDepartmentInfo (ctx) {
           departmentMangerId,
           departmentId
         )
-        await allUserSql.setDepartmentManaInfo(departmentMangerId, departmentId)
+        await allUserSql.setDepartmentManaInfo(departmentMangerId, departmentId) 
         const res_getManagerName = await allUserSql.queryNameByWorkNumber(
-          departmenntMangerId
+          departmentMangerId
         )
+        console.log(res_getManagerName)
         departmentMangerName = res_getManagerName[0].userName
         changeInfo.departmentMangerName = departmentMangerName
       }
@@ -234,9 +236,8 @@ async function changeDepartmentInfo (ctx) {
       error: 0
     }
   } catch (e) {
-    console.log(e)
     ctx.body = {
-      mess: '系统中没有当前工号，请更正后重新录入',
+      mess: e.toString(),
       error: -1
     }
   }

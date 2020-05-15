@@ -147,7 +147,7 @@ let projectSql = {
         }
         _sql = _sql.replace(/and$/g, '');
         _sql += ` where projectId = ${projectId};`;
-        console.log(_sql)
+        
         return allServices.query(_sql);
     }
 }

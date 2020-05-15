@@ -363,7 +363,7 @@ async function changeStuffInfo(ctx) {
     }
     try {
         const ret = await allUserSql.changeStuffInfo(user);
-        console.log(ret);
+        
         if (ret.protocol41) {
             ctx.body = {
                 message: '信息修改成功',
@@ -437,7 +437,7 @@ async function randomCreateStuff(ctx) {
             }
         }
     } catch (e) {
-        console.log(e);
+        
     }
 }
 

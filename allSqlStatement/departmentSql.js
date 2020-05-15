@@ -51,7 +51,7 @@ let departmentSql  = {
   // 删除某个部门
   deleteDepartment:function(departmentId) {
     let _sql = `delete from department_info where departmentId = ${departmentId};`;
-    console.log(_sql);
+    
     return allServices.query(_sql);
   },
   // 查询某个ID是否为部门管理员ID
@@ -88,6 +88,7 @@ let departmentSql  = {
     }
    _sql += ` departmentMangerName = '${departmentMangerName}' where departmentId = ${departmentId};`;
   }
+  console.log(_sql)
   return allServices.query(_sql);
 },
   // 查询数据表中最大部门ID

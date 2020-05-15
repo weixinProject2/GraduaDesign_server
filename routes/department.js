@@ -122,7 +122,7 @@ router.get('/getAllStuffInfo',async ctx=>{
           }
         }
     } catch(e) {
-        console.log(e);
+        
         ctx.body = {
             mess: '出现错误，查询失败',
             error: -1,

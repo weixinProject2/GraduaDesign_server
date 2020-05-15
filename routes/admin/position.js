@@ -102,7 +102,7 @@ async function deletePosition(ctx) {
 
 async function getPosition(ctx) {
     const info = ctx.query;
-    const positionName = info.positionName;
+    const positionName = info.positionName; // 获取职位名称
     let list;
     if (!positionName) {
       list = await positionSql.queryPositionInfo();
