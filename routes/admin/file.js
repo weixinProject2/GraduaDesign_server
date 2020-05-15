@@ -78,7 +78,7 @@ async function postFile (ctx, caller = "admin") {
     const res_idFolderId = await folderTreeSql.queryFolderisExit(folderId, tableFolderName);
     if(!res_idFolderId.length) {
       return ctx.body = {
-        message: '无效的文件ID',
+        message: '无效的文件夹ID',
         error: -1
       }
     }
