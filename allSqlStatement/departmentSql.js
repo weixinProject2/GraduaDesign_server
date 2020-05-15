@@ -168,7 +168,7 @@ let departmentSql  = {
       ) values (
         ${departmentInfo.departmentId},
         '${departmentInfo.departmentName}',
-        '${departmentInfo.departmentDesc}',
+        '${departmentInfo.departmentDesc ? departmentInfo.departmentDesc : ''}',
         '${departmentInfo.departmentAddress}'
       );`;
     } else {
@@ -183,7 +183,7 @@ let departmentSql  = {
         ${departmentInfo.departmentId},
         ${departmentInfo.departmentMangerId},
         '${departmentInfo.departmentName}',
-        '${departmentInfo.departmentDesc}',
+        '${departmentInfo.departmentDesc ? departmentInfo.departmentDesc : ''}',
         '${departmentInfo.departmentAddress}',
         '${departmentInfo.departmentManagerName}'
       );`;
