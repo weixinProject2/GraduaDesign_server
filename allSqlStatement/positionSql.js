@@ -19,6 +19,11 @@ let positionSql = {
     let _sql = `select positionId,positionName from position_info where positionName like '%${positionName}%';`;
     return allServices.query(_sql);
   },
+    // 根据名称模糊查询职位信息
+    queryPositionByNameDetail: function (positionName) {
+      let _sql = `select positionId,positionName from position_info where positionName = '${positionName}';`;
+      return allServices.query(_sql);
+    },
   // 分页查询过滤查询所有职位信息
   queryAllPositionInfo: function (page, size, queryFiled) {
     let _sql = `select 
@@ -79,7 +84,7 @@ let positionSql = {
            );`;
            return allServices.query(_sql);
      },
-     
+
      deletePosition: function(positionId) {
        let _sql = `delete from position_info where positionId = ${positionId};`;
        return allServices.query(_sql);
