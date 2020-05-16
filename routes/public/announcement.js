@@ -34,7 +34,7 @@ async function releaseAnnouncement(ctx) {
             error: -1,
         }
     }
-    const creteTime = moment(new Date()).format('YYYY-MM-DD hh:mm:ss');
+     const creteTime = moment(new Date()).format('YYYY-MM-DD hh:mm:ss');
      announcontent.personId = workNumber;
      announcontent.createTime = creteTime;
     try {

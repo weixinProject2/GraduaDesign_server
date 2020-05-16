@@ -171,6 +171,34 @@ async function addProject(ctx){
     }
 };
 
+
+async function deletePerson(workNumberArr, projectId) {
+    console.log(workNumberArr)
+    for(let i = 0; i < workNumberArr.length; i++) {
+        const workNumber = workNumberArr[i].workNumber;
+        let currentProjectId = '';
+        const res_currentProjectId = await allUserSql.queryMyProject(workNumber);
+        currentProjectId = res_currentProjectId[0].currentProjectID || '';
+        const result =  currentProjectId.split(',');
+        let flag = false;
+        for(let key in result) {
+            if(result[key] == projectId) {
+                result.splice(key, 1);
+                flag = true;
+            }
+        }
+        if(!flag) {
+            return ctx.body = {
+                message: '该员工没有参与该项目',
+                error: -1
+            }
+        }
+        currentProjectId = result.join(',')
+        await allUserSql.updateProject(workNumber, currentProjectId);
+    }
+}
+
+
 // 删除项目
 async function deleteProject(ctx) {
     let token = ctx.request.header.authorization;
@@ -198,12 +226,8 @@ async function deleteProject(ctx) {
         }
     }
     const projectInfo = res_isProjectId[0];
-    if(projectInfo.bToDepartmentID) {
-        return ctx.body = {
-            message: '项目还有所属部门，无法删除',
-            error: 0,
-        }
-    }
+    const workNumberList = await allUserSql.queryWorkNumberByDepartmentId(projectInfo.bToDepartmentID)
+    await deletePerson(workNumberList, projectId);
     try {
     const res_deleteStatus = await projectSql.deleteProject(projectId);
     if(res_deleteStatus.protocol41) {

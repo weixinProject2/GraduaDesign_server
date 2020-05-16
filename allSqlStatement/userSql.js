@@ -292,6 +292,11 @@ let userSql = {
   queryDeparmentIdByWorkNumber: function (workNumber) {
     let _sql = `select departmentId from user_info where workNumber = ${workNumber};`
     return allServices.query(_sql)
+  },
+  // 通过部门ID，查询该部门下的所有人的工号
+  queryWorkNumberByDepartmentId: function(departmentId) {
+    let _sql = `select workNumber from user_info where departmentId = ${departmentId};`
+    return allServices.query(_sql)
   }
 }
 module.exports = userSql

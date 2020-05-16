@@ -54,12 +54,12 @@ async function createProblem(ctx) {
                 error: -1
             }
         }
-        parmas.createTime = moment(new Date()).format('YYYY-MM-DD hh-mm-ss');
-        parmas.updateTime = parmas.createTime
-        parmas.agentRoleId = workNumber;
-        parmas.reporterRoleId = parmas.reporterRoleId || null;
-        parmas.remainTime = parmas.remainTime || null;
-        parmas.sprintId = parmas.sprintId || null;
+        parmas.createTime = moment(new Date()).format('YYYY-MM-DD hh-mm-ss'); // 任务创建时间
+        parmas.updateTime = parmas.createTime // 任务的最后更新时间
+        parmas.agentRoleId = workNumber;  // 创建人
+        parmas.reporterRoleId = parmas.reporterRoleId || null; // 经办人
+        parmas.remainTime = parmas.remainTime || null; // 预估时间
+        parmas.sprintId = parmas.sprintId || null; // 迭代ID
 
         await problemSql.createProblem(parmas);
         return ctx.body = {
