@@ -222,7 +222,6 @@ async function changeDepartmentInfo (ctx) {
         const res_getManagerName = await allUserSql.queryNameByWorkNumber(
           departmentMangerId
         )
-        console.log(res_getManagerName)
         departmentMangerName = res_getManagerName[0].userName
         changeInfo.departmentMangerName = departmentMangerName
       }

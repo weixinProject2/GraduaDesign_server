@@ -21,18 +21,38 @@ let announcementSql = {
         const workNumber = queryFiled.workNumber;
         let _sql = `select anmountId, title, createTime from annount_info `;
         delete queryFiled.workNumber;
+        let count = 0;
         for(let key in queryFiled) {
             if(key === 'startTime') {
-                _sql += ` and createTime >= '${queryFiled[key]}'`;
+                if(count === 0) {
+                    _sql += ' where '
+                }else {
+                    _sql += ' and '
+                }
+                _sql += `  createTime >= '${queryFiled[key]}'`;
+                count++
             }else if(key === 'endTime') {
-                _sql += ` and createTime <= '${queryFiled[key]}'`;
+                if(count === 0) {
+                    _sql += ' where '
+                }else {
+                    _sql += ' and '
+                }
+                _sql += `  createTime <= '${queryFiled[key]}'`;
+                count++
             }else if(key === 'title') {
-                _sql += ` and title like '%${queryFiled[key]}%'`;
+                if(count === 0) {
+                    _sql += ' where '
+                }else {
+                    _sql += ' and '
+                }
+                _sql += `  title like '%${queryFiled[key]}%'`;
+                count++
             }else {
                 continue;
             }
         }
         _sql += ` limit ${(page -1) * size} , ${size};`;
+        console.log(_sql)
         return allServices.query(_sql);
     },
 
@@ -41,13 +61,32 @@ let announcementSql = {
         const workNumber = queryFiled.workNumber;
         let _sql = `select anmountId from annount_info `;
         delete queryFiled.workNumber;
+        let count = 0;
         for(let key in queryFiled) {
             if(key === 'startTime') {
-                _sql += ` and createTime >= '${queryFiled[key]}'`;
+                if(count === 0) {
+                    _sql += ' where '
+                }else {
+                    _sql += ' and '
+                }
+                _sql += `  createTime >= '${queryFiled[key]}'`;
+                count++
             }else if(key === 'endTime') {
-                _sql += ` and createTime <= '${queryFiled[key]}'`;
+                if(count === 0) {
+                    _sql += ' where '
+                }else {
+                    _sql += ' and '
+                }
+                _sql += `  createTime <= '${queryFiled[key]}'`;
+                count++
             }else if(key === 'title') {
-                _sql += ` and title like '%${queryFiled[key]}%'`;
+                if(count === 0) {
+                    _sql += ' where '
+                }else {
+                    _sql += ' and '
+                }
+                _sql += `  title like '%${queryFiled[key]}%'`;
+                count++
             }else {
                 continue;
             }

@@ -68,7 +68,7 @@ async function getAllAnnouncement(ctx) {
     try {
       const res_announce = await announcementSql.queryAnouncementInfo(page, size, queryFiled);
       res_announce.map(item => {
-          item.createTime = moment(item.createTime).format("YYYY-MM-DD hh-mm-ss");
+          item.createTime = moment(item.createTime).format("YYYY-MM-DD hh:mm:ss");
       })
       const res_total = await announcementSql.queryAnouncementTotal(queryParams);
       return ctx.body = {
