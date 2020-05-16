@@ -282,6 +282,7 @@ async function startOrEndSprint(ctx) {
     
     const params = ctx.request.body;
     const sprintId = params.sprintId;
+    const projectId = params.projectId;
     const status = Number(params.status);
     if(!sprintId) {
         return ctx.body = {
@@ -296,6 +297,17 @@ async function startOrEndSprint(ctx) {
         }
     }
     try{
+        if(status === 1) {
+            const sprintList = await sprintSql.getAllSprintByProjectID(projectId);
+            for(let i = 0; i < sprintList.length; i++) {
+                if(sprintList[i].status == 1) {
+                    return ctx.body = {
+                        message: '已有其他阶段的迭代开启，不能开次此迭代',
+                        error: -1
+                    }
+                }
+            }
+        }
         await sprintSql.startOrEndSprint(sprintId, status);
         return ctx.body = {
             message: status === 2 ? '冲刺结束成功' : status ? '冲刺开启成功' : '冲刺关闭成功',
