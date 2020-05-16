@@ -65,8 +65,18 @@ async function addDepartment (ctx) {
         error: -3
       })
     }
-    const res_setDeparmentManger = await allUserSql.setpermissions(
+    const res_havaDepartmentId = await allUserSql.queryDeparmentIdByWorkNumber(
       departmentInfo.departmentMangerId
+    )
+    if(res_havaDepartmentId.length) {
+      return ctx.body = {
+        mess: '当前员工已有部门，不能添加为管理员',
+        error: -2
+      }
+    }
+
+    const res_setDeparmentManger = await allUserSql.setDepartmentManaInfo(
+      departmentInfo.departmentMangerId, departmentId
     )
     const res_addResult = await departmentSql.addDepartment(departmentInfo)
     ctx.body = {
