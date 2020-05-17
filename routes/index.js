@@ -26,6 +26,12 @@ const getToken = require('../token/getToken');
 // 获取登录用户信息
 router.get('/login',async (ctx,next) => {
   const user = ctx.query;
+  if( Number(user.workNumber) != user.workNumber) {
+    return ctx.body = {
+      message: '工号只能为数字',
+      error: -1
+    }
+  }
   const userInfo = await allUserSql.login(user);
   if (userInfo.length === 0) {
     ctx.body = {
@@ -34,12 +40,7 @@ router.get('/login',async (ctx,next) => {
   } else {
     const tk = addtoken(userInfo[0]);
     const workNumber = userInfo[0].workNumber;
-    if(!Number.isInteger(Number(workNumber))) {
-      return ctx.body = {
-        mess: '空号只能为数字',
-        error: -1
-      }
-    }
+
     const res_projectId = await allUserSql.queryMyProject(workNumber);
     let projectIdArr = [];
       if(res_projectId[0].currentProjectID) {

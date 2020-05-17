@@ -19,6 +19,7 @@ async function addDepartment (ctx) {
     })
   }
   const departmentInfo = ctx.request.body
+  console.log(departmentInfo)
   try {
     let maxdepartmentId = await departmentSql.queryMaxDepartmentId()
     let departmentManagerName = ''
@@ -86,7 +87,7 @@ async function addDepartment (ctx) {
   } catch (e) {
     ctx.body = {
       mess: '系统中没有当前工号，请更正后重新录入',
-      error: -1
+      error: -3
     }
   }
 }
