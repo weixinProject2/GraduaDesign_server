@@ -29,25 +29,25 @@ async function createSprint(ctx) {
     }
     if(!parmas.sprintName) {
         return ctx.body = {
-            message: '冲刺名称不能为空',
+            message: '迭代名称不能为空',
             error: -1
         }
     }
     if(!parmas.sprintDesc) {
         return ctx.body = {
-            message: '冲刺目标不能为空',
+            message: '迭代目标不能为空',
             error: -1
         }
     }
     if(!parmas.createTime) {
         return ctx.body = {
-            message: '冲刺计划开启时间不能为空',
+            message: '迭代计划开启时间不能为空',
             error: -1
         }
     }
     if(!parmas.endTime) {
         return ctx.body = {
-            message: '冲刺计划结束时间不能为空',
+            message: '迭代计划结束时间不能为空',
             error: -1
         }
     }
@@ -69,7 +69,7 @@ async function createSprint(ctx) {
         }
         if(res_projectId[0].isOpen == 0) {
             return ctx.body = {
-                message: '项目未开启,无法创建冲刺',
+                message: '项目未开启,无法创建迭代',
                 error: -1
             }
         }
@@ -78,14 +78,14 @@ async function createSprint(ctx) {
             let maxTime = result_MaxTime[0]['max(endTime)'];
             if(startTime <= maxTime) {
                 return ctx.body = {
-                    message: '当前冲刺开始日期不能小于上一个冲刺的结束日期',
+                    message: '当前迭代开始日期不能小于上一个迭代的结束日期',
                     error: -1
                 }
             }
         }
         await sprintSql.createSprint(parmas);
         return ctx.body = {
-            message: "冲刺创建成功",
+            message: "迭代创建成功",
             error: 0
         }
     }catch (e) {
@@ -109,7 +109,7 @@ async function deleteSprint(ctx) {
     const parmas = ctx.query;
     if(!parmas.sprintId) {
         return ctx.body = {
-            message: '冲刺ID不能为空',
+            message: '迭代ID不能为空',
             error: -1
         }
     }
@@ -117,19 +117,19 @@ async function deleteSprint(ctx) {
         const res_status = await sprintSql.getSprintStatus(parmas.sprintId);
         if(res_status.length === 0) {
             return ctx.body = {
-                message: '无效的冲刺ID',
+                message: '无效的迭代ID',
                 error: -1
             }
         }
         if(res_status[0].status == 1) {
             return ctx.body = {
-                message: '冲刺已经开启，无法删除',
+                message: '迭代已经开启，无法删除',
                 error: -1
             }
         }
         await sprintSql.deleteSprint(parmas.sprintId);
         return ctx.body = {
-            message:'删除冲刺成功',
+            message:'删除迭代成功',
             error: 0,
         }
     }catch (e) {
@@ -286,13 +286,13 @@ async function startOrEndSprint(ctx) {
     const status = Number(params.status);
     if(!sprintId) {
         return ctx.body = {
-            message: '冲刺ID不能为空',
+            message: '迭代ID不能为空',
             error: -1
         }
     }
     if(status !== 0 && status !== 2 && status !== 1) {
         return ctx.body = {
-            message: '冲刺状态不能为空, 或者冲刺状态有误',
+            message: '迭代状态不能为空, 或者迭代状态有误',
             error: -1
         }
     }
@@ -310,7 +310,7 @@ async function startOrEndSprint(ctx) {
         }
         await sprintSql.startOrEndSprint(sprintId, status);
         return ctx.body = {
-            message: status === 2 ? '冲刺结束成功' : status ? '冲刺开启成功' : '冲刺关闭成功',
+            message: status === 2 ? '迭代结束成功' : status ? '迭代开启成功' : '迭代关闭成功',
             error: 0
         }
     }

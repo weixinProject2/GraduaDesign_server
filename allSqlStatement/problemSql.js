@@ -71,7 +71,7 @@ let problemSql  = {
          where projectId = ${projectId}`;
          return allServices.query(_sql);
     },
-    // 统计某个冲刺下问题的所处状态数量
+    // 统计某个迭代下问题的所处状态数量
     getStatusBySprintId: function(sprintId, status){
         let _sql = `select count(*) from problem_info where sprintId = ${sprintId} and status = ${status};`
         return allServices.query(_sql);
@@ -101,12 +101,12 @@ let problemSql  = {
         _sql += ` where problemId = ${problemId};`;
         return allServices.query(_sql);
     },
-    // 根据冲刺ID获取被分配到问题的员工工号
+    // 根据迭代ID获取被分配到问题的员工工号
     queryReporterRoleId: function(sprintId) {
         let _sql = `select reporterRoleId from problem_info where sprintId = ${sprintId} and reporterRoleId!='';`;
         return allServices.query(_sql);
     },
-    // 查询成员某个冲刺下的问题数量
+    // 查询成员某个迭代下的问题数量
     queryProblemBySprintIDAndReporterRoleId: function(sprintId, reporterRoleId) {
         let _sql = `select status, remainTime from problem_info where sprintId = ${sprintId} and reporterRoleId = ${reporterRoleId};`;
         return allServices.query(_sql);

@@ -441,7 +441,7 @@ async function closeProject(ctx) {
        for(let item of res_result) {
            if(item.status != 2) {
                return ctx.body = {
-                   message: '项目下还有冲刺在进行中，无法关闭该项目',
+                   message: '项目下还有迭代在进行中，无法关闭该项目',
                    error: -1
                }
            }

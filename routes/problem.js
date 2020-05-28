@@ -1,4 +1,4 @@
-// 冲刺API
+// 迭代API
 
 const router = require('koa-router')();
 
