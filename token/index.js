@@ -5,6 +5,6 @@ module.exports = (userinfo) => { //创建token并导出
     workNumber: userinfo.workNumber,
     departmentId: userinfo.departmentId,
     permission: userinfo.permissions
-  }, serect, {expiresIn: '1m'});
+  }, serect, {expiresIn: '10h'});
   return token;
 };
